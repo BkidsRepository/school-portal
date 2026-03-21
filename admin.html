@@ -3,107 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B Kids Admin - Padgha Portal</title>
+    <title>B Kids Admin - Production (Free Tier)</title>
     <style>
         :root {
-            --sidebar-width: 260px;
             --primary: #2c3e50;
-            --danger: #c0392b;
-            --light: #f4f7f6;
             --secondary: #3498db;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); display: flex; height: 100vh; flex-direction: row; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--bg); display: flex; height: 100vh; flex-direction: row; }
 
-        /* Sidebar & Layout */
-        #sidebar { width: var(--sidebar-width); background: var(--primary); color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
-        .nav-btn { background: none; border: none; color: rgba(255,255,255,0.7); text-align: left; padding: 12px 15px; width: 100%; cursor: pointer; font-size: 1rem; border-radius: 5px; margin-bottom: 5px;}
-        .nav-btn.active { background: rgba(255,255,255,0.1); color: white; font-weight: bold; }
-        #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        #header { background: white; padding: 15px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-        #view-area { flex: 1; padding: 20px; overflow-y: auto; }
+        /* Sidebar - Responsive */
+        #sidebar { width: 260px; background: var(--primary); color: white; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        #sidebar h2 { font-size: 1.2rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .nav-link { padding: 12px; color: #bdc3c7; text-decoration: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; display: block; border: none; background: none; text-align: left; width: 100%; font-size: 1rem; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: white; }
 
-        /* Responsive Form */
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #ddd; margin-bottom: 20px; }
-        .form-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        /* Main Content Area */
+        #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        #header { background: white; padding: 15px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        #content { flex: 1; padding: 20px; overflow-y: auto; box-sizing: border-box; }
+
+        /* Cards & Forms */
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #eee; }
+        .grid-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        
         .form-group { display: flex; flex-direction: column; }
         label { font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 5px; }
-        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; }
         
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .primary { background: var(--primary); color: white; }
+        .btn { padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; width: 100%; font-size: 1rem; }
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-primary:disabled { background: #bdc3c7; cursor: wait; }
 
-        /* Table & Images */
-        .table-container { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; background: white; min-width: 800px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        thead { background: var(--primary); color: white; }
-        .student-thumb { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #ddd; background: #eee; }
+        /* Table Styles */
+        .table-wrap { overflow-x: auto; background: white; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #7f8c8d; }
+        td { padding: 12px 15px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+        
+        .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #eee; border: 1px solid #ddd; }
 
-        /* Mobile View Adjustment */
+        /* Mobile Specifics */
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            #sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-around; padding: 10px; }
-            .form-row { grid-template-columns: 1fr; }
+            #sidebar { width: 100%; height: auto; flex-direction: row; padding: 10px; justify-content: space-around; }
+            #sidebar h2 { display: none; }
+            .nav-link { width: auto; margin-bottom: 0; padding: 8px 12px; font-size: 0.9rem; }
+            #header h1 { font-size: 1.1rem; }
         }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <h2 style="font-size: 1.2rem; text-align:center;">B Kids Admin</h2>
-        <button class="nav-btn active">Students</button>
-        <button class="nav-btn">Inquiries</button>
-        <button onclick="logout()" class="nav-btn" style="color: #ff7675;">Logout</button>
-    </div>
+    <nav id="sidebar">
+        <h2>B Kids Admin</h2>
+        <button class="nav-link active">Students</button>
+        <button class="nav-link" onclick="alert('Admissions feature coming soon!')">Inquiries</button>
+        <div style="flex-grow: 1;"></div>
+        <button class="nav-link" id="logoutBtn" style="color: #ff7675;">Logout</button>
+    </nav>
 
-    <div id="main-content">
-        <div id="header">
-            <h1>B Kids, Padgha</h1>
-            <div id="adminEmail" style="font-size: 0.8rem; opacity: 0.7;">Admin</div>
-        </div>
+    <div id="main">
+        <header id="header">
+            <h1 style="margin:0; font-size: 1.3rem; color: var(--primary);">Student Records</h1>
+            <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin Portal</span>
+        </header>
 
-        <div id="view-area">
+        <div id="content">
             <div class="card">
-                <h3 style="margin-top:0">Add New Student</h3>
-                <div class="form-row">
+                <h3 style="margin-top:0; color: var(--primary);">Add New Student</h3>
+                <div class="grid-row">
                     <div class="form-group"><label>First Name</label><input type="text" id="fName"></div>
                     <div class="form-group"><label>Middle Name</label><input type="text" id="mName"></div>
                     <div class="form-group"><label>Surname</label><input type="text" id="lName"></div>
                 </div>
-                <div class="form-row">
+                <div class="grid-row">
                     <div class="form-group"><label>Mother's Name</label><input type="text" id="momName"></div>
-                    <div class="form-group"><label>DOB</label><input type="date" id="dob"></div>
                     <div class="form-group">
                         <label>Class</label>
-                        <select id="stuClass"><option value="Jr. KG">Jr. KG</option><option value="Sr. KG">Sr. KG</option></select>
+                        <select id="stuClass">
+                            <option value="Jr. KG">Jr. KG</option>
+                            <option value="Sr. KG">Sr. KG</option>
+                        </select>
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group">
                         <label>Student Photo</label>
                         <input type="file" id="photoFile" accept="image/*">
                     </div>
-                    <div style="grid-column: span 2; display: flex; align-items: flex-end;">
-                        <button class="btn primary" id="addBtn" style="width: 100%;">Upload & Save Record</button>
-                    </div>
                 </div>
+                <button class="btn btn-primary" id="saveBtn">Save to Database</button>
             </div>
 
             <div class="card">
-                <h3>Registered Students</h3>
-                <div class="table-container">
+                <h3 style="margin-top:0; color: var(--primary);">Registered Students</h3>
+                <div class="table-wrap">
                     <table>
                         <thead>
                             <tr>
                                 <th>Photo</th>
                                 <th>Full Name</th>
                                 <th>Class</th>
-                                <th>Gender</th>
-                                <th>Actions</th>
+                                <th>Mother's Name</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="stuBody"></tbody>
+                        <tbody id="stuBody">
+                            <tr><td colspan="5" style="text-align:center;">Loading students...</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -112,10 +120,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
 
+        // Your specific Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
             authDomain: "bkids-56a2a.firebaseapp.com",
@@ -128,65 +136,125 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
-        // --- ADD STUDENT WITH PHOTO ---
-        document.getElementById('addBtn').onclick = async () => {
-            const btn = document.getElementById('addBtn');
-            const file = document.getElementById('photoFile').files;
-            const firstName = document.getElementById('fName').value;
-            const lastName = document.getElementById('lName').value;
-
-            if(!firstName || !lastName) { alert("Name is required"); return; }
-            
-            btn.innerText = "Processing...";
-            btn.disabled = true;
-
-            let photoUrl = "";
-            if (file) {
-                const storageRef = ref(storage, 'student_photos/' + Date.now() + "_" + file.name);
-                const uploadTask = await uploadBytes(storageRef, file);
-                photoUrl = await getDownloadURL(uploadTask.ref);
+        // Security: Ensure user is logged in
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+            } else {
+                document.getElementById('adminMail').innerText = user.email;
+                loadTable();
             }
-
-            const data = {
-                firstName: firstName,
-                middleName: document.getElementById('mName').value,
-                lastName: lastName,
-                motherName: document.getElementById('momName').value,
-                dob: document.getElementById('dob').value,
-                class: document.getElementById('stuClass').value,
-                photo: photoUrl,
-                createdAt: new Date()
-            };
-
-            await addDoc(collection(db, "students"), data);
-            alert("Student Profile Saved!");
-            location.reload();
-        };
-
-        // --- LOAD LIST ---
-        const snapshot = await getDocs(query(collection(db, "students"), orderBy("firstName")));
-        const stuBody = document.getElementById('stuBody');
-        
-        snapshot.forEach(sDoc => {
-            const s = sDoc.data();
-            const photoImg = s.photo ? `<img src="${s.photo}" class="student-thumb">` : `<div class="student-thumb" style="display:flex; align-items:center; justify-content:center; font-size:10px; color:#999;">No Photo</div>`;
-            
-            const row = `<tr>
-                <td>${photoImg}</td>
-                <td style="font-weight:bold;">${s.firstName} ${s.middleName || ''} ${s.lastName}</td>
-                <td>${s.class}</td>
-                <td>${s.motherName || '-'}</td>
-                <td>
-                    <button onclick="delStu('${sDoc.id}')" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
-                </td>
-            </tr>`;
-            stuBody.innerHTML += row;
         });
 
-        window.delStu = async (id) => { if(confirm("Delete student?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
-        window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
+        // IMAGE COMPRESSION LOGIC (No Storage needed)
+        const compressImage = (file) => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 300; // Small size for database efficiency
+                        const scale = MAX_WIDTH / img.width;
+                        canvas.width = MAX_WIDTH;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality
+                    };
+                };
+            });
+        };
+
+        // SAVE DATA TO FIRESTORE
+        document.getElementById('saveBtn').onclick = async () => {
+            const btn = document.getElementById('saveBtn');
+            const fName = document.getElementById('fName').value.trim();
+            const lName = document.getElementById('lName').value.trim();
+            const file = document.getElementById('photoFile').files;
+
+            if (!fName || !lName) {
+                alert("Please enter at least First and Last name.");
+                return;
+            }
+
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            try {
+                let base64String = "";
+                if (file) {
+                    base64String = await compressImage(file);
+                }
+
+                await addDoc(collection(db, "students"), {
+                    firstName: fName,
+                    middleName: document.getElementById('mName').value.trim(),
+                    lastName: lName,
+                    motherName: document.getElementById('momName').value.trim(),
+                    class: document.getElementById('stuClass').value,
+                    photo: base64String, // Image is now text
+                    createdAt: new Date()
+                });
+
+                alert("Student successfully saved!");
+                location.reload();
+            } catch (err) {
+                alert("Error saving: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Save to Database";
+            }
+        };
+
+        // LOAD DATA INTO TABLE
+        async function loadTable() {
+            const body = document.getElementById('stuBody');
+            try {
+                const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+                body.innerHTML = "";
+                
+                if (snap.empty) {
+                    body.innerHTML = '<tr><td colspan="5" style="text-align:center;">No students found.</td></tr>';
+                    return;
+                }
+
+                snap.forEach(d => {
+                    const s = d.data();
+                    const photoHtml = s.photo 
+                        ? `<img src="${s.photo}" class="avatar">` 
+                        : `<div class="avatar" style="background:#eee; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
+                    
+                    body.innerHTML += `
+                        <tr>
+                            <td>${photoHtml}</td>
+                            <td><strong>${s.firstName} ${s.middleName || ''} ${s.lastName}</strong></td>
+                            <td>${s.class}</td>
+                            <td>${s.motherName || '-'}</td>
+                            <td><button onclick="deleteStudent('${d.id}')" style="color:var(--danger); border:none; background:none; cursor:pointer; font-weight:600;">Delete</button></td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Error loading: ${err.message}</td></tr>`;
+            }
+        }
+
+        // DELETE LOGIC
+        window.deleteStudent = async (id) => {
+            if (confirm("Delete this student permanently?")) {
+                await deleteDoc(doc(db, "students", id));
+                loadTable();
+            }
+        };
+
+        // LOGOUT
+        document.getElementById('logoutBtn').onclick = () => {
+            signOut(auth).then(() => window.location.href = "login.html");
+        };
+
     </script>
 </body>
 </html>
