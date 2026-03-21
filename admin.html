@@ -118,143 +118,127 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-        // Your specific Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
-            authDomain: "bkids-56a2a.firebaseapp.com",
-            projectId: "bkids-56a2a",
-            storageBucket: "bkids-56a2a.firebasestorage.app",
-            messagingSenderId: "239967618667",
-            appId: "1:239967618667:web:64eed50c8e1b37b703932e"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
+        authDomain: "bkids-56a2a.firebaseapp.com",
+        projectId: "bkids-56a2a",
+        storageBucket: "bkids-56a2a.firebasestorage.app",
+        messagingSenderId: "239967618667",
+        appId: "1:239967618667:web:64eed50c8e1b37b703932e"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        // Security: Ensure user is logged in
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = "login.html";
-            } else {
-                document.getElementById('adminMail').innerText = user.email;
-                loadTable();
-            }
-        });
-
-        // IMAGE COMPRESSION LOGIC (No Storage needed)
-        const compressImage = (file) => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 300; // Small size for database efficiency
-                        const scale = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH;
-                        canvas.height = img.height * scale;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality
-                    };
-                };
-            });
-        };
-
-        // SAVE DATA TO FIRESTORE
-        document.getElementById('saveBtn').onclick = async () => {
-            const btn = document.getElementById('saveBtn');
-            const fName = document.getElementById('fName').value.trim();
-            const lName = document.getElementById('lName').value.trim();
-            const file = document.getElementById('photoFile').files;
-
-            if (!fName || !lName) {
-                alert("Please enter at least First and Last name.");
-                return;
-            }
-
-            btn.innerText = "Saving...";
-            btn.disabled = true;
-
-            try {
-                let base64String = "";
-                if (file) {
-                    base64String = await compressImage(file);
-                }
-
-                await addDoc(collection(db, "students"), {
-                    firstName: fName,
-                    middleName: document.getElementById('mName').value.trim(),
-                    lastName: lName,
-                    motherName: document.getElementById('momName').value.trim(),
-                    class: document.getElementById('stuClass').value,
-                    photo: base64String, // Image is now text
-                    createdAt: new Date()
-                });
-
-                alert("Student successfully saved!");
-                location.reload();
-            } catch (err) {
-                alert("Error saving: " + err.message);
-                btn.disabled = false;
-                btn.innerText = "Save to Database";
-            }
-        };
-
-        // LOAD DATA INTO TABLE
-        async function loadTable() {
-            const body = document.getElementById('stuBody');
-            try {
-                const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
-                body.innerHTML = "";
-                
-                if (snap.empty) {
-                    body.innerHTML = '<tr><td colspan="5" style="text-align:center;">No students found.</td></tr>';
-                    return;
-                }
-
-                snap.forEach(d => {
-                    const s = d.data();
-                    const photoHtml = s.photo 
-                        ? `<img src="${s.photo}" class="avatar">` 
-                        : `<div class="avatar" style="background:#eee; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
-                    
-                    body.innerHTML += `
-                        <tr>
-                            <td>${photoHtml}</td>
-                            <td><strong>${s.firstName} ${s.middleName || ''} ${s.lastName}</strong></td>
-                            <td>${s.class}</td>
-                            <td>${s.motherName || '-'}</td>
-                            <td><button onclick="deleteStudent('${d.id}')" style="color:var(--danger); border:none; background:none; cursor:pointer; font-weight:600;">Delete</button></td>
-                        </tr>
-                    `;
-                });
-            } catch (err) {
-                body.innerHTML = `<tr><td colspan="5" style="color:red; text-align:center;">Error loading: ${err.message}</td></tr>`;
-            }
+    onAuthStateChanged(auth, (user) => {
+        if (!user) window.location.href = "login.html";
+        else {
+            document.getElementById('adminMail').innerText = user.email;
+            loadTable();
         }
+    });
 
-        // DELETE LOGIC
-        window.deleteStudent = async (id) => {
-            if (confirm("Delete this student permanently?")) {
-                await deleteDoc(doc(db, "students", id));
-                loadTable();
+    // --- FAST IMAGE COMPRESSION ---
+    const fastCompress = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // We reduce size to 200px - very small, very fast, perfect for avatars
+                    const MAX_WIDTH = 200; 
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.imageSmoothingEnabled = false; // Faster processing
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Lower quality (0.5) makes the database string tiny and fast
+                    resolve(canvas.toDataURL('image/jpeg', 0.5)); 
+                };
+            };
+        });
+    };
+
+    // --- SAVE ACTION ---
+    document.getElementById('saveBtn').onclick = async () => {
+        const btn = document.getElementById('saveBtn');
+        const fName = document.getElementById('fName').value.trim();
+        const lName = document.getElementById('lName').value.trim();
+        const file = document.getElementById('photoFile').files;
+
+        if (!fName || !lName) { alert("First & Last Name required"); return; }
+
+        btn.disabled = true;
+        btn.innerText = "⚡ Compressing...";
+
+        try {
+            let photoData = "";
+            if (file) {
+                photoData = await fastCompress(file);
             }
-        };
 
-        // LOGOUT
-        document.getElementById('logoutBtn').onclick = () => {
-            signOut(auth).then(() => window.location.href = "login.html");
-        };
+            btn.innerText = "☁️ Uploading...";
+            await addDoc(collection(db, "students"), {
+                firstName: fName,
+                middleName: document.getElementById('mName').value.trim(),
+                lastName: lName,
+                motherName: document.getElementById('momName').value.trim(),
+                class: document.getElementById('stuClass').value,
+                photo: photoData,
+                createdAt: new Date()
+            });
 
-    </script>
+            btn.innerText = "✅ Done!";
+            setTimeout(() => location.reload(), 500);
+
+        } catch (err) {
+            alert("Upload failed: " + err.message);
+            btn.disabled = false;
+            btn.innerText = "Save to Database";
+        }
+    };
+
+    // --- TABLE LOADING ---
+    async function loadTable() {
+        const body = document.getElementById('stuBody');
+        const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+        body.innerHTML = "";
+        
+        snap.forEach(d => {
+            const s = d.data();
+            const photo = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar" style="background:#ddd"></div>`;
+            body.innerHTML += `
+                <tr>
+                    <td>${photo}</td>
+                    <td><b>${s.firstName} ${s.lastName}</b></td>
+                    <td>${s.class}</td>
+                    <td>${s.motherName || '-'}</td>
+                    <td><button onclick="deleteStudent('${d.id}')" style="color:red; border:none; background:none; cursor:pointer;">Delete</button></td>
+                </tr>`;
+        });
+    }
+
+    window.deleteStudent = async (id) => {
+        if (confirm("Delete?")) {
+            await deleteDoc(doc(db, "students", id));
+            loadTable();
+        }
+    };
+
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+</script>
+        
 </body>
 </html>
