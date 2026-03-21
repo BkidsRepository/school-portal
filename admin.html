@@ -172,43 +172,53 @@
     };
 
     // --- SAVE ACTION ---
-    document.getElementById('saveBtn').onclick = async () => {
-        const btn = document.getElementById('saveBtn');
-        const fName = document.getElementById('fName').value.trim();
-        const lName = document.getElementById('lName').value.trim();
-        const file = document.getElementById('photoFile').files;
+document.getElementById('saveBtn').onclick = async () => {
+    const btn = document.getElementById('saveBtn');
+    const fName = document.getElementById('fName').value.trim();
+    const lName = document.getElementById('lName').value.trim();
+    
+    // Get the file from the input
+    const photoInput = document.getElementById('photoFile');
+    const file = photoInput.files;
 
-        if (!fName || !lName) { alert("First & Last Name required"); return; }
+    if (!fName || !lName) { 
+        alert("First & Last Name are required."); 
+        return; 
+    }
 
-        btn.disabled = true;
-        btn.innerText = "⚡ Compressing...";
+    btn.disabled = true;
+    let photoData = "";
 
-        try {
-            let photoData = "";
-            if (file) {
-                photoData = await fastCompress(file);
-            }
-
-            btn.innerText = "☁️ Uploading...";
-            await addDoc(collection(db, "students"), {
-                firstName: fName,
-                middleName: document.getElementById('mName').value.trim(),
-                lastName: lName,
-                motherName: document.getElementById('momName').value.trim(),
-                class: document.getElementById('stuClass').value,
-                photo: photoData,
-                createdAt: new Date()
-            });
-
-            btn.innerText = "✅ Done!";
-            setTimeout(() => location.reload(), 500);
-
-        } catch (err) {
-            alert("Upload failed: " + err.message);
-            btn.disabled = false;
-            btn.innerText = "Save to Database";
+    try {
+        // SAFETY CHECK: Only compress if a file was actually picked
+        if (file) {
+            btn.innerText = "⚡ Compressing...";
+            photoData = await fastCompress(file);
         }
-    };
+
+        btn.innerText = "☁️ Uploading...";
+        
+        // Save to Firestore
+        await addDoc(collection(db, "students"), {
+            firstName: fName,
+            middleName: document.getElementById('mName').value.trim(),
+            lastName: lName,
+            motherName: document.getElementById('momName').value.trim(),
+            class: document.getElementById('stuClass').value,
+            photo: photoData, // This will be empty string if no photo was picked
+            createdAt: new Date()
+        });
+
+        btn.innerText = "✅ Done!";
+        setTimeout(() => location.reload(), 500);
+
+    } catch (err) {
+        console.error(err);
+        alert("Save failed: " + err.message);
+        btn.disabled = false;
+        btn.innerText = "Save to Database";
+    }
+};
 
     // --- TABLE LOADING ---
     async function loadTable() {
