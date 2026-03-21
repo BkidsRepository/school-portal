@@ -71,7 +71,7 @@
                 <div class="form-row">
                     <div class="form-group"><label>First Name</label><input type="text" id="fName"></div>
                     <div class="form-group"><label>Middle Name</label><input type="text" id="mName"></div>
-                    <div class="form-group"><label>Last Name</label><input type="text" id="lName"></div>
+                    <div class="form-group"><label>Surname (Last Name)</label><input type="text" id="lName"></div>
                 </div>
                 <div class="form-row">
                     <div class="form-group"><label>Mother's Name</label><input type="text" id="momName"></div>
@@ -81,7 +81,6 @@
                         <select id="gender">
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                 </div>
@@ -91,10 +90,9 @@
                         <select id="stuClass">
                             <option value="Jr. KG">Jr. KG</option>
                             <option value="Sr. KG">Sr. KG</option>
-                            <option value="Nursery">Nursery</option>
                         </select>
                     </div>
-                    <div class="form-group" style="justify-content: flex-end;">
+                    <div class="form-group" style="justify-content: flex-end; padding-top: 22px;">
                         <button class="btn primary" id="addBtn">Save Student Record</button>
                     </div>
                 </div>
@@ -105,7 +103,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Student Name</th>
+                            <th>Full Student Name (First Middle Surname)</th>
                             <th>Class</th>
                             <th>Mother's Name</th>
                             <th>Gender</th>
@@ -123,25 +121,33 @@
             <h3>Update Student Information</h3>
             <input type="hidden" id="editId">
             <div class="form-row">
-                <input type="text" id="efName" placeholder="First Name">
-                <input type="text" id="emName" placeholder="Middle Name">
-                <input type="text" id="elName" placeholder="Last Name">
+                <div class="form-group"><label>First Name</label><input type="text" id="efName"></div>
+                <div class="form-group"><label>Middle Name</label><input type="text" id="emName"></div>
+                <div class="form-group"><label>Surname</label><input type="text" id="elName"></div>
             </div>
             <div class="form-row">
-                <input type="text" id="emomName" placeholder="Mother's Name">
-                <input type="date" id="edob">
-                <select id="egender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
+                <div class="form-group"><label>Mother's Name</label><input type="text" id="emomName"></div>
+                <div class="form-group"><label>Date of Birth</label><input type="date" id="edob"></div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="egender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
             </div>
             <div class="form-row">
-                <select id="eClass">
-                    <option value="Jr. KG">Jr. KG</option>
-                    <option value="Sr. KG">Sr. KG</option>
-                </select>
-                <button class="btn primary" onclick="saveEdit()">Update Changes</button>
-                <button class="btn" onclick="closeModal()">Cancel</button>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select id="eClass">
+                        <option value="Jr. KG">Jr. KG</option>
+                        <option value="Sr. KG">Sr. KG</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: flex-end;">
+                    <button class="btn primary" onclick="saveEdit()">Update Changes</button>
+                    <button class="btn" onclick="closeModal()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -174,42 +180,50 @@
                 dob: document.getElementById('dob').value,
                 gender: document.getElementById('gender').value,
                 class: document.getElementById('stuClass').value,
-                year: "2026-27"
+                createdAt: new Date()
             };
 
             if(data.firstName && data.lastName) {
                 await addDoc(collection(db, "students"), data);
-                alert("Student profile created!");
+                alert("New Student Profile Saved!");
                 location.reload();
-            } else { alert("Please enter at least First and Last name."); }
+            } else { alert("First Name and Surname are mandatory."); }
         };
 
         // --- LOAD LIST ---
-        const snapshot = await getDocs(query(collection(db, "students"), orderBy("firstName")));
-        snapshot.forEach(sDoc => {
-            const s = sDoc.data();
-            const fullName = `${s.firstName} ${s.lastName}`;
-            const row = `<tr>
-                <td>${fullName}</td>
-                <td>${s.class}</td>
-                <td>${s.motherName || '-'}</td>
-                <td>${s.gender}</td>
-                <td>
-                    <button class="btn" style="color:var(--secondary)" onclick="openEdit('${sDoc.id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})">Edit</button>
-                    <button class="btn" style="color:var(--danger)" onclick="deleteStu('${sDoc.id}')">Delete</button>
-                </td>
-            </tr>`;
-            document.getElementById('stuBody').innerHTML += row;
-        });
+        async function loadStudents() {
+            const stuBody = document.getElementById('stuBody');
+            stuBody.innerHTML = "";
+            const snapshot = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+            
+            snapshot.forEach(sDoc => {
+                const s = sDoc.data();
+                // COMBINING NAMES FOR DISPLAY
+                const fullDisplayName = `${s.firstName} ${s.middleName || ''} ${s.lastName}`;
+                
+                const row = `<tr>
+                    <td style="font-weight:bold;">${fullDisplayName}</td>
+                    <td>${s.class}</td>
+                    <td>${s.motherName || '-'}</td>
+                    <td>${s.gender}</td>
+                    <td>
+                        <button class="btn" style="color:var(--secondary)" onclick="openEdit('${sDoc.id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})">Edit</button>
+                        <button class="btn" style="color:var(--danger)" onclick="deleteStu('${sDoc.id}')">Delete</button>
+                    </td>
+                </tr>`;
+                stuBody.innerHTML += row;
+            });
+        }
+        loadStudents();
 
         // --- EDIT LOGIC ---
         window.openEdit = (id, data) => {
             document.getElementById('editId').value = id;
             document.getElementById('efName').value = data.firstName;
-            document.getElementById('emName').value = data.middleName;
+            document.getElementById('emName').value = data.middleName || "";
             document.getElementById('elName').value = data.lastName;
-            document.getElementById('emomName').value = data.motherName;
-            document.getElementById('edob').value = data.dob;
+            document.getElementById('emomName').value = data.motherName || "";
+            document.getElementById('edob').value = data.dob || "";
             document.getElementById('egender').value = data.gender;
             document.getElementById('eClass').value = data.class;
             document.getElementById('editModal').style.display = 'flex';
@@ -227,12 +241,12 @@
                 class: document.getElementById('eClass').value
             };
             await updateDoc(doc(db, "students", id), updatedData);
-            alert("Updated!");
+            alert("Student Profile Updated!");
             location.reload();
         };
 
         window.closeModal = () => document.getElementById('editModal').style.display = 'none';
-        window.deleteStu = async (id) => { if(confirm("Delete student?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
+        window.deleteStu = async (id) => { if(confirm("Delete this student permanently?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
         window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
     </script>
 </body>
