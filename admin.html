@@ -171,54 +171,63 @@
         });
     };
 
-    // --- SAVE ACTION ---
+
+
+
 document.getElementById('saveBtn').onclick = async () => {
     const btn = document.getElementById('saveBtn');
     const fName = document.getElementById('fName').value.trim();
     const lName = document.getElementById('lName').value.trim();
     
-    // Get the file from the input
-    const photoInput = document.getElementById('photoFile');
-    const file = photoInput.files;
+    // 1. Get the file input element
+    const fileInput = document.getElementById('photoFile');
+    const file = fileInput.files; // This will be 'undefined' if no file is picked
 
     if (!fName || !lName) { 
-        alert("First & Last Name are required."); 
+        alert("First Name and Surname are required."); 
         return; 
     }
 
     btn.disabled = true;
-    let photoData = "";
+    btn.innerText = "Processing...";
 
     try {
-        // SAFETY CHECK: Only compress if a file was actually picked
-        if (file) {
+        let photoData = "";
+
+        // 2. THE FIX: Only run compression if 'file' actually exists
+        if (file && file instanceof Blob) {
             btn.innerText = "⚡ Compressing...";
             photoData = await fastCompress(file);
+        } else {
+            console.log("No photo selected, skipping compression.");
         }
 
-        btn.innerText = "☁️ Uploading...";
+        btn.innerText = "☁️ Saving...";
         
-        // Save to Firestore
+        // 3. Save to Firestore
         await addDoc(collection(db, "students"), {
             firstName: fName,
             middleName: document.getElementById('mName').value.trim(),
             lastName: lName,
             motherName: document.getElementById('momName').value.trim(),
             class: document.getElementById('stuClass').value,
-            photo: photoData, // This will be empty string if no photo was picked
+            photo: photoData, // Saves as empty string if no photo
             createdAt: new Date()
         });
 
-        btn.innerText = "✅ Done!";
-        setTimeout(() => location.reload(), 500);
+        btn.innerText = "✅ Success!";
+        setTimeout(() => location.reload(), 800);
 
     } catch (err) {
-        console.error(err);
+        console.error("Detailed Error:", err);
         alert("Save failed: " + err.message);
         btn.disabled = false;
         btn.innerText = "Save to Database";
     }
 };
+
+
+
 
     // --- TABLE LOADING ---
     async function loadTable() {
