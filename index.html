@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Portal - Home</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f4f7f6; }
+        nav { background: #2c3e50; color: white; padding: 1rem; display: flex; justify-content: space-between; }
+        .container { padding: 20px; max-width: 1000px; margin: auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+    </style>
+</head>
+<body>
+    <nav>
+        <span>🏫 Global School MS</span>
+        <a href="login.html" style="color:white; text-decoration:none;">Login</a>
+    </nav>
+
+    <div class="container">
+        <h1>Attendance Overview</h1>
+        <div class="stats-grid">
+            <div class="card"><h3>Daily</h3><p id="dailyStat">Loading...</p></div>
+            <div class="card"><h3>Monthly</h3><p id="monthlyStat">Loading...</p></div>
+            <div class="card"><h3>Annually</h3><p id="annualStat">Loading...</p></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
+            authDomain: "bkids-56a2a.firebaseapp.com",
+            projectId: "bkids-56a2a",
+            storageBucket: "bkids-56a2a.firebasestorage.app",
+            messagingSenderId: "239967618667",
+            appId: "1:239967618667:web:64eed50c8e1b37b703932e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadStats() {
+            const snapshot = await getDocs(collection(db, "attendance"));
+            let present = 0;
+            snapshot.forEach(doc => { if(doc.data().status === "present") present++; });
+            const percent = snapshot.size > 0 ? ((present / snapshot.size) * 100).toFixed(1) : 0;
+            document.getElementById('annualStat').innerText = percent + "%";
+            document.getElementById('dailyStat').innerText = percent + "%"; // Simplified for now
+            document.getElementById('monthlyStat').innerText = percent + "%";
+        }
+        loadStats();
+    </script>
+</body>
+</html>
