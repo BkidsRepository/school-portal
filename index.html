@@ -3,164 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B Kids, Padgha - School Portal</title>
+    <title>B Kids, Padgha - Official Website</title>
     <style>
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
+            --accent: #e67e22;
             --success: #27ae60;
-            --warning: #f39c12;
-            --light: #f8f9fa;
+            --light: #f4f7f6;
         }
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            background-color: var(--light);
-            color: #333;
-        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; color: #333; line-height: 1.6; }
 
         /* Navigation */
         nav { 
-            background: var(--primary); 
-            color: white; 
-            padding: 1rem 5%; 
+            background: white; 
+            padding: 15px 5%; 
             display: flex; 
             justify-content: space-between; 
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            align-items: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
         }
-
-        .logo { font-size: 1.5rem; font-weight: bold; display: flex; align-items: center; gap: 10px; }
-        
-        .login-btn { 
-            background: var(--secondary); 
-            color: white; 
-            text-decoration: none; 
-            padding: 8px 20px; 
-            border-radius: 20px;
-            transition: 0.3s;
-        }
-        .login-btn:hover { background: #2980b9; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .nav-links a { text-decoration: none; color: var(--primary); margin-left: 20px; font-weight: 500; transition: 0.3s; }
+        .nav-links a:hover { color: var(--secondary); }
+        .portal-btn { background: var(--primary); color: white !important; padding: 8px 20px; border-radius: 5px; }
 
         /* Hero Section */
-        .hero {
-            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            padding: 60px 5%;
-            text-align: center;
+        header { 
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=1600');
+            background-size: cover; background-position: center;
+            height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: white; text-align: center; padding: 0 20px;
         }
+        header h1 { font-size: 3rem; margin: 0; }
 
-        .hero h1 { margin: 0; font-size: 2.5rem; }
-        .hero p { opacity: 0.9; font-size: 1.1rem; }
+        /* Shared Section Style */
+        section { padding: 80px 10%; }
+        h2 { text-align: center; color: var(--primary); margin-bottom: 40px; font-size: 2rem; }
 
-        /* Stats Cards */
-        .container { padding: 40px 5%; max-width: 1200px; margin: auto; }
+        /* About Section */
+        #about { background: white; }
+        .about-content { display: flex; gap: 40px; align-items: center; flex-wrap: wrap; }
+        .about-text { flex: 1; min-width: 300px; }
+
+        /* Admission Section */
+        #admission { background: var(--light); text-align: center; }
+        .admission-card { 
+            background: white; padding: 40px; border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); max-width: 600px; margin: auto;
+            border-top: 5px solid var(--accent);
+        }
+        .cta-btn { 
+            display: inline-block; background: var(--accent); color: white; 
+            padding: 15px 30px; border-radius: 30px; text-decoration: none; 
+            margin-top: 20px; font-weight: bold; transition: 0.3s;
+        }
+        .cta-btn:hover { transform: scale(1.05); background: #d35400; }
+
+        /* Contact Section */
+        #contact { background: white; }
+        .contact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; }
+        .contact-info { background: var(--light); padding: 30px; border-radius: 10px; }
         
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 25px; 
-            margin-top: -40px; /* Overlap hero slightly */
-        }
-
-        .card { 
-            background: white; 
-            padding: 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            text-align: center;
-            border-top: 5px solid var(--secondary);
-            transition: transform 0.3s;
-        }
-        .card:hover { transform: translateY(-5px); }
-
-        .card h3 { color: #7f8c8d; margin-top: 0; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
-        .stat-number { font-size: 2.5rem; font-weight: bold; margin: 10px 0; }
-        
-        #dailyStat { color: var(--success); }
-        #monthlyStat { color: var(--secondary); }
-        #annualStat { color: var(--warning); }
-
-        .footer { text-align: center; padding: 40px; color: #95a5a6; font-size: 0.9rem; }
+        /* Footer */
+        footer { background: var(--primary); color: white; padding: 50px 10% 20px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-bottom { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo">🏫 B Kids, Padgha</div>
-        <a href="login.html" class="login-btn">Staff Login</a>
+        <div class="logo">B Kids, Padgha</div>
+        <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#admission">Admissions</a>
+            <a href="#contact">Contact</a>
+            <a href="login.html" class="portal-btn">Portal Login</a>
+        </div>
     </nav>
 
-    <div class="hero">
-        <h1>Welcome to the School Portal</h1>
-        <p>Providing quality education and tracking excellence every day.</p>
-    </div>
+    <header>
+        <h1>Nurturing Young Minds</h1>
+        <p>Your child's first step towards a bright future.</p>
+    </header>
 
-    <div class="container">
-        <div class="stats-grid">
-            <div class="card" style="border-top-color: var(--success);">
-                <h3>Daily Attendance</h3>
-                <div id="dailyStat" class="stat-number">--%</div>
-                <p>Today's Presence</p>
-            </div>
-            <div class="card" style="border-top-color: var(--secondary);">
-                <h3>Monthly Average</h3>
-                <div id="monthlyStat" class="stat-number">--%</div>
-                <p>Current Month</p>
-            </div>
-            <div class="card" style="border-top-color: var(--warning);">
-                <h3>Annual Record</h3>
-                <div id="annualStat" class="stat-number">--%</div>
-                <p>Academic Year</p>
+    <section id="about">
+        <h2>About B Kids</h2>
+        <div class="about-content">
+            <div class="about-text">
+                <p>Located in the heart of Padgha, <strong>B Kids</strong> is committed to providing a safe, fun, and educational environment for your children. We focus on play-based learning that helps develop social, emotional, and cognitive skills.</p>
+                <p>Our experienced staff ensures every child feels at home while they explore their creativity and potential.</p>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="footer">
-        &copy; 2026 B Kids, Padgha. All rights reserved.
-    </div>
+    <section id="admission">
+        <h2>New Admissions 2026-27</h2>
+        <div class="admission-card">
+            <p>Enrollment is now open for Preschool, Nursery, and Junior KG!</p>
+            <p><strong>Documents required:</strong> Birth Certificate, Aadhaar Card, and 2 Photos.</p>
+            <a href="https://wa.me/91XXXXXXXXXX" class="cta-btn">Inquire via WhatsApp</a>
+        </div>
+    </section>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+    <section id="contact">
+        <h2>Get In Touch</h2>
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h3>📍 Address</h3>
+                <p>Main Road, Padgha, <br>Thane, Maharashtra - 421101</p>
+            </div>
+            <div class="contact-info">
+                <h3>📞 Call Us</h3>
+                <p>+91 98765 43210</p>
+            </div>
+            <div class="contact-info">
+                <h3>✉️ Email</h3>
+                <p>info@bkidspadgha.com</p>
+            </div>
+        </div>
+    </section>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
-            authDomain: "bkids-56a2a.firebaseapp.com",
-            projectId: "bkids-56a2a",
-            storageBucket: "bkids-56a2a.firebasestorage.app",
-            messagingSenderId: "239967618667",
-            appId: "1:239967618667:web:64eed50c8e1b37b703932e"
-        };
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <h3>B Kids, Padgha</h3>
+                <p>Building strong foundations for the leaders of tomorrow.</p>
+            </div>
+            <div>
+                <h3>Quick Links</h3>
+                <ul style="list-style: none; padding: 0;">
+                    <li><a href="#about" style="color: #bdc3c7; text-decoration: none;">About Us</a></li>
+                    <li><a href="#admission" style="color: #bdc3c7; text-decoration: none;">Admissions</a></li>
+                    <li><a href="login.html" style="color: #bdc3c7; text-decoration: none;">Staff Portal</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 B Kids, Padgha. Developed with ❤️ for our students.
+        </div>
+    </footer>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        async function loadStats() {
-            try {
-                const snapshot = await getDocs(collection(db, "attendance"));
-                let presentCount = 0;
-                let totalCount = snapshot.size;
-
-                snapshot.forEach(doc => {
-                    if(doc.data().status === "present") presentCount++;
-                });
-
-                const percentage = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : "0.0";
-                
-                // Update all cards with the calculated percentage
-                document.getElementById('dailyStat').innerText = percentage + "%";
-                document.getElementById('monthlyStat').innerText = percentage + "%";
-                document.getElementById('annualStat').innerText = percentage + "%";
-            } catch (error) {
-                console.error("Error loading stats: ", error);
-            }
-        }
-        
-        loadStats();
-    </script>
 </body>
 </html>
