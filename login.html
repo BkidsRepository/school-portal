@@ -35,19 +35,35 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // This handles the click on the login button
         document.getElementById('loginBtn').onclick = async () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
+
             try {
+                // 1. Sign the user in
                 const userCred = await signInWithEmailAndPassword(auth, email, pass);
-                const userDoc = await getDoc(doc(db, "users", userCred.user.uid));
+                const uid = userCred.user.uid;
+
+                // 2. Look for their role in the "users" collection (must be plural!)
+                const userDoc = await getDoc(doc(db, "users", uid));
+
                 if (userDoc.exists()) {
                     const role = userDoc.data().role;
-                    window.location.href = role === "admin" ? "admin.html" : "teacher.html";
+                    // 3. Redirect based on what the database says
+                    if (role === "admin") {
+                        window.location.href = "admin.html";
+                    } else if (role === "teacher") {
+                        window.location.href = "teacher.html";
+                    } else {
+                        window.location.href = "index.html";
+                    }
                 } else {
-                    alert("No role assigned to this user.");
+                    alert("No role assigned to this user in Firestore. Please check your 'users' collection.");
                 }
-            } catch (error) { alert(error.message); }
+            } catch (error) {
+                alert("Login Error: " + error.message);
+            }
         };
     </script>
 </body>
