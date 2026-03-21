@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login - School Portal</title>
+    <title>Login - B Kids, Padgha</title>
     <style>
         body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #2c3e50; margin: 0; }
         .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="login-card">
-        <h2>School Login</h2>
+        <h2>B Kids Login</h2>
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Password">
         <button id="loginBtn">Login</button>
@@ -35,35 +35,19 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // This handles the click on the login button
         document.getElementById('loginBtn').onclick = async () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
-
             try {
-                // 1. Sign the user in
                 const userCred = await signInWithEmailAndPassword(auth, email, pass);
-                const uid = userCred.user.uid;
-
-                // 2. Look for their role in the "users" collection (must be plural!)
-                const userDoc = await getDoc(doc(db, "users", uid));
-
+                const userDoc = await getDoc(doc(db, "users", userCred.user.uid));
                 if (userDoc.exists()) {
                     const role = userDoc.data().role;
-                    // 3. Redirect based on what the database says
-                    if (role === "admin") {
-                        window.location.href = "admin.html";
-                    } else if (role === "teacher") {
-                        window.location.href = "teacher.html";
-                    } else {
-                        window.location.href = "index.html";
-                    }
+                    window.location.href = role === "admin" ? "admin.html" : "teacher.html";
                 } else {
-                    alert("No role assigned to this user in Firestore. Please check your 'users' collection.");
+                    alert("No role assigned to this user.");
                 }
-            } catch (error) {
-                alert("Login Error: " + error.message);
-            }
+            } catch (error) { alert(error.message); }
         };
     </script>
 </body>
