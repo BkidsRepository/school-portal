@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Panel</title>
+    <title>Admin - B Kids, Padgha</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f7f6; }
         .box { background: white; padding: 20px; border-radius: 8px; border: 2px solid #2c3e50; max-width: 600px; margin: auto; }
-        input { padding: 8px; margin-right: 10px; }
-        button { padding: 8px 15px; cursor: pointer; }
-        ul { margin-top: 20px; }
-        li { margin-bottom: 10px; background: #eee; padding: 10px; display: flex; justify-content: space-between; }
+        input { padding: 8px; margin-bottom: 10px; width: 90%; }
+        button { padding: 10px; cursor: pointer; width: 100%; }
+        li { background: #eee; margin-top: 10px; padding: 10px; display: flex; justify-content: space-between; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2 style="color: #c0392b;">⚠️ Super Admin: Student Management</h2>
-        <input type="text" id="name" placeholder="Student Name">
-        <input type="text" id="class" placeholder="Class">
+        <h2 style="color: #c0392b;">B Kids Admin Dashboard</h2>
+        <input type="text" id="name" placeholder="Full Student Name">
+        <input type="text" id="class" placeholder="Class (e.g., Nursery)">
         <button id="addBtn" style="background: #2c3e50; color: white;">Add Student</button>
         <ul id="list"></ul>
     </div>
@@ -48,11 +47,11 @@
         const snapshot = await getDocs(collection(db, "students"));
         snapshot.forEach(sDoc => {
             const li = document.createElement('li');
-            li.innerHTML = `${sDoc.data().name} (${sDoc.data().class}) <button onclick="window.del('${sDoc.id}')">Delete</button>`;
+            li.innerHTML = `<span>${sDoc.data().name} (${sDoc.data().class})</span> <button onclick="window.del('${sDoc.id}')" style="width:auto; color:red;">Delete</button>`;
             document.getElementById('list').appendChild(li);
         });
 
-        window.del = async (id) => { if(confirm("Delete?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
+        window.del = async (id) => { if(confirm("Delete this student?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
     </script>
 </body>
 </html>
