@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Teacher Panel</title>
+    <title>Teacher - B Kids, Padgha</title>
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f7f6; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .btn-holiday { background: #e74c3c; color: white; padding: 10px; border: none; cursor: pointer; }
-        .btn-submit { background: #27ae60; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        .holiday { background: #e74c3c; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
+        .submit { background: #27ae60; color: white; width: 100%; padding: 15px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>Teacher Panel</h2>
-        <button class="btn-holiday" id="holidayBtn">Mark Today as Holiday</button>
+        <h2>B Kids Teacher Dashboard</h2>
+        <button class="holiday" id="holidayBtn">Mark Today as Holiday</button>
         <table>
-            <thead><tr><th>Class</th><th>Name</th><th>Status</th></tr></thead>
+            <thead><tr><th>Class</th><th>Student Name</th><th>Attendance</th></tr></thead>
             <tbody id="stuTable"></tbody>
         </table>
-        <button class="btn-submit" id="submitBtn">Submit Attendance</button>
+        <button class="submit" id="submitBtn">Submit Attendance</button>
     </div>
 
     <script type="module">
@@ -38,7 +38,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Load Students
         const snapshot = await getDocs(collection(db, "students"));
         snapshot.forEach(sDoc => {
             const row = `<tr><td>${sDoc.data().class}</td><td>${sDoc.data().name}</td><td><input type="checkbox" class="att" data-id="${sDoc.id}" checked> Present</td></tr>`;
@@ -53,13 +52,13 @@
                     studentId: cb.dataset.id, date: today, status: cb.checked ? "present" : "absent"
                 });
             }
-            alert("Saved!");
+            alert("Attendance saved!");
         };
 
         document.getElementById('holidayBtn').onclick = async () => {
             const today = new Date().toISOString().split('T');
             await setDoc(doc(db, "holidays", today), { date: today, type: "holiday" });
-            alert("Holiday Marked!");
+            alert("School is closed for today.");
         };
     </script>
 </body>
