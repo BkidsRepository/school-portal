@@ -265,4 +265,271 @@
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 </script>
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B Kids Admin - Production (Free Tier)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --danger: #e74c3c;
+            --bg: #f4f7f6;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; height: 100vh; flex-direction: row; }
+
+        /* Sidebar */
+        #sidebar { width: 260px; background: var(--primary); color: white; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        #sidebar h2 { font-size: 1.2rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .nav-link { padding: 12px; color: #bdc3c7; text-decoration: none; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.3s; display: block; border: none; background: none; text-align: left; width: 100%; font-size: 1rem; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: white; }
+
+        /* Main Content */
+        #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        #header { background: white; padding: 15px 25px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        #content { flex: 1; padding: 20px; overflow-y: auto; }
+
+        /* Cards & Forms */
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border: 1px solid #eee; }
+        .grid-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 5px; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; }
+        
+        .btn { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; font-size: 0.9rem; }
+        .btn-primary { background: var(--secondary); color: white; width: 100%; padding: 14px; }
+        .btn-edit { background: none; color: var(--secondary); padding: 5px; }
+        .btn-delete { background: none; color: var(--danger); padding: 5px; }
+
+        /* Table & Avatar */
+        .table-wrap { overflow-x: auto; background: white; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #7f8c8d; }
+        td { padding: 12px 15px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; }
+        .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #eee; border: 1px solid #ddd; }
+
+        /* Edit Modal */
+        #editModal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; flex-direction: row; padding: 10px; }
+            #sidebar h2 { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <h2>B Kids Admin</h2>
+        <button class="nav-link active">Students</button>
+        <button class="nav-link">Inquiries</button>
+        <div style="flex-grow: 1;"></div>
+        <button class="nav-link" id="logoutBtn" style="color: #ff7675;">Logout</button>
+    </nav>
+
+    <div id="main">
+        <header id="header">
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records</h1>
+            <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
+        </header>
+
+        <div id="content">
+            <div class="card">
+                <h3 style="margin-top:0;">Add New Student</h3>
+                <div class="grid-row">
+                    <div class="form-group"><label>First Name</label><input type="text" id="fName"></div>
+                    <div class="form-group"><label>Middle Name</label><input type="text" id="mName"></div>
+                    <div class="form-group"><label>Surname</label><input type="text" id="lName"></div>
+                </div>
+                <div class="grid-row">
+                    <div class="form-group"><label>Mother's Name</label><input type="text" id="momName"></div>
+                    <div class="form-group">
+                        <label>Class</label>
+                        <select id="stuClass">
+                            <option value="Jr. KG">Jr. KG</option>
+                            <option value="Sr. KG">Sr. KG</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Student Photo</label>
+                        <input type="file" id="photoFile" accept="image/*">
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="saveBtn">Save to Database</button>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top:0;">Registered Students</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Photo</th>
+                                <th>Full Name</th>
+                                <th>Class</th>
+                                <th>Mother's Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stuBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal">
+        <div class="modal-content">
+            <h3>Edit Student Information</h3>
+            <input type="hidden" id="editId">
+            <div class="grid-row">
+                <div class="form-group"><label>First Name</label><input type="text" id="efName"></div>
+                <div class="form-group"><label>Middle Name</label><input type="text" id="emName"></div>
+                <div class="form-group"><label>Surname</label><input type="text" id="elName"></div>
+            </div>
+            <div class="grid-row">
+                <div class="form-group"><label>Mother's Name</label><input type="text" id="emomName"></div>
+                <div class="form-group">
+                    <label>Class</label>
+                    <select id="eClass">
+                        <option value="Jr. KG">Jr. KG</option>
+                        <option value="Sr. KG">Sr. KG</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="updateStudent()">Update Info</button>
+                <button class="btn" style="background:#ddd" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
+        authDomain: "bkids-56a2a.firebaseapp.com",
+        projectId: "bkids-56a2a",
+        storageBucket: "bkids-56a2a.firebasestorage.app",
+        messagingSenderId: "239967618667",
+        appId: "1:239967618667:web:64eed50c8e1b37b703932e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (!user) window.location.href = "login.html";
+        else {
+            document.getElementById('adminMail').innerText = user.email;
+            loadTable();
+        }
+    });
+
+    const fastCompress = (file) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 200; 
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.5)); 
+                };
+            };
+        });
+    };
+
+    document.getElementById('saveBtn').onclick = async () => {
+        const btn = document.getElementById('saveBtn');
+        const photoInput = document.getElementById('photoFile');
+        const file = photoInput.files; // Fix: added
+
+        btn.disabled = true;
+        btn.innerText = "Saving...";
+
+        try {
+            let photoData = "";
+            if (file && file instanceof Blob) { // Fix: Blob check
+                photoData = await fastCompress(file);
+            }
+
+            await addDoc(collection(db, "students"), {
+                firstName: document.getElementById('fName').value.trim(),
+                middleName: document.getElementById('mName').value.trim(),
+                lastName: document.getElementById('lName').value.trim(),
+                motherName: document.getElementById('momName').value.trim(),
+                class: document.getElementById('stuClass').value,
+                photo: photoData,
+                createdAt: new Date()
+            });
+            location.reload();
+        } catch (err) { alert(err.message); btn.disabled = false; }
+    };
+
+    async function loadTable() {
+        const body = document.getElementById('stuBody');
+        const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+        body.innerHTML = "";
+        
+        snap.forEach(d => {
+            const s = d.data();
+            const photo = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
+            body.innerHTML += `
+                <tr>
+                    <td>${photo}</td>
+                    <td><b>${s.firstName} ${s.middleName || ''} ${s.lastName}</b></td>
+                    <td>${s.class}</td>
+                    <td>${s.motherName || '-'}</td>
+                    <td>
+                        <button class="btn btn-edit" onclick="openEdit('${d.id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})">Edit</button>
+                        <button class="btn btn-delete" onclick="deleteStudent('${d.id}')">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    window.openEdit = (id, data) => {
+        document.getElementById('editId').value = id;
+        document.getElementById('efName').value = data.firstName;
+        document.getElementById('emName').value = data.middleName || "";
+        document.getElementById('elName').value = data.lastName;
+        document.getElementById('emomName').value = data.motherName || "";
+        document.getElementById('eClass').value = data.class;
+        document.getElementById('editModal').style.display = 'flex';
+    };
+
+    window.updateStudent = async () => {
+        const id = document.getElementById('editId').value;
+        await updateDoc(doc(db, "students", id), {
+            firstName: document.getElementById('efName').value,
+            middleName: document.getElementById('emName').value,
+            lastName: document.getElementById('elName').value,
+            motherName: document.getElementById('emomName').value,
+            class: document.getElementById('eClass').value
+        });
+        location.reload();
+    };
+
+    window.closeModal = () => document.getElementById('editModal').style.display = 'none';
+    window.deleteStudent = async (id) => { if (confirm("Delete?")) { await deleteDoc(doc(db, "students", id)); loadTable(); } };
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+</script>
+</body>
 </html>
