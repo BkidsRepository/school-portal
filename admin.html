@@ -1,27 +1,141 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin - B Kids, Padgha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B Kids Admin - Padgha Portal</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; }
-        .box { background: white; padding: 20px; border-radius: 8px; border: 2px solid #2c3e50; max-width: 600px; margin: auto; }
-        input { padding: 8px; margin-bottom: 10px; width: 90%; }
-        button { padding: 10px; cursor: pointer; width: 100%; }
-        li { background: #eee; margin-top: 10px; padding: 10px; display: flex; justify-content: space-between; border-radius: 4px; }
+        :root {
+            --sidebar-width: 260px;
+            --primary: #2c3e50; /* Matches your design */
+            --danger: #c0392b;  /* Matches your design */
+            --success: #27ae60;
+            --light: #f4f7f6;
+            --secondary: #3498db;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: #333; display: flex; height: 100vh; overflow: hidden; }
+
+        /* --- Sidebar --- */
+        #sidebar { width: var(--sidebar-width); background: var(--primary); color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        #sidebar h2 { color: white; margin-top: 0; font-size: 1.4rem; text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;}
+        
+        .nav-btn { background: none; border: none; color: rgba(255,255,255,0.7); text-align: left; padding: 12px 15px; width: 100%; cursor: pointer; font-size: 1rem; border-radius: 5px; transition: 0.2s; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;}
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-btn.active { background: rgba(255,255,255,0.1); color: white; font-weight: bold; }
+        
+        .spacer { flex-grow: 1; }
+        #logoutBtn { background: var(--danger); }
+        #logoutBtn:hover { background: #d35400; }
+
+        /* --- Main Content --- */
+        #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* --- Header --- */
+        #header { background: white; padding: 15px 30px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        #header h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        .user-pill { background: #e0e6ed; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 500;}
+
+        /* --- View Area --- */
+        #view-area { flex: 1; padding: 30px; overflow-y: auto; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* --- Components --- */
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #ddd; margin-bottom: 25px; }
+        .card h3 { margin-top: 0; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px;}
+
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        input:focus, select:focus { border-color: var(--secondary); outline: none;}
+
+        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; }
+        
+        /* Button Styles */
+        .primary { background: var(--primary); color: white; }
+        .primary:hover { background: #1a252f; }
+        
+        .danger { background: none; color: var(--danger); border: none; padding: 5px 10px;}
+        .danger:hover { background: #fee7e6; border-radius: 4px;}
+        
+        .edit { background: none; color: var(--secondary); border: none; padding: 5px 10px;}
+        .edit:hover { background: #e0f2fe; border-radius: 4px;}
+
+        /* --- Table Styling --- */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
+        thead { background: var(--primary); color: white; }
+        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
+        tr:hover td { background-color: #f9f9f9; }
+        .table-actions { text-align: right; display: flex; gap: 5px; justify-content: flex-end;}
+
+        /* Admission Status Pills */
+        .status { padding: 4px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold;}
+        .status.new { background: #e0f2fe; color: var(--secondary); }
+        .status.contacted { background: #d1fae5; color: var(--success); }
+
+        #searchStudents { margin-bottom: 20px; }
+
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2 style="color: #c0392b;">B Kids Admin Dashboard</h2>
-        <input type="text" id="name" placeholder="Full Student Name">
-        <input type="text" id="class" placeholder="Class (e.g., Nursery)">
-        <button id="addBtn" style="background: #2c3e50; color: white;">Add Student</button>
-        <ul id="list"></ul>
+
+    <div id="sidebar">
+        <h2>B Kids Dashboard</h2>
+        <button class="nav-btn active" onclick="showView('students_view', this)">🏫 Students</button>
+        <button class="nav-btn" onclick="showView('admissions_view', this)">📩 Admissions</button>
+        <button class="nav-btn" onclick="showView('settings_view', this)">⚙️ Settings</button>
+        <div class="spacer"></div>
+        <button id="logoutBtn" class="btn primary" onclick="logout()">Logout</button>
     </div>
 
-    <script type="module">
+    <div id="main-content">
+        
+        <div id="header">
+            <h1>Super Admin Command Center</h1>
+            <div class="user-pill">Admin: <span id="adminEmail">Loading...</span></div>
+        </div>
+
+        <div id="view-area">
+
+            <div id="students_view" class="view active">
+                <div class="card">
+                    <h3>Add New Student to Database</h3>
+                    <input type="text" id="newStuName" placeholder="Full Student Name">
+                    <input type="text" id="newStuClass" placeholder="Class (e.g., Nursery)">
+                    <button class="btn primary" id="addBtn">Add Student</button>
+                </div>
+
+                <div class="card">
+                    <h3>Current Student List</h3>
+                    <input type="text" id="searchStudents" placeholder="Search by name or class...">
+                    <table id="stuTable">
+                        <thead><tr><th>Name</th><th>Class</th><th>Action</th></tr></thead>
+                        <tbody id="stuBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="admissions_view" class="view">
+                <div class="card">
+                    <h3>New Admission Inquiries (From Website)</h3>
+                    <table id="inquiryTable">
+                        <thead><tr><th>Child's Name</th><th>Parent's Name</th><th>Phone</th><th>Status</th></tr></thead>
+                        <tbody id="inquiryBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="settings_view" class="view">
+                <div class="card">
+                    <h3>System Settings</h3>
+                    <p>Academic Year: <strong>2026-27</strong></p>
+                    <p>School ID: BK_PAD_01</p>
+                    </div>
+            </div>
+
+        </div> </div> <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
@@ -33,25 +147,162 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // --- Auth & Access Check ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('adminEmail').innerText = user.email;
+                // Double check they have the admin role in the users collection
+                const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
+                const adminDoc = await getDoc(doc(db, "users", user.uid));
+                if (adminDoc.exists() && adminDoc.data().role === 'admin') {
+                    // Allowed
+                    loadAllData();
+                } else {
+                    alert("Unauthorized access attempt. Logged out.");
+                    window.location.href = "login.html";
+                }
+            } else {
+                window.location.href = "login.html"; // Redirect if not logged in
+            }
+        });
+
+        // --- Sidebar Navigation Logic ---
+        window.showView = function(viewId, btn) {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // Show selected view
+            document.getElementById(viewId).classList.add('active');
+            
+            // Deactivate all buttons
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            // Activate current button
+            btn.classList.add('active');
+        };
+
+        // --- Main Data Loading Function ---
+        async function loadAllData() {
+            loadStudentTable();
+            loadInquiryTable();
+        }
+
+        // --- STUDENT MANAGER (CRUD) ---
+        // 1. Create Student
         document.getElementById('addBtn').onclick = async () => {
-            const name = document.getElementById('name').value;
-            const stuClass = document.getElementById('class').value;
+            const name = document.getElementById('newStuName').value;
+            const stuClass = document.getElementById('newStuClass').value;
             if(name && stuClass) {
-                await addDoc(collection(db, "students"), { name, class: stuClass });
-                location.reload();
+                await addDoc(collection(db, "students"), { name, class: stuClass, year: "2026-27" });
+                alert("Student successfully added.");
+                loadStudentTable();
+                // Clear fields
+                document.getElementById('newStuName').value = "";
+                document.getElementById('newStuClass').value = "";
             }
         };
 
-        const snapshot = await getDocs(collection(db, "students"));
-        snapshot.forEach(sDoc => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>${sDoc.data().name} (${sDoc.data().class})</span> <button onclick="window.del('${sDoc.id}')" style="width:auto; color:red;">Delete</button>`;
-            document.getElementById('list').appendChild(li);
-        });
+        // 2 & 4. Read & Delete Students
+        async function loadStudentTable() {
+            const stuBody = document.getElementById('stuBody');
+            stuBody.innerHTML = "<tr><td colspan='3'>Loading database...</td></tr>";
 
-        window.del = async (id) => { if(confirm("Delete this student?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
+            const snapshot = await getDocs(query(collection(db, "students"), orderBy("name")));
+            stuBody.innerHTML = ""; // Clear loader
+
+            snapshot.forEach(sDoc => {
+                const stuData = sDoc.data();
+                const row = `<tr>
+                    <td>${stuData.name}</td>
+                    <td>${stuData.class}</td>
+                    <td class="table-actions">
+                        <button class="edit" onclick="window.startEditStudent('${sDoc.id}', '${stuData.name}', '${stuData.class}')">Edit</button>
+                        <button class="danger" onclick="window.delStudent('${sDoc.id}')">Delete</button>
+                    </td>
+                </tr>`;
+                stuBody.innerHTML += row;
+            });
+        }
+
+        // 3. Edit Student
+        window.startEditStudent = async (id, currentName, currentClass) => {
+            const newName = prompt("Edit Student Name:", currentName);
+            const newClass = prompt("Edit Class:", currentClass);
+            if(newName !== null && newClass !== null) {
+                await updateDoc(doc(db, "students", id), { name: newName, class: newClass });
+                alert("Student record updated.");
+                loadStudentTable();
+            }
+        };
+
+        // Student Delete Function
+        window.delStudent = async (id) => { 
+            if(confirm("Are you sure? This cannot be undone.")) { 
+                await deleteDoc(doc(db, "students", id)); 
+                loadStudentTable(); 
+            } 
+        };
+
+        // Search Student List
+        document.getElementById('searchStudents').onkeyup = function() {
+            const input = document.getElementById("searchStudents");
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById("stuTable");
+            const tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                const tdName = tr[i].getElementsByTagName("td");
+                const tdClass = tr[i].getElementsByTagName("td");
+                if (tdName && tdClass) {
+                    if (tdName.innerText.toLowerCase().indexOf(filter) > -1 || tdClass.innerText.toLowerCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else { tr[i].style.display = "none"; }
+                }       
+            }
+        };
+
+
+        // --- ADMISSION INQUIRIES (From Website) ---
+        async function loadInquiryTable() {
+            const inquiryBody = document.getElementById('inquiryBody');
+            inquiryBody.innerHTML = "<tr><td colspan='4'>Checking for inquiries...</td></tr>";
+
+            const snapshot = await getDocs(query(collection(db, "inquiries"), orderBy("date", "desc")));
+            inquiryBody.innerHTML = ""; // Clear loader
+
+            snapshot.forEach(iDoc => {
+                const inq = iDoc.data();
+                const statusHtml = inq.status === 'contacted' ? `<span class="status contacted">Contacted</span>` : `<span class="status new">New</span>`;
+                
+                const row = `<tr>
+                    <td>${inq.child}</td>
+                    <td>${inq.parent}</td>
+                    <td><a href="tel:${inq.phone}" style="text-decoration:none; color:var(--success);">${inq.phone}</a></td>
+                    <td>${statusHtml}</td>
+                    <td class="table-actions">
+                        <button class="edit" onclick="window.markInquiry('${iDoc.id}')">Toggle Status</button>
+                    </td>
+                </tr>`;
+                inquiryBody.innerHTML += row;
+            });
+        }
+
+        window.markInquiry = async (id) => {
+            // Future: Logic to toggle 'status' field in 'inquiries' collection
+            // await updateDoc(doc(db, "inquiries", id), { status: 'contacted' });
+            // alert("Status updated."); loadInquiryTable();
+        };
+
+        // --- LOGOUT FUNCTION ---
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = "login.html";
+            }).catch((error) => {
+                alert(error.message);
+            });
+        };
+
     </script>
 </body>
 </html>
