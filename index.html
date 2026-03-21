@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Portal - Home</title>
+    <title>B Kids, Padgha - Home</title>
     <style>
         body { font-family: sans-serif; margin: 0; background: #f4f7f6; }
         nav { background: #2c3e50; color: white; padding: 1rem; display: flex; justify-content: space-between; }
@@ -14,16 +13,16 @@
 </head>
 <body>
     <nav>
-        <span>🏫 Global School MS</span>
+        <span>🏫 B Kids, Padgha</span>
         <a href="login.html" style="color:white; text-decoration:none;">Login</a>
     </nav>
 
     <div class="container">
-        <h1>Attendance Overview</h1>
+        <h1>B Kids Attendance Overview</h1>
         <div class="stats-grid">
-            <div class="card"><h3>Daily</h3><p id="dailyStat">Loading...</p></div>
-            <div class="card"><h3>Monthly</h3><p id="monthlyStat">Loading...</p></div>
-            <div class="card"><h3>Annually</h3><p id="annualStat">Loading...</p></div>
+            <div class="card"><h3>Daily</h3><p id="dailyStat" style="font-size:24px; color:#27ae60;">0%</p></div>
+            <div class="card"><h3>Monthly</h3><p id="monthlyStat" style="font-size:24px; color:#2980b9;">0%</p></div>
+            <div class="card"><h3>Annually</h3><p id="annualStat" style="font-size:24px; color:#f39c12;">0%</p></div>
         </div>
     </div>
 
@@ -49,7 +48,7 @@
             snapshot.forEach(doc => { if(doc.data().status === "present") present++; });
             const percent = snapshot.size > 0 ? ((present / snapshot.size) * 100).toFixed(1) : 0;
             document.getElementById('annualStat').innerText = percent + "%";
-            document.getElementById('dailyStat').innerText = percent + "%"; // Simplified for now
+            document.getElementById('dailyStat').innerText = percent + "%";
             document.getElementById('monthlyStat').innerText = percent + "%";
         }
         loadStats();
