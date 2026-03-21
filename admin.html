@@ -7,135 +7,149 @@
     <style>
         :root {
             --sidebar-width: 260px;
-            --primary: #2c3e50; /* Matches your design */
-            --danger: #c0392b;  /* Matches your design */
+            --primary: #2c3e50;
+            --danger: #c0392b;
             --success: #27ae60;
             --light: #f4f7f6;
             --secondary: #3498db;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); color: #333; display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--light); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- Sidebar --- */
+        /* Sidebar & Layout */
         #sidebar { width: var(--sidebar-width); background: var(--primary); color: white; display: flex; flex-direction: column; padding: 20px; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
-        #sidebar h2 { color: white; margin-top: 0; font-size: 1.4rem; text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;}
-        
-        .nav-btn { background: none; border: none; color: rgba(255,255,255,0.7); text-align: left; padding: 12px 15px; width: 100%; cursor: pointer; font-size: 1rem; border-radius: 5px; transition: 0.2s; display: flex; align-items: center; gap: 10px; margin-bottom: 5px;}
-        .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
+        #sidebar h2 { color: white; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; text-align: center;}
+        .nav-btn { background: none; border: none; color: rgba(255,255,255,0.7); text-align: left; padding: 12px 15px; width: 100%; cursor: pointer; font-size: 1rem; border-radius: 5px; margin-bottom: 5px;}
         .nav-btn.active { background: rgba(255,255,255,0.1); color: white; font-weight: bold; }
-        
-        .spacer { flex-grow: 1; }
-        #logoutBtn { background: var(--danger); }
-        #logoutBtn:hover { background: #d35400; }
-
-        /* --- Main Content --- */
         #main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* --- Header --- */
-        #header { background: white; padding: 15px 30px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        #header h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
-        .user-pill { background: #e0e6ed; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 500;}
-
-        /* --- View Area --- */
+        #header { background: white; padding: 15px 30px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
         #view-area { flex: 1; padding: 30px; overflow-y: auto; }
-        .view { display: none; }
-        .view.active { display: block; }
 
-        /* --- Components --- */
+        /* Form Grid System */
         .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #ddd; margin-bottom: 25px; }
-        .card h3 { margin-top: 0; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px;}
-
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        input:focus, select:focus { border-color: var(--secondary); outline: none;}
-
-        .btn { padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 5px; }
+        input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.9rem; }
         
-        /* Button Styles */
+        .btn { padding: 12px 25px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .primary { background: var(--primary); color: white; }
         .primary:hover { background: #1a252f; }
-        
-        .danger { background: none; color: var(--danger); border: none; padding: 5px 10px;}
-        .danger:hover { background: #fee7e6; border-radius: 4px;}
-        
-        .edit { background: none; color: var(--secondary); border: none; padding: 5px 10px;}
-        .edit:hover { background: #e0f2fe; border-radius: 4px;}
 
-        /* --- Table Styling --- */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
+        /* Table & Modals */
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
         thead { background: var(--primary); color: white; }
-        th, td { text-align: left; padding: 15px; border-bottom: 1px solid #eee; }
-        tr:hover td { background-color: #f9f9f9; }
-        .table-actions { text-align: right; display: flex; gap: 5px; justify-content: flex-end;}
-
-        /* Admission Status Pills */
-        .status { padding: 4px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold;}
-        .status.new { background: #e0f2fe; color: var(--secondary); }
-        .status.contacted { background: #d1fae5; color: var(--success); }
-
-        #searchStudents { margin-bottom: 20px; }
-
+        
+        /* Edit Modal Styling */
+        #editModal { 
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; 
+        }
+        .modal-content { background: white; padding: 30px; border-radius: 10px; width: 80%; max-width: 800px; }
     </style>
 </head>
 <body>
 
     <div id="sidebar">
         <h2>B Kids Dashboard</h2>
-        <button class="nav-btn active" onclick="showView('students_view', this)">🏫 Students</button>
-        <button class="nav-btn" onclick="showView('admissions_view', this)">📩 Admissions</button>
-        <button class="nav-btn" onclick="showView('settings_view', this)">⚙️ Settings</button>
-        <div class="spacer"></div>
-        <button id="logoutBtn" class="btn primary" onclick="logout()">Logout</button>
+        <button class="nav-btn active">🏫 Students</button>
+        <button class="nav-btn">📩 Admissions</button>
+        <div style="flex-grow:1"></div>
+        <button onclick="logout()" class="btn" style="background:var(--danger); color:white;">Logout</button>
     </div>
 
     <div id="main-content">
-        
         <div id="header">
-            <h1>Super Admin Command Center</h1>
-            <div class="user-pill">Admin: <span id="adminEmail">Loading...</span></div>
+            <h1>Student Management</h1>
+            <div id="adminEmail" style="font-weight:bold;">Admin</div>
         </div>
 
         <div id="view-area">
-
-            <div id="students_view" class="view active">
-                <div class="card">
-                    <h3>Add New Student to Database</h3>
-                    <input type="text" id="newStuName" placeholder="Full Student Name">
-                    <input type="text" id="newStuClass" placeholder="Class (e.g., Nursery)">
-                    <button class="btn primary" id="addBtn">Add Student</button>
+            <div class="card">
+                <h3 style="margin-top:0">Add New Student Profile</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>First Name</label><input type="text" id="fName"></div>
+                    <div class="form-group"><label>Middle Name</label><input type="text" id="mName"></div>
+                    <div class="form-group"><label>Last Name</label><input type="text" id="lName"></div>
                 </div>
-
-                <div class="card">
-                    <h3>Current Student List</h3>
-                    <input type="text" id="searchStudents" placeholder="Search by name or class...">
-                    <table id="stuTable">
-                        <thead><tr><th>Name</th><th>Class</th><th>Action</th></tr></thead>
-                        <tbody id="stuBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="admissions_view" class="view">
-                <div class="card">
-                    <h3>New Admission Inquiries (From Website)</h3>
-                    <table id="inquiryTable">
-                        <thead><tr><th>Child's Name</th><th>Parent's Name</th><th>Phone</th><th>Status</th></tr></thead>
-                        <tbody id="inquiryBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="settings_view" class="view">
-                <div class="card">
-                    <h3>System Settings</h3>
-                    <p>Academic Year: <strong>2026-27</strong></p>
-                    <p>School ID: BK_PAD_01</p>
+                <div class="form-row">
+                    <div class="form-group"><label>Mother's Name</label><input type="text" id="momName"></div>
+                    <div class="form-group"><label>Date of Birth</label><input type="date" id="dob"></div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="gender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
+                </div>
+                <div class="form-row" style="grid-template-columns: 1fr 2fr;">
+                    <div class="form-group">
+                        <label>Class</label>
+                        <select id="stuClass">
+                            <option value="Jr. KG">Jr. KG</option>
+                            <option value="Sr. KG">Sr. KG</option>
+                            <option value="Nursery">Nursery</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end;">
+                        <button class="btn primary" id="addBtn">Save Student Record</button>
+                    </div>
+                </div>
             </div>
 
-        </div> </div> <script type="module">
+            <div class="card">
+                <h3>Registered Students</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Mother's Name</th>
+                            <th>Gender</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stuBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal">
+        <div class="modal-content">
+            <h3>Update Student Information</h3>
+            <input type="hidden" id="editId">
+            <div class="form-row">
+                <input type="text" id="efName" placeholder="First Name">
+                <input type="text" id="emName" placeholder="Middle Name">
+                <input type="text" id="elName" placeholder="Last Name">
+            </div>
+            <div class="form-row">
+                <input type="text" id="emomName" placeholder="Mother's Name">
+                <input type="date" id="edob">
+                <select id="egender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <select id="eClass">
+                    <option value="Jr. KG">Jr. KG</option>
+                    <option value="Sr. KG">Sr. KG</option>
+                </select>
+                <button class="btn primary" onclick="saveEdit()">Update Changes</button>
+                <button class="btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
@@ -150,159 +164,76 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- Auth & Access Check ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                document.getElementById('adminEmail').innerText = user.email;
-                // Double check they have the admin role in the users collection
-                const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js");
-                const adminDoc = await getDoc(doc(db, "users", user.uid));
-                if (adminDoc.exists() && adminDoc.data().role === 'admin') {
-                    // Allowed
-                    loadAllData();
-                } else {
-                    alert("Unauthorized access attempt. Logged out.");
-                    window.location.href = "login.html";
-                }
-            } else {
-                window.location.href = "login.html"; // Redirect if not logged in
-            }
+        // --- ADD STUDENT ---
+        document.getElementById('addBtn').onclick = async () => {
+            const data = {
+                firstName: document.getElementById('fName').value,
+                middleName: document.getElementById('mName').value,
+                lastName: document.getElementById('lName').value,
+                motherName: document.getElementById('momName').value,
+                dob: document.getElementById('dob').value,
+                gender: document.getElementById('gender').value,
+                class: document.getElementById('stuClass').value,
+                year: "2026-27"
+            };
+
+            if(data.firstName && data.lastName) {
+                await addDoc(collection(db, "students"), data);
+                alert("Student profile created!");
+                location.reload();
+            } else { alert("Please enter at least First and Last name."); }
+        };
+
+        // --- LOAD LIST ---
+        const snapshot = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+        snapshot.forEach(sDoc => {
+            const s = sDoc.data();
+            const fullName = `${s.firstName} ${s.lastName}`;
+            const row = `<tr>
+                <td>${fullName}</td>
+                <td>${s.class}</td>
+                <td>${s.motherName || '-'}</td>
+                <td>${s.gender}</td>
+                <td>
+                    <button class="btn" style="color:var(--secondary)" onclick="openEdit('${sDoc.id}', ${JSON.stringify(s).replace(/"/g, '&quot;')})">Edit</button>
+                    <button class="btn" style="color:var(--danger)" onclick="deleteStu('${sDoc.id}')">Delete</button>
+                </td>
+            </tr>`;
+            document.getElementById('stuBody').innerHTML += row;
         });
 
-        // --- Sidebar Navigation Logic ---
-        window.showView = function(viewId, btn) {
-            // Hide all views
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            // Show selected view
-            document.getElementById(viewId).classList.add('active');
-            
-            // Deactivate all buttons
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            // Activate current button
-            btn.classList.add('active');
+        // --- EDIT LOGIC ---
+        window.openEdit = (id, data) => {
+            document.getElementById('editId').value = id;
+            document.getElementById('efName').value = data.firstName;
+            document.getElementById('emName').value = data.middleName;
+            document.getElementById('elName').value = data.lastName;
+            document.getElementById('emomName').value = data.motherName;
+            document.getElementById('edob').value = data.dob;
+            document.getElementById('egender').value = data.gender;
+            document.getElementById('eClass').value = data.class;
+            document.getElementById('editModal').style.display = 'flex';
         };
 
-        // --- Main Data Loading Function ---
-        async function loadAllData() {
-            loadStudentTable();
-            loadInquiryTable();
-        }
-
-        // --- STUDENT MANAGER (CRUD) ---
-        // 1. Create Student
-        document.getElementById('addBtn').onclick = async () => {
-            const name = document.getElementById('newStuName').value;
-            const stuClass = document.getElementById('newStuClass').value;
-            if(name && stuClass) {
-                await addDoc(collection(db, "students"), { name, class: stuClass, year: "2026-27" });
-                alert("Student successfully added.");
-                loadStudentTable();
-                // Clear fields
-                document.getElementById('newStuName').value = "";
-                document.getElementById('newStuClass').value = "";
-            }
+        window.saveEdit = async () => {
+            const id = document.getElementById('editId').value;
+            const updatedData = {
+                firstName: document.getElementById('efName').value,
+                middleName: document.getElementById('emName').value,
+                lastName: document.getElementById('elName').value,
+                motherName: document.getElementById('emomName').value,
+                dob: document.getElementById('edob').value,
+                gender: document.getElementById('egender').value,
+                class: document.getElementById('eClass').value
+            };
+            await updateDoc(doc(db, "students", id), updatedData);
+            alert("Updated!");
+            location.reload();
         };
 
-        // 2 & 4. Read & Delete Students
-        async function loadStudentTable() {
-            const stuBody = document.getElementById('stuBody');
-            stuBody.innerHTML = "<tr><td colspan='3'>Loading database...</td></tr>";
-
-            const snapshot = await getDocs(query(collection(db, "students"), orderBy("name")));
-            stuBody.innerHTML = ""; // Clear loader
-
-            snapshot.forEach(sDoc => {
-                const stuData = sDoc.data();
-                const row = `<tr>
-                    <td>${stuData.name}</td>
-                    <td>${stuData.class}</td>
-                    <td class="table-actions">
-                        <button class="edit" onclick="window.startEditStudent('${sDoc.id}', '${stuData.name}', '${stuData.class}')">Edit</button>
-                        <button class="danger" onclick="window.delStudent('${sDoc.id}')">Delete</button>
-                    </td>
-                </tr>`;
-                stuBody.innerHTML += row;
-            });
-        }
-
-        // 3. Edit Student
-        window.startEditStudent = async (id, currentName, currentClass) => {
-            const newName = prompt("Edit Student Name:", currentName);
-            const newClass = prompt("Edit Class:", currentClass);
-            if(newName !== null && newClass !== null) {
-                await updateDoc(doc(db, "students", id), { name: newName, class: newClass });
-                alert("Student record updated.");
-                loadStudentTable();
-            }
-        };
-
-        // Student Delete Function
-        window.delStudent = async (id) => { 
-            if(confirm("Are you sure? This cannot be undone.")) { 
-                await deleteDoc(doc(db, "students", id)); 
-                loadStudentTable(); 
-            } 
-        };
-
-        // Search Student List
-        document.getElementById('searchStudents').onkeyup = function() {
-            const input = document.getElementById("searchStudents");
-            const filter = input.value.toLowerCase();
-            const table = document.getElementById("stuTable");
-            const tr = table.getElementsByTagName("tr");
-
-            for (let i = 1; i < tr.length; i++) {
-                const tdName = tr[i].getElementsByTagName("td");
-                const tdClass = tr[i].getElementsByTagName("td");
-                if (tdName && tdClass) {
-                    if (tdName.innerText.toLowerCase().indexOf(filter) > -1 || tdClass.innerText.toLowerCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else { tr[i].style.display = "none"; }
-                }       
-            }
-        };
-
-
-        // --- ADMISSION INQUIRIES (From Website) ---
-        async function loadInquiryTable() {
-            const inquiryBody = document.getElementById('inquiryBody');
-            inquiryBody.innerHTML = "<tr><td colspan='4'>Checking for inquiries...</td></tr>";
-
-            const snapshot = await getDocs(query(collection(db, "inquiries"), orderBy("date", "desc")));
-            inquiryBody.innerHTML = ""; // Clear loader
-
-            snapshot.forEach(iDoc => {
-                const inq = iDoc.data();
-                const statusHtml = inq.status === 'contacted' ? `<span class="status contacted">Contacted</span>` : `<span class="status new">New</span>`;
-                
-                const row = `<tr>
-                    <td>${inq.child}</td>
-                    <td>${inq.parent}</td>
-                    <td><a href="tel:${inq.phone}" style="text-decoration:none; color:var(--success);">${inq.phone}</a></td>
-                    <td>${statusHtml}</td>
-                    <td class="table-actions">
-                        <button class="edit" onclick="window.markInquiry('${iDoc.id}')">Toggle Status</button>
-                    </td>
-                </tr>`;
-                inquiryBody.innerHTML += row;
-            });
-        }
-
-        window.markInquiry = async (id) => {
-            // Future: Logic to toggle 'status' field in 'inquiries' collection
-            // await updateDoc(doc(db, "inquiries", id), { status: 'contacted' });
-            // alert("Status updated."); loadInquiryTable();
-        };
-
-        // --- LOGOUT FUNCTION ---
-        window.logout = function() {
-            signOut(auth).then(() => {
-                window.location.href = "login.html";
-            }).catch((error) => {
-                alert(error.message);
-            });
-        };
-
+        window.closeModal = () => document.getElementById('editModal').style.display = 'none';
+        window.deleteStu = async (id) => { if(confirm("Delete student?")) { await deleteDoc(doc(db, "students", id)); location.reload(); } };
+        window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
     </script>
 </body>
 </html>
