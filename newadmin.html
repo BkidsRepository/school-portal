@@ -74,16 +74,30 @@ button { padding:10px; cursor:pointer; }
 
 <!-- USERS -->
 <div id="usersSection" style="display:none;">
-<div class="card">
-<h3>Create User</h3>
-<input id="uEmail" placeholder="Email">
-<input id="uPass" placeholder="Password" type="password">
-<select id="uRole">
-<option value="teacher">Teacher</option>
-<option value="admin">Admin</option>
-</select>
-<button id="createUser">Create</button>
-</div>
+    <div class="card">
+        <h3>Create User</h3>
+        <input id="uEmail" placeholder="Email">
+        <input id="uPass" placeholder="Password" type="password">
+        <select id="uRole">
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+        </select>
+        <button id="createUserBtn">Create User</button>
+    </div>
+
+    <div class="card">
+        <h3>System Users</h3>
+        <table border="1" width="100%">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <!-- ATTENDANCE -->
@@ -283,6 +297,74 @@ snap.forEach(d=>{
 list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
 });
 }
+
+// --- USER MANAGEMENT LOGIC ---
+
+// 1. Fetch and display users
+async function loadUsers() {
+    const userBody = document.getElementById('userBody');
+    userBody.innerHTML = "Loading...";
+    try {
+        const snap = await getDocs(collection(db, "users"));
+        userBody.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            userBody.innerHTML += `
+                <tr>
+                    <td>${u.email}</td>
+                    <td>${u.role}</td>
+                    <td><button onclick="deleteUserDoc('${d.id}')">Remove Access</button></td>
+                </tr>`;
+        });
+    } catch (err) {
+        console.error("Error loading users:", err);
+        userBody.innerHTML = "Error loading users.";
+    }
+}
+
+// 2. Create User Fix
+document.getElementById("createUserBtn").onclick = async () => {
+    const email = document.getElementById("uEmail").value;
+    const pass = document.getElementById("uPass").value;
+    const role = document.getElementById("uRole").value;
+
+    if(!email || !pass) return alert("Please fill all fields");
+
+    try {
+        // Create in Auth
+        const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        
+        // Save Role in Firestore
+        await setDoc(doc(db, "users", userCred.user.uid), {
+            email: email,
+            role: role,
+            createdAt: new Date()
+        });
+
+        alert("User Created Successfully!");
+        
+        // Clear fields
+        document.getElementById("uEmail").value = "";
+        document.getElementById("uPass").value = "";
+        
+        loadUsers(); // Refresh the list
+    } catch (error) {
+        console.error("Creation Error:", error);
+        alert("Error: " + error.message);
+    }
+};
+
+// 3. Delete User Document (Firestore Only)
+window.deleteUserDoc = async (id) => {
+    if(confirm("Remove this user's record? (Note: This does not delete them from Firebase Auth)")){
+        await deleteDoc(doc(db, "users", id));
+        loadUsers();
+    }
+};
+
+// Initial Load
+loadUsers();    
+
 loadInquiries();
 
 </script>
