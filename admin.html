@@ -237,6 +237,10 @@ function filterTable() {
     async function loadTable() {
         const body = document.getElementById('stuBody');
         const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+        // Update this specific part inside your loadTable loop
+const photoImg = s.photo 
+    ? `<img src="${s.photo}" class="avatar">` 
+    : `<div class="avatar" style="background:#ddd; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
         body.innerHTML = "";
         
         snap.forEach(d => {
@@ -276,30 +280,37 @@ function filterTable() {
 document.getElementById('updateBtn').onclick = async () => {
     const btn = document.getElementById('updateBtn');
     const id = document.getElementById('editId').value;
-    const file = document.getElementById('editPhotoFile').files; // FIX: Specifically use index
+    
+    // FIX: Add to get the actual image file instead of the list
+    const file = document.getElementById('editPhotoFile').files; 
 
     btn.disabled = true;
     btn.innerText = "Updating...";
 
     try {
         const updateData = {
-            firstName: document.getElementById('efName').value,
-            middleName: document.getElementById('emName').value,
-            lastName: document.getElementById('elName').value,
-            motherName: document.getElementById('emomName').value,
+            firstName: document.getElementById('efName').value.trim(),
+            middleName: document.getElementById('emName').value.trim(),
+            lastName: document.getElementById('elName').value.trim(),
+            motherName: document.getElementById('emomName').value.trim(),
             class: document.getElementById('eClass').value
         };
 
-        if (file) { 
-            updateData.photo = await fastCompress(file); //
+        // Only process the photo if a new one was picked
+        if (file) {
+            btn.innerText = "⚡ Processing...";
+            updateData.photo = await fastCompress(file);
         }
 
         await updateDoc(doc(db, "students", id), updateData);
-        location.reload();
+        
+        btn.innerText = "✅ Success!";
+        setTimeout(() => location.reload(), 500);
     } catch (err) { 
-        alert(err.message); 
+        console.error(err);
+        alert("Error: " + err.message); 
         btn.disabled = false; 
-        btn.innerText = "Update Record"; 
+        btn.innerText = "Update Record";
     }
 };
 
