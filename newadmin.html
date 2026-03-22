@@ -161,24 +161,21 @@ const tabs = {
     inquiryTab: "inquirySection"
 };
     
+// Updated TAB SWITCH
 Object.keys(tabs).forEach(id => {
     document.getElementById(id).onclick = () => {
-        // Hide all sections and remove active class from all buttons
-        Object.keys(tabs).forEach(tabId => {
-            document.getElementById(tabs[tabId]).style.display = "none";
-            document.getElementById(tabId).classList.remove("active");
-        });
-        
-        // Show clicked section and add active class
+        Object.values(tabs).forEach(sec => document.getElementById(sec).style.display = "none");
         document.getElementById(tabs[id]).style.display = "block";
-        document.getElementById(id).classList.add("active");
         
-        // Contextual Data Loading
-        if (id === 'usersTab') loadUsers();
-        if (id === 'inquiryTab') loadInquiries();
-        if (id === 'studentsTab') loadStudents();
+        // Refresh data based on the tab clicked
+        if (id === "studentsTab") loadStudents();
+        if (id === "usersTab") loadUsers();
+        if (id === "inquiryTab") loadInquiries();
     };
 });
+
+
+    
 
 // IMAGE TO BASE64
 const toBase64 = (file)=> new Promise((res,rej)=>{
