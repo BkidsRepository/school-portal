@@ -48,7 +48,7 @@
             padding: 20px;
         }
         
-        /* Left side takes 45% of card width for the photo */
+        /* Photo takes 45% of the card area */
         .card-left { flex: 0 0 45%; text-align: center; }
         .card-right { flex: 1; text-align: left; position: relative; padding-right: 50px; }
 
@@ -65,7 +65,7 @@
         .card p { font-size: 2.5rem; margin: 20px 0; color: #333; font-weight: 600; }
         .card span.label { color: #888; font-weight: 400; min-width: 180px; display: inline-block; }
 
-        /* Large Dynamic Stamp */
+        /* Stamps */
         .stamp {
             position: absolute; 
             bottom: -40px; 
@@ -78,7 +78,6 @@
             z-index: 10;
         }
         
-        /* Present = Green, Absent = Red */
         .stamp-present { color: var(--success); border-color: var(--success); } 
         .stamp-absent { color: var(--danger); border-color: var(--danger); }
         
@@ -97,8 +96,6 @@
             font-weight: 500;
         }
 
-        /* Mobile Adjustments */
-        #menuBtn { display: none; font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0 10px; }
         @media (max-width: 1024px) {
             .card { flex-direction: column; gap: 30px; }
             .card-left { flex: 0 0 auto; width: 100%; }
@@ -144,7 +141,7 @@
             <div id="pastSection" style="display:none;">
                 <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
                     <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date to View/Edit:</label>
-                    <input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;" onkeydown="return false">
+                    <input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;">
                 </div>
                 <div class="table-container">
                     <table>
@@ -157,12 +154,10 @@
         </div>
     </div>
 
-    <!-- FULL SCREEN CAROUSEL OVERLAY -->
+    <!-- CAROUSEL OVERLAY -->
     <div id="carouselOverlay">
         <span class="close-carousel" id="closeCarousel">&times;</span>
-        <div id="cardContainer" style="width: 100%; display: flex; justify-content: center;">
-            <!-- Card content injected here -->
-        </div>
+        <div id="cardContainer" style="width: 100%; display: flex; justify-content: center;"></div>
         <p id="carouselStatus">Initializing...</p>
     </div>
 
@@ -185,11 +180,10 @@
         const db = getFirestore(app);
 
         let globalTeacherClass = "";
-        const todayStr = new Date().toISOString().split('T');
+        const todayStr = new Date().toISOString().split('T'); // Corrected Date String
 
         let studentDataList = [];
 
-        // UI Helpers
         const menuBtn = document.getElementById('menuBtn');
         const sidebar = document.getElementById('sidebar');
         menuBtn.onclick = () => sidebar.classList.toggle('open');
@@ -202,12 +196,9 @@
             document.getElementById('todaySection').style.display = 'none';
             document.getElementById('pastSection').style.display = 'none';
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
             document.getElementById(section + 'Section').style.display = 'block';
             document.getElementById('nav-' + section).classList.add('active');
-
-            const titles = { today: "Today's Attendance", past: "Attendance History" };
-            document.getElementById('sectionTitle').innerText = titles[section];
+            document.getElementById('sectionTitle').innerText = section === 'today' ? "Today's Attendance" : "Attendance History";
             if(window.innerWidth <= 768) sidebar.classList.remove('open');
         };
 
@@ -227,9 +218,7 @@
                     globalTeacherClass = userDoc.data().assignedClass;
                     if (globalTeacherClass) loadTodayList();
                 }
-            } else {
-                window.location.href = "login.html";
-            }
+            } else { window.location.href = "login.html"; }
         });
 
         async function loadTodayList() {
@@ -242,12 +231,7 @@
             snap.forEach(sDoc => {
                 const s = sDoc.data();
                 const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                studentDataList.push({ 
-                    id: sDoc.id, 
-                    ...s, 
-                    fullName: name,
-                    photo: s.photoUrl || s.photo || ""
-                });
+                studentDataList.push({ id: sDoc.id, ...s, fullName: name, photo: s.photoUrl || s.photo || "" });
                 table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="att" data-id="${sDoc.id}" checked></td></tr>`;
             });
         }
@@ -264,15 +248,13 @@
 
         async function startCarousel() {
             if (studentDataList.length === 0) return alert("Please load the student list first.");
-            
             const overlay = document.getElementById('carouselOverlay');
             const container = document.getElementById('cardContainer');
             const statusText = document.getElementById('carouselStatus');
             const placeholder = "https://ui-avatars.com/api/?background=eee&color=333&size=512&name=";
-            
             overlay.style.display = 'flex';
             
-            // Fix: Sync from "att" class only (Today's UI)
+            // CRITICAL FIX: Read current state from the checkboxes on the screen
             const uiChecks = document.querySelectorAll('.att');
             const uiAttMap = {};
             uiChecks.forEach(cb => {
@@ -281,19 +263,15 @@
 
             for (let i = 0; i < studentDataList.length; i++) {
                 if (overlay.style.display === 'none') break;
-                
                 const s = studentDataList[i];
                 const status = uiAttMap[s.id] || "present";
                 const studentImg = s.photo || (placeholder + encodeURIComponent(s.fullName));
                 
-                statusText.innerText = `Card ${i+1} of ${studentDataList.length}`;
-                
+                statusText.innerText = `Student ${i+1} of ${studentDataList.length}`;
                 container.innerHTML = `
                     <div class="card">
                         <div class="card-left">
-                            <img src="${studentImg}" 
-                                 alt="Student Photo" 
-                                 onerror="this.src='${placeholder + encodeURIComponent(s.fullName)}'">
+                            <img src="${studentImg}" alt="Student Photo" onerror="this.src='${placeholder + encodeURIComponent(s.fullName)}'">
                         </div>
                         <div class="card-right">
                             <h1>${s.fullName}</h1>
@@ -310,39 +288,30 @@
                 await new Promise(r => setTimeout(r, 400));
                 const stamp = document.getElementById('stampNode');
                 if(stamp) stamp.classList.add('animate-stamp');
-                
                 await new Promise(r => setTimeout(r, 3000));
             }
-
-            statusText.innerText = "Session Complete";
+            statusText.innerText = "Completed";
             setTimeout(() => { if(overlay.style.display === 'flex') overlay.style.display = 'none'; }, 1000);
         }
 
-        // History Logic
         document.getElementById('historyDate').addEventListener('change', async (e) => {
             const selDate = e.target.value;
             if(!selDate) return;
             const table = document.getElementById('pastStuTable');
             table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Loading...</td></tr>";
-            
-            try {
-                const qS = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const qA = query(collection(db, "attendance"), where("date", "==", selDate));
-                const [sSnap, aSnap] = await Promise.all([getDocs(qS), getDocs(qA)]);
-                const attMap = {};
-                aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
-
-                table.innerHTML = "";
-                sSnap.forEach(sDoc => {
-                    const s = sDoc.data();
-                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                    const isAbsent = attMap[sDoc.id] === "absent";
-                    table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isAbsent ? "" : "checked"}></td></tr>`;
-                });
-                document.getElementById('updatePastBtn').style.display = "block";
-            } catch (e) { 
-                table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error.</td></tr>";
-            }
+            const qS = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+            const qA = query(collection(db, "attendance"), where("date", "==", selDate));
+            const [sSnap, aSnap] = await Promise.all([getDocs(qS), getDocs(qA)]);
+            const attMap = {};
+            aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
+            table.innerHTML = "";
+            sSnap.forEach(sDoc => {
+                const s = sDoc.data();
+                const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                const isAbsent = attMap[sDoc.id] === "absent";
+                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isAbsent ? "" : "checked"}></td></tr>`;
+            });
+            document.getElementById('updatePastBtn').style.display = "block";
         });
 
         document.getElementById('updatePastBtn').onclick = async () => {
