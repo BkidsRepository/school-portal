@@ -247,7 +247,13 @@
 
         async function loadTodayList() {
             const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-            const snap = await getDocs(q);
+            const qA = query(collection(db, "attendance"), where("date", "==", todayStr));
+            
+            const [snap, aSnap] = await Promise.all([getDocs(q), getDocs(qA)]);
+            
+            const attMap = {};
+            aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
+
             const table = document.getElementById('stuTable');
             table.innerHTML = "";
             studentDataList = [];
@@ -256,7 +262,13 @@
                 const s = sDoc.data();
                 const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                 studentDataList.push({ id: sDoc.id, ...s, fullName: name, photo: s.photoUrl || s.photo || "" });
-                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="att" data-id="${sDoc.id}" checked></td></tr>`;
+                
+                // Determine if they were marked absent or present previously today
+                // Default to checked (present) if no record exists
+                const status = attMap[sDoc.id];
+                const isChecked = status === "absent" ? "" : "checked";
+                
+                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked}></td></tr>`;
             });
         }
 
