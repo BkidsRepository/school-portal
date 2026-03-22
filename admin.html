@@ -62,7 +62,7 @@
 
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:08 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:13 am</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -132,6 +132,11 @@
                     <label>Update Photo</label>
                     <input type="file" id="editPhotoFile" accept="image/*">
                 </div>
+                <div class="form-group">
+    <label>Update Photo</label>
+    <input type="file" id="editPhotoFile" accept="image/*">
+    <img id="editPreview" src="" style="display:none; width:80px; height:80px; border-radius:50%; margin-top:10px; object-fit:cover; border:1px solid #ddd;">
+</div>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-primary" id="updateBtn">Update Record</button>
@@ -269,32 +274,74 @@ function filterTable() {
         });
     }
 
-    document.getElementById('updateBtn').onclick = async () => {
-        const btn = document.getElementById('updateBtn');
-        const id = document.getElementById('editId').value;
-        const file = document.getElementById('editPhotoFile').files; // FIX: Grabs file index 0
 
-        btn.disabled = true;
-        btn.innerText = "Updating...";
 
-        try {
-            const updateData = {
-                firstName: document.getElementById('efName').value,
-                middleName: document.getElementById('emName').value,
-                lastName: document.getElementById('elName').value,
-                motherName: document.getElementById('emomName').value,
-                class: document.getElementById('eClass').value
-            };
 
-            if (file && file instanceof Blob) { // SAFETY: Check file exists
-                updateData.photo = await fastCompress(file);
-            }
+document.getElementById('updateBtn').onclick = async () => {
+    const btn = document.getElementById('updateBtn');
+    const id = document.getElementById('editId').value;
+    const file = document.getElementById('editPhotoFile').files; // FIX: Specifically use index
 
-            await updateDoc(doc(db, "students", id), updateData);
-            location.reload();
-        } catch (err) { alert(err.message); btn.disabled = false; btn.innerText = "Update Record"; }
-    };
+    btn.disabled = true;
+    btn.innerText = "Updating...";
 
+    try {
+        const updateData = {
+            firstName: document.getElementById('efName').value,
+            middleName: document.getElementById('emName').value,
+            lastName: document.getElementById('elName').value,
+            motherName: document.getElementById('emomName').value,
+            class: document.getElementById('eClass').value
+        };
+
+        if (file) { 
+            updateData.photo = await fastCompress(file); //
+        }
+
+        await updateDoc(doc(db, "students", id), updateData);
+        location.reload();
+    } catch (err) { 
+        alert(err.message); 
+        btn.disabled = false; 
+        btn.innerText = "Update Record"; 
+    }
+};
+
+
+    
+
+// Add this inside your script to handle the preview
+document.getElementById('editPhotoFile').onchange = function(evt) {
+    const [file] = this.files;
+    const preview = document.getElementById('editPreview');
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+    }
+};
+
+// Also, update your openEdit function to show the CURRENT photo in the preview
+window.openEdit = (id, data) => {
+    document.getElementById('editId').value = id;
+    document.getElementById('efName').value = data.firstName;
+    document.getElementById('emName').value = data.middleName || "";
+    document.getElementById('elName').value = data.lastName;
+    document.getElementById('emomName').value = data.motherName || "";
+    document.getElementById('eClass').value = data.class;
+    
+    // Show current photo in preview if it exists
+    const preview = document.getElementById('editPreview');
+    if (data.photo) {
+        preview.src = data.photo;
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+    
+    document.getElementById('editPhotoFile').value = ""; 
+    document.getElementById('editModal').style.display = 'flex';
+};
+    
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 </script>
 </body>
