@@ -70,11 +70,28 @@
                 <button class="btn-submit" id="submitBtn">Submit Attendance</button>
             </div>
 
-            <div id="pastSection" style="display:none;">
-                <p>Select date to view records:</p>
-                <input type="date" id="historyDate" style="padding:10px; margin-bottom:15px;">
-                <div id="historyResults"></div>
-            </div>
+<div id="pastSection" style="display:none;">
+    <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date:</label>
+        <input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px;">
+        <button class="btn-submit" id="loadHistoryBtn" style="margin-top:10px; background:var(--primary);">View Attendance List</button>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th style="text-align:center;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="pastStuTable">
+                <tr><td colspan="2" style="text-align:center; color:#888;">Select a date and click View</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <button class="btn-submit" id="updatePastBtn" style="display:none;">Update Past Attendance</button>
+</div>
 
             <div id="holidaySection" style="display:none;">
                 <div style="text-align:center; padding: 40px 20px;">
@@ -194,6 +211,80 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+
+// Variable to store the teacher's class (set during login)
+let globalTeacherClass = "";
+
+// Function to load attendance for any date
+const loadAttendanceForDate = async (targetDate, tableId, buttonId) => {
+    const tableBody = document.getElementById(tableId);
+    tableBody.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
+    
+    try {
+        // 1. Get all students for this teacher's class
+        const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+        const studentSnap = await getDocs(q);
+        
+        // 2. Get attendance records for this specific date
+        // Note: dateKey must match your saving format (YYYY-MM-DD)
+        const attSnap = await getDocs(query(collection(db, "attendance"), where("date", "==", targetDate)));
+        
+        // Create a map of studentId -> status for quick lookup
+        const attendanceMap = {};
+        attSnap.forEach(doc => {
+            const data = doc.data();
+            attendanceMap[data.studentId] = data.status;
+        });
+
+        tableBody.innerHTML = "";
+        studentSnap.forEach(sDoc => {
+            const s = sDoc.data();
+            const fullName = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+            const savedStatus = attendanceMap[sDoc.id]; // "present", "absent", or undefined
+
+            // If no record exists, default to 'checked' (present)
+            const isChecked = savedStatus === "absent" ? "" : "checked";
+
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${fullName}</td>
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isChecked} style="transform:scale(1.5);">
+                    </td>
+                </tr>`;
+        });
+
+        if(buttonId) document.getElementById(buttonId).style.display = "block";
+
+    } catch (error) {
+        console.error("Error loading history:", error);
+        tableBody.innerHTML = "<tr><td colspan='2'>Error loading data.</td></tr>";
+    }
+};
+
+// Handle the "View Attendance List" button in Past Attendance
+document.getElementById('loadHistoryBtn').onclick = () => {
+    const selectedDate = document.getElementById('historyDate').value;
+    if(!selectedDate) return alert("Please select a date first");
+    loadAttendanceForDate(selectedDate, 'pastStuTable', 'updatePastBtn');
+};
+
+// Handle the "Update Past Attendance" button
+document.getElementById('updatePastBtn').onclick = async () => {
+    const selectedDate = document.getElementById('historyDate').value;
+    const checks = document.querySelectorAll('.past-att');
+    
+    for (let cb of checks) {
+        // Use the same ID format as your today's submission: studentId_date
+        await setDoc(doc(db, "attendance", `${cb.dataset.id}_${selectedDate}`), {
+            studentId: cb.dataset.id, 
+            date: selectedDate, 
+            status: cb.checked ? "present" : "absent"
+        });
+    }
+    alert("Past attendance updated successfully!");
+};
+    
     // Attendance Submission Logic
     document.getElementById('submitBtn').onclick = async () => {
         const today = new Date().toISOString().split('T');
