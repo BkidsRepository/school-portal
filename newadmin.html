@@ -176,6 +176,7 @@ td {
 <div class="card">
 <h3>Add Student</h3>
 <input id="fName" placeholder="First Name">
+<input id="mName" placeholder="Middle Name">
 <input id="lName" placeholder="Last Name">
 <input id="momName" placeholder="Mother Name">
 <select id="stuClass">
@@ -237,6 +238,7 @@ td {
 <h3>Edit Student</h3>
 <input type="hidden" id="editId">
 <input id="efName">
+<input id="emName">    
 <input id="elName">
 <input id="emomName">
 <select id="eClass"><option>Jr. KG</option><option>Sr. KG</option></select>
@@ -269,7 +271,7 @@ const toBase64 = file => new Promise(r=>{const rd=new FileReader();rd.onload=()=
 saveBtn.onclick=async()=>{
 let photo="";
 if(photoFile.files[0]) photo=await toBase64(photoFile.files[0]);
-await addDoc(collection(db,"students"),{firstName:fName.value,lastName:lName.value,motherName:momName.value,class:stuClass.value,photo});
+await addDoc(collection(db,"students"),{firstName:fName.value,middleName: mName.value,lastName:lName.value,,motherName:momName.value,class:stuClass.value,photo});
 loadStudents();
 };
 
@@ -280,7 +282,7 @@ snap.forEach(d=>{
 const s=d.data();
 stuBody.innerHTML+=`<tr>
 <td>${s.photo?`<img src="${s.photo}" class="avatar">`:''}</td>
-<td>${s.firstName} ${s.lastName}</td>
+<td>${s.firstName} ${s.middleName || ""} ${s.lastName}</td>
 <td>${s.class}</td>
 <td>${s.motherName}</td>
 <td>
@@ -302,6 +304,7 @@ const s=d.data();
 editModal.style.display='flex';
 editId.value=id;
 efName.value=s.firstName;
+emName.value = s.middleName || "";    
 elName.value=s.lastName;
 emomName.value=s.motherName;
 eClass.value=s.class;
@@ -311,7 +314,7 @@ if(s.photo){editPreview.src=s.photo;editPreview.style.display='block';}
 };
 
 updateBtn.onclick=async()=>{
-let data={firstName:efName.value,lastName:elName.value,motherName:emomName.value,class:eClass.value};
+let data={firstName:efName.value,middleName: emName.value,lastName:elName.value,motherName:emomName.value,class:eClass.value};
 if(editPhotoFile.files[0]) data.photo=await toBase64(editPhotoFile.files[0]);
 await updateDoc(doc(db,"students",editId.value),data);
 editModal.style.display='none';
