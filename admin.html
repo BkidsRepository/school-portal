@@ -61,7 +61,7 @@
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:30 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:34 am</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -281,11 +281,13 @@ async function loadTable() {
 
 
 
+
+    
 document.getElementById('updateBtn').onclick = async () => {
     const btn = document.getElementById('updateBtn');
     const id = document.getElementById('editId').value;
     
-    // FIX: Get the first file from the FileList object
+    // 1. Correctly grab the single file object
     const fileInput = document.getElementById('editPhotoFile');
     const file = fileInput.files; 
 
@@ -301,10 +303,9 @@ document.getElementById('updateBtn').onclick = async () => {
             class: document.getElementById('eClass').value
         };
 
-        // Only process if a new file was actually selected
+        // 2. Only run compression if a file was actually picked
         if (file) {
             btn.innerText = "⚡ Processing...";
-            // Pass the single file object to your fastCompress function
             updateData.photo = await fastCompress(file);
         }
 
@@ -313,15 +314,12 @@ document.getElementById('updateBtn').onclick = async () => {
         btn.innerText = "✅ Success!";
         setTimeout(() => location.reload(), 500);
     } catch (err) { 
-        console.error(err);
-        alert("Error: " + err.message); 
+        console.error("Update Error:", err);
+        alert("Error: " + err); 
         btn.disabled = false; 
         btn.innerText = "Update Record";
     }
 };
-
-    
-
 
     
 
