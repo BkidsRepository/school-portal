@@ -232,12 +232,12 @@
       }
       };
       
-      // ADD STUDENT
+// --- FIXED ADD STUDENT ---
 saveBtn.onclick = async () => {
     let photo = "";
-    // FIX: Pass photoFile.files instead of photoFile.files
+    // FIX: Check for files and pass photoFile.files (the specific image)
     if (photoFile.files && photoFile.files) {
-        photo = await toBase64(photoFile.files);
+        photo = await toBase64(photoFile.files); 
     }
 
     try {
@@ -256,7 +256,7 @@ saveBtn.onclick = async () => {
         document.getElementById('lName').value = "";
         document.getElementById('momName').value = "";
         photoFile.value = ""; 
-        preview.style.display = 'none';
+        document.getElementById('preview').style.display = 'none';
         
         alert("Student added successfully!");
         loadStudents();
@@ -275,7 +275,7 @@ updateBtn.onclick = async () => {
         class: document.getElementById('eClass').value
     };
 
-    // FIX: Pass editPhotoFile.files instead of editPhotoFile.files
+    // FIX: Check for files and pass editPhotoFile.files
     if (editPhotoFile.files && editPhotoFile.files) {
         data.photo = await toBase64(editPhotoFile.files);
     }
@@ -288,7 +288,7 @@ updateBtn.onclick = async () => {
     } catch (err) {
         alert("Update failed: " + err.message);
     }
-};      
+};   
       
       
           
