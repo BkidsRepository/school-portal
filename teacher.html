@@ -13,6 +13,9 @@
 </head>
 <body>
     <div class="container">
+        <div id="userDisplay" style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px; font-weight: bold;">
+    Logged in as: <span id="userEmail">Loading...</span>
+</div>
         <h2>B Kids Teacher Dashboard</h2>
         <button class="holiday" id="holidayBtn">Mark Today as Holiday</button>
         <table>
@@ -40,46 +43,51 @@
     const db = getFirestore(app);
 
     // Listen for the logged-in user
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            try {
-                // 1. Fetch the teacher's profile to find their assigned class
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const assignedClass = userData.assignedClass;
+// Inside the <script type="module"> in teacher.html
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        // Display the logged-in email immediately
+        document.getElementById('userEmail').textContent = user.email;
 
-                    if (assignedClass) {
-                        // 2. Filter students by the teacher's assigned class
-                        const q = query(collection(db, "students"), where("class", "==", assignedClass));
-                        const snapshot = await getDocs(q);
+        try {
+            // Fetch teacher profile to find their assigned class
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                const assignedClass = userData.assignedClass;
+
+                if (assignedClass) {
+                    // Filter students by the teacher's assigned class
+                    const q = query(collection(db, "students"), where("class", "==", assignedClass));
+                    const snapshot = await getDocs(q);
+                    
+                    const tableBody = document.getElementById('stuTable');
+                    tableBody.innerHTML = ""; 
+
+                    snapshot.forEach(sDoc => {
+                        const s = sDoc.data();
+                        // Construct the full name
+                        const fullName = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                         
-                        const tableBody = document.getElementById('stuTable');
-                        tableBody.innerHTML = ""; // Clear existing rows
-
-                        snapshot.forEach(sDoc => {
-                            const s = sDoc.data();
-                            // Note: firstName and lastName are used based on your newadmin.html structure
-                            const row = `<tr>
-                                <td>${s.class}</td>
-                                <td>${s.firstName} ${s.lastName}</td>
-                                <td><input type="checkbox" class="att" data-id="${sDoc.id}" checked> Present</td>
-                            </tr>`;
-                            tableBody.innerHTML += row;
-                        });
-                    } else {
-                        document.getElementById('stuTable').innerHTML = "<tr><td colspan='3'>No class assigned to your profile.</td></tr>";
-                    }
+                        const row = `<tr>
+                            <td>${s.class}</td>
+                            <td>${fullName}</td>
+                            <td><input type="checkbox" class="att" data-id="${sDoc.id}" checked> Present</td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                } else {
+                    document.getElementById('stuTable').innerHTML = "<tr><td colspan='3'>No class assigned.</td></tr>";
                 }
-            } catch (error) {
-                console.error("Error loading filtered students:", error);
             }
-        } else {
-            // Redirect to login if not authenticated
-            window.location.href = "login.html";
+        } catch (error) {
+            console.error("Error:", error);
         }
-    });
+    } else {
+        window.location.href = "login.html"; // Redirect if not logged in
+    }
+});
 
     // Attendance Submission Logic
     document.getElementById('submitBtn').onclick = async () => {
