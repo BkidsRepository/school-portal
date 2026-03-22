@@ -31,11 +31,11 @@ button { padding:10px; cursor:pointer; }
 <body>
 
 <div id="sidebar">
-<h2>ERP Panel</h2>
-<button class="nav-link active" id="studentsTab">Students</button>
-<button class="nav-link" id="usersTab">Users</button>
-<button class="nav-link" id="attendanceTab">Attendance</button>
-<button class="nav-link" id="inquiryTab">Inquiries</button>
+    <h2>ERP Panel</h2>
+    <button class="nav-link active" id="studentsTab">Students</button>
+    <button class="nav-link" id="classesTab">Classes</button> <button class="nav-link" id="usersTab">Users</button>
+    <button class="nav-link" id="attendanceTab">Attendance</button>
+    <button class="nav-link" id="inquiryTab">Inquiries</button>
 </div>
 
 <div id="main">
@@ -72,6 +72,31 @@ button { padding:10px; cursor:pointer; }
 
 </div>
 
+<!-- CLASS -->
+<div id="classesSection" style="display:none;">
+    <div class="card">
+        <h3>Create New Class</h3>
+        <input id="className" placeholder="Class Name (e.g., 1st Grade)">
+        <input id="classSection" placeholder="Section (e.g., A)">
+        <button id="saveClassBtn">Create Class</button>
+    </div>
+
+    <div class="card">
+        <h3>Available Classes</h3>
+        <table border="1" width="100%" style="border-collapse: collapse;">
+            <thead>
+                <tr style="background: #eee;">
+                    <th>Class Name</th>
+                    <th>Section</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="classListBody"></tbody>
+        </table>
+    </div>
+</div>
+
+    
 <!-- USERS -->
 <div id="usersSection" style="display:none;">
     <div class="card">
@@ -156,6 +181,7 @@ const db = getFirestore(app);
 // TAB SWITCH WITH ACTIVE STATE
 const tabs = {
     studentsTab: "studentsSection",
+    classesTab: "classesSection", 
     usersTab: "usersSection",
     attendanceTab: "attendanceSection",
     inquiryTab: "inquirySection"
@@ -375,6 +401,61 @@ async function loadInquiries(){
 document.getElementById("usersTab").addEventListener('click', loadUsers);
 document.getElementById("inquiryTab").addEventListener('click', loadInquiries);
 
+
+// --- CLASS MANAGEMENT ---
+
+async function loadClasses() {
+    const tbody = document.getElementById('classListBody');
+    try {
+        const snap = await getDocs(collection(db, "classes"));
+        tbody.innerHTML = "";
+        snap.forEach(d => {
+            const c = d.data();
+            tbody.innerHTML += `
+                <tr>
+                    <td style="padding:8px;">${c.name}</td>
+                    <td style="padding:8px;">${c.section}</td>
+                    <td style="padding:8px;">
+                        <button onclick="deleteClass('${d.id}')">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    } catch (err) {
+        console.error("Error loading classes:", err);
+    }
+}
+
+document.getElementById("saveClassBtn").onclick = async () => {
+    const name = document.getElementById("className").value;
+    const section = document.getElementById("classSection").value;
+
+    if (!name) return alert("Class name is required");
+
+    try {
+        await addDoc(collection(db, "classes"), {
+            name: name,
+            section: section,
+            createdAt: new Date()
+        });
+        alert("Class Created!");
+        document.getElementById("className").value = "";
+        document.getElementById("classSection").value = "";
+        loadClasses();
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+};
+
+window.deleteClass = async (id) => {
+    if(confirm("Delete this class?")){
+        await deleteDoc(doc(db, "classes", id));
+        loadClasses();
+    }
+};
+
+// Ensure it loads when tab is clicked
+document.getElementById("classesTab").addEventListener('click', loadClasses);
+    
 // Initial Loads
 loadStudents();   
 loadUsers();     // Added this to ensure data is fetched in the background
