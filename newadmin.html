@@ -431,13 +431,14 @@ async function loadStudents() {
               const userCred = await createUserWithEmailAndPassword(auth, email, pass);
               
               // Save to Firestore including the name
-              await setDoc(doc(db, "users", userCred.user.uid), {
-                  fullName: name, // Added to Firestore
-                  email: email,
-                  role: role,
-                  status: "active",
-                  createdAt: new Date()
-              });
+await setDoc(doc(db, "users", userCred.user.uid), {
+    fullName: name,
+    email: email,
+    role: role,
+    assignedClass: document.getElementById('uAssignedClass').value, // New field
+    status: "active",
+    createdAt: new Date()
+});
       
               alert("User Created! System will now sign you out to verify the new account.");
               
