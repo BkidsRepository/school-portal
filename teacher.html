@@ -75,11 +75,10 @@
             </div>
 
             <div id="pastSection" style="display:none;">
-                <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
-                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date:</label>
-                    <input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;">
-                    <button class="btn-submit" id="loadHistoryBtn" style="margin-top:10px; background:var(--primary);">View Attendance List</button>
-                </div>
+<div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+<label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date to View/Edit:</label>
+<input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;">
+</div>
                 <div class="table-container">
                     <table>
                         <thead><tr><th>Student Name</th><th style="text-align:center;">Status</th></tr></thead>
@@ -186,29 +185,60 @@
         };
 
         // Load Past Logic
-        document.getElementById('loadHistoryBtn').onclick = async () => {
-            const selDate = document.getElementById('historyDate').value;
-            if(!selDate) return alert("Select a date");
-            
-            const table = document.getElementById('pastStuTable');
-            table.innerHTML = "<tr><td colspan='2'>Loading records...</td></tr>";
+// 1. Add the Change Event Listener
+document.getElementById('historyDate').addEventListener('change', async (e) => {
+    const selectedDate = e.target.value;
+    if (!selectedDate) return;
 
-            const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-            const sSnap = await getDocs(q);
-            
-            const aSnap = await getDocs(query(collection(db, "attendance"), where("date", "==", selDate)));
-            const attMap = {};
-            aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
+    const table = document.getElementById('pastStuTable');
+    table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Loading records for " + selectedDate + "...</td></tr>";
+    
+    // Hide update button while loading
+    document.getElementById('updatePastBtn').style.display = "none";
 
-            table.innerHTML = "";
-            sSnap.forEach(sDoc => {
-                const s = sDoc.data();
-                const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                const checked = attMap[sDoc.id] === "absent" ? "" : "checked";
-                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${checked}></td></tr>`;
-            });
-            document.getElementById('updatePastBtn').style.display = "block";
-        };
+    try {
+        if (!globalTeacherClass) {
+            table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error: Class not identified. Refresh page.</td></tr>";
+            return;
+        }
+
+        // Fetch Students and Attendance simultaneously
+        const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+        const qAttendance = query(collection(db, "attendance"), where("date", "==", selectedDate));
+        
+        const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAttendance)]);
+
+        const attMap = {};
+        aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
+
+        table.innerHTML = "";
+        if (sSnap.empty) {
+            table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>No students found for " + globalTeacherClass + "</td></tr>";
+            return;
+        }
+
+        sSnap.forEach(sDoc => {
+            const s = sDoc.data();
+            const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+            const isAbsent = attMap[sDoc.id] === "absent";
+            
+            table.innerHTML += `
+                <tr>
+                    <td>${name}</td>
+                    <td style="text-align:center;">
+                        <input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isAbsent ? "" : "checked"}>
+                    </td>
+                </tr>`;
+        });
+
+        // Show update button once list is ready
+        document.getElementById('updatePastBtn').style.display = "block";
+
+    } catch (error) {
+        console.error("Auto-load error:", error);
+        table.innerHTML = `<tr><td colspan='2' style='color:red;'>Permission Error: Check Firestore Rules for 'attendance' collection.</td></tr>`;
+    }
+});
 
         // Update Past
         document.getElementById('updatePastBtn').onclick = async () => {
