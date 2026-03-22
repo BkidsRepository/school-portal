@@ -42,11 +42,33 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+
+// Function to format the date as "DD Mon. YYYY"
+const formatAttendanceDate = () => {
+    const today = new Date();
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    
+    // This creates "22 Mar 2026"
+    let dateString = today.toLocaleDateString('en-GB', options);
+    
+    // Optional: Add the dot after the month (e.g., "Mar.")
+    dateString = dateString.replace(/([a-zA-Z]{3})/, '$1.');
+    
+    return dateString;
+};
+
+// Apply the date to the button text
+const attendanceBtn = document.getElementById('submitBtn');
+attendanceBtn.innerText = `Submit Attendance for ${formatAttendanceDate()}`;
+    
     // Listen for the logged-in user
-// Inside the <script type="module"> in teacher.html
+
+    
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         // Display the logged-in email immediately
+        const formattedDate = formatAttendanceDate();
+        document.getElementById('submitBtn').innerText = `Submit Attendance for ${formattedDate}`;
         document.getElementById('userEmail').textContent = user.email;
 
         try {
