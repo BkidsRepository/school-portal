@@ -100,6 +100,7 @@ button { padding:10px; cursor:pointer; }
 <div id="usersSection" style="display:none;">
     <div class="card">
         <h3>Create New User (Staff/Admin)</h3>
+        <input id="uName" placeholder="Full Name"> 
         <input id="uEmail" placeholder="Email">
         <input id="uPass" placeholder="Password" type="password">
         <select id="uRole">
@@ -364,6 +365,7 @@ async function loadUsers() {
             const u = d.data();
             tbody.innerHTML += `
                 <tr>
+                    <td style="padding:8px;">${u.fullName || 'N/A'}</td>
                     <td style="padding:8px;">${u.email}</td>
                     <td style="padding:8px;"><strong>${u.role}</strong></td>
                     <td style="padding:8px;">
@@ -379,18 +381,19 @@ async function loadUsers() {
 
 // 2. The Create User Logic (Targets the correct 'createUserBtn' ID)
 document.getElementById("createUserBtn").onclick = async () => {
+    const name = document.getElementById("uName").value; // Capture Name
     const email = document.getElementById("uEmail").value;
     const pass = document.getElementById("uPass").value;
     const role = document.getElementById("uRole").value;
 
-    if (!email || !pass) return alert("Please enter both email and password.");
+    if (!name || !email || !pass) return alert("Please enter name, email, and password.");
 
     try {
-        // Firebase creates the user and automatically swaps the session
         const userCred = await createUserWithEmailAndPassword(auth, email, pass);
         
-        // Save to Firestore 
+        // Save to Firestore including the name
         await setDoc(doc(db, "users", userCred.user.uid), {
+            fullName: name, // Added to Firestore
             email: email,
             role: role,
             status: "active",
@@ -400,7 +403,7 @@ document.getElementById("createUserBtn").onclick = async () => {
         alert("User Created! System will now sign you out to verify the new account.");
         
         await signOut(auth);
-        location.reload(); 
+        location.reload();
 } catch (error) {
     if (error.code === 'auth/email-already-in-use') {
         alert("This email is already registered. Please use a different email or delete the existing user first.");
