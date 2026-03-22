@@ -1,574 +1,552 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>School ERP Admin</title>
-
-<style>
-:root { --primary:#2c3e50; --secondary:#3498db; --bg:#f4f7f6; }
-body { margin:0; font-family:sans-serif; display:flex; height:100vh; }
-
-#sidebar { width:250px; background:var(--primary); color:#fff; padding:20px; display:flex; flex-direction:column; }
-.nav-link { padding:12px; margin-bottom:8px; background:none; border:none; color:#ccc; cursor:pointer; text-align:left; }
-.nav-link.active, .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
-
-#main { flex:1; display:flex; flex-direction:column; }
-#header { background:#fff; padding:15px; border-bottom:1px solid #ddd; }
-#content { padding:20px; overflow:auto; }
-
-.card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; }
-input, select { width:100%; padding:10px; margin-bottom:10px; }
-button { padding:10px; cursor:pointer; }
-
-.avatar { width:50px; height:50px; border-radius:50%; object-fit:cover; background:#ccc; }
-
-#editModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-.modal { background:#fff; padding:20px; border-radius:10px; width:320px; }
-
-</style>
-</head>
-<body>
-
-<div id="sidebar">
-    <h2>ERP Panel</h2>
-    <button class="nav-link active" id="studentsTab">Students</button>
-    <button class="nav-link" id="classesTab">Classes</button> <button class="nav-link" id="usersTab">Users</button>
-    <button class="nav-link" id="attendanceTab">Attendance</button>
-    <button class="nav-link" id="inquiryTab">Inquiries</button>
-</div>
-
-<div id="main">
-<div id="header">Admin Dashboard</div>
-<div id="content">
-
-<!-- STUDENTS -->
-<div id="studentsSection">
-
-<div class="card">
-<h3>Add Student</h3>
-<input id="fName" placeholder="First Name">
-<input id="lName" placeholder="Last Name">
-<input id="momName" placeholder="Mother Name">
-<select id="stuClass">
-    <option value="">Select Class</option>
-</select>
-<label>Photo</label>
-<input type="file" id="photoFile" accept="image/*">
-<img id="preview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
-<button id="saveBtn">Save</button>
-</div>
-
-<div class="card">
-<h3>Students</h3>
-<table border="1" width="100%">
-<thead>
-<tr><th>Photo</th><th>Name</th><th>Class</th><th>Mother</th><th>Action</th></tr>
-</thead>
-<tbody id="stuBody"></tbody>
-</table>
-</div>
-
-</div>
-
-<!-- CLASS -->
-<div id="classesSection" style="display:none;">
-    <div class="card">
-        <h3>Create New Class</h3>
-        <input id="className" placeholder="Class Name (e.g., 1st Grade)">
-        <input id="classSection" placeholder="Section (e.g., A)">
-        <button id="saveClassBtn">Create Class</button>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School ERP Admin</title>
+    <style>
+      :root { --primary:#2c3e50; --secondary:#3498db; --bg:#f4f7f6; }
+      body { margin:0; font-family:sans-serif; display:flex; height:100vh; }
+      #sidebar { width:250px; background:var(--primary); color:#fff; padding:20px; display:flex; flex-direction:column; }
+      .nav-link { padding:12px; margin-bottom:8px; background:none; border:none; color:#ccc; cursor:pointer; text-align:left; }
+      .nav-link.active, .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
+      #main { flex:1; display:flex; flex-direction:column; }
+      #header { background:#fff; padding:15px; border-bottom:1px solid #ddd; }
+      #content { padding:20px; overflow:auto; }
+      .card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; }
+      input, select { width:100%; padding:10px; margin-bottom:10px; }
+      button { padding:10px; cursor:pointer; }
+      .avatar { width:50px; height:50px; border-radius:50%; object-fit:cover; background:#ccc; }
+      #editModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+      .modal { background:#fff; padding:20px; border-radius:10px; width:320px; }
+    </style>
+  </head>
+  <body>
+    <div id="sidebar">
+      <h2>ERP Panel</h2>
+      <button class="nav-link active" id="studentsTab">Students</button>
+      <button class="nav-link" id="classesTab">Classes</button> <button class="nav-link" id="usersTab">Users</button>
+      <button class="nav-link" id="attendanceTab">Attendance</button>
+      <button class="nav-link" id="inquiryTab">Inquiries</button>
     </div>
-
-    <div class="card">
-        <h3>Available Classes</h3>
-        <table border="1" width="100%" style="border-collapse: collapse;">
-            <thead>
-                <tr style="background: #eee;">
-                    <th>Class Name</th>
-                    <th>Section</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="classListBody"></tbody>
-        </table>
-    </div>
-</div>
-
-    
-<!-- USERS -->
-<div id="usersSection" style="display:none;">
-    <div class="card">
-        <h3>Create New User (Staff/Admin)</h3>
-        <input id="uName" placeholder="Full Name"> 
-        <input id="uEmail" placeholder="Email">
-        <input id="uPass" placeholder="Password" type="password">
-        <select id="uRole">
-            <option value="teacher">Teacher</option>
-            <option value="admin">Admin admin</option>
-        </select>
-        <button id="createUserBtn">Register User</button>
-        <p style="font-size: 0.8em; color: #666;">Note: Creating a user will sign you out for security.</p>
-    </div>
-
-    <div class="card">
-        <h3>System Access List</h3>
-        <table border="1" width="100%" style="border-collapse: collapse;">
-            <thead>
-                <tr style="background: #eee;">
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="userListBody"></tbody>
-        </table>
-    </div>
-<div id="userEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-    <div class="modal">
-        <h3>Edit User</h3>
-        <input type="hidden" id="editUserId">
-        <input id="euName" placeholder="Full Name">
-        <input id="euEmail" placeholder="Email" readonly style="background:#eee;"> 
-        <select id="euRole">
-            <option value="teacher">Teacher</option>
-            <option value="admin">Admin admin</option>
-        </select>
-        <button id="updateUserBtn">Update User</button>
-        <button onclick="document.getElementById('userEditModal').style.display='none'">Cancel</button>
-    </div>
-</div>
-    
-</div>
-
-<!-- ATTENDANCE -->
-<div id="attendanceSection" style="display:none;">
-<div class="card"><h3>Attendance Ready</h3></div>
-</div>
-
-<!-- INQUIRIES -->
-<div id="inquirySection" style="display:none;">
-<div class="card">
-<h3>Inquiries</h3>
-<ul id="inquiryList"></ul>
-</div>
-</div>
-
-</div>
-</div>
-
-<!-- EDIT MODAL -->
-<div id="editModal">
-<div class="modal">
-<h3>Edit Student</h3>
-<input type="hidden" id="editId">
-<input id="efName" placeholder="First Name">
-<input id="elName" placeholder="Last Name">
-<input id="emomName" placeholder="Mother Name">
-<select id="eClass">
-    <option value="">Select Class</option>
-</select>
-<label>Photo</label>
-<input type="file" id="editPhotoFile" accept="image/*">
-<img id="editPreview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
-<button id="updateBtn">Update</button>
-<button onclick="editModal.style.display='none'">Cancel</button>
-</div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
-const firebaseConfig = {
-apiKey:"AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
-authDomain:"bkids-56a2a.firebaseapp.com",
-projectId:"bkids-56a2a"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// TAB SWITCH
-// TAB SWITCH WITH ACTIVE STATE
-const tabs = {
-    studentsTab: "studentsSection",
-    classesTab: "classesSection",
-    usersTab: "usersSection",
-    attendanceTab: "attendanceSection",
-    inquiryTab: "inquirySection"
-};
-
-Object.keys(tabs).forEach(id => {
-    const btn = document.getElementById(id);
-    if (!btn) return;
-
-    btn.onclick = () => {
-        // 1. Hide all sections and remove 'active' from all buttons
-        Object.keys(tabs).forEach(tabId => {
-            const sectionId = tabs[tabId];
-            document.getElementById(sectionId).style.display = "none";
-            document.getElementById(tabId).classList.remove("active");
-        });
-        
-        // 2. Show the clicked section
-        document.getElementById(tabs[id]).style.display = "block";
-        
-        // 3. Add the 'active' class to the clicked button
-        btn.classList.add("active");
-        
-        // 4. Load relevant data for that section
-        if (id === 'usersTab') loadUsers();
-        if (id === 'inquiryTab') loadInquiries();
-        if (id === 'classesTab') loadClasses();
-        if (id === 'studentsTab') loadStudents();
-    };
-});
-
-
-    
-
-// IMAGE TO BASE64
-const toBase64 = (file)=> new Promise((res,rej)=>{
-const reader = new FileReader();
-reader.readAsDataURL(file);
-reader.onload=()=>res(reader.result);
-reader.onerror=err=>rej(err);
-});
-
-// PREVIEW NEW
-document.getElementById('photoFile').onchange = function(){
-if(this.files[0]){
-preview.src = URL.createObjectURL(this.files[0]);
-preview.style.display='block';
-}
-};
-
-// ADD STUDENT
-saveBtn.onclick = async ()=>{
-let photo="";
-if(photoFile.files[0]) photo = await toBase64(photoFile.files[0]);
-
-await addDoc(collection(db,"students"),{
-firstName:fName.value,
-lastName:lName.value,
-motherName:momName.value,
-class:stuClass.value,
-photo:photo
-});
-loadStudents();
-};
-
-
-    
-async function loadStudents(){
-const snap = await getDocs(collection(db,"students"));
-const body = document.getElementById('stuBody');
-body.innerHTML="";
-snap.forEach(d=>{
-const s = d.data();
-const img = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
-body.innerHTML += `<tr>
-<td>${img}</td>
-<td>${s.firstName} ${s.lastName}</td>
-<td>${s.class}</td>
-<td>${s.motherName}</td>
-<td>
-<button onclick="edit('${d.id}')">Edit</button>
-<button onclick="del('${d.id}')">Delete</button>
-</td>
-</tr>`;
-});
-}
-
-
-// Function to populate all class dropdowns in the app
-async function populateClassDropdowns() {
-    const addSelect = document.getElementById('stuClass');
-    const editSelect = document.getElementById('eClass');
-    
-    try {
-        const snap = await getDocs(collection(db, "classes"));
-        
-        // Clear existing options except the first "Select" option
-        addSelect.innerHTML = '<option value="">Select Class</option>';
-        editSelect.innerHTML = '<option value="">Select Class</option>';
-        
-        snap.forEach(d => {
-            const c = d.data();
-            const optionText = `${c.name} ${c.section ? '(' + c.section + ')' : ''}`;
-            const optionValue = c.name; // Or use d.id if you prefer to store the ID
-
-            const opt1 = document.createElement('option');
-            opt1.value = optionValue;
-            opt1.textContent = optionText;
-            addSelect.appendChild(opt1);
-
-            const opt2 = document.createElement('option');
-            opt2.value = optionValue;
-            opt2.textContent = optionText;
-            editSelect.appendChild(opt2);
-        });
-    } catch (err) {
-        console.error("Error loading classes for dropdowns:", err);
-    }
-}
-
-    
-window.edit = async (id)=>{
-    const snap = await getDocs(collection(db,"students"));
-
-    // 🔥 RESET FIRST (IMPORTANT)
-    editPhotoFile.value = "";
-    editPreview.src = "";
-    editPreview.style.display = "none";
-
-    snap.forEach(d=>{
-        if(d.id===id){
-            const s=d.data();
-
-            editModal.style.display='flex';
-            editId.value=id;
-
-            efName.value=s.firstName;
-            elName.value=s.lastName;
-            emomName.value=s.motherName;
-            eClass.value=s.class;
-
-            // ✅ Show correct photo
-            if(s.photo){
-                editPreview.src = s.photo;
-                editPreview.style.display = 'block';
-            }
-        }
-    });
-};
-
-// PREVIEW EDIT
-editPhotoFile.onchange=function(){
-if(this.files[0]){
-editPreview.src = URL.createObjectURL(this.files[0]);
-editPreview.style.display='block';
-}
-};
-
-// UPDATE
-updateBtn.onclick = async ()=>{
-let data={
-firstName:efName.value,
-lastName:elName.value,
-motherName:emomName.value,
-class:eClass.value
-};
-
-if(editPhotoFile.files[0]){
-data.photo = await toBase64(editPhotoFile.files[0]);
-}
-
-await updateDoc(doc(db,"students",editId.value),data);
-editModal.style.display='none';
-loadStudents();
-};
-
-window.del = async (id)=>{
-await deleteDoc(doc(db,"students",id));
-loadStudents();
-};
-
-
- // --- USER MANAGEMENT ---
-
-// 1. Unified function to load the user list
-async function loadUsers() {
-    const tbody = document.getElementById('userListBody');
-    if(!tbody) return;
-    
-    try {
-        const snap = await getDocs(collection(db, "users"));
-        tbody.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            tbody.innerHTML += `
+    <div id="main">
+      <div id="header">Admin Dashboard</div>
+      <div id="content">
+        <!-- STUDENTS -->
+        <div id="studentsSection">
+          <div class="card">
+            <h3>Add Student</h3>
+            <input id="fName" placeholder="First Name">
+            <input id="fatherName" placeholder="Father Name">
+            <input id="lName" placeholder="Last Name">
+            <input id="momName" placeholder="Mother Name">
+            <select id="stuClass">
+              <option value="">Select Class</option>
+            </select>
+            <label>Photo</label>
+            <input type="file" id="photoFile" accept="image/*">
+            <img id="preview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
+            <button id="saveBtn">Save</button>
+          </div>
+          <div class="card">
+            <h3>Students</h3>
+            <table border="1" width="100%">
+              <thead>
                 <tr>
-                    <td style="padding:8px;">${u.fullName || 'N/A'}</td>
-                    <td style="padding:8px;">${u.email}</td>
-                    <td style="padding:8px;"><strong>${u.role}</strong></td>
-                    <td style="padding:8px;">
-                        <button onclick="editUser('${d.id}')">Edit</button>
-                        <button onclick="deleteUserDoc('${d.id}')">Remove Access</button>
-                    </td>
-                </tr>`;
-        });
-    } catch (err) {
-        console.error("Access Denied:", err);
-        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red; padding:10px;'>Login as Admin to view users.</td></tr>";
-    }
-}
-
-// 2. The Create User Logic (Targets the correct 'createUserBtn' ID)
-document.getElementById("createUserBtn").onclick = async () => {
-    const name = document.getElementById("uName").value; // Capture Name
-    const email = document.getElementById("uEmail").value;
-    const pass = document.getElementById("uPass").value;
-    const role = document.getElementById("uRole").value;
-
-    if (!name || !email || !pass) return alert("Please enter name, email, and password.");
-
-    try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-        
-        // Save to Firestore including the name
-        await setDoc(doc(db, "users", userCred.user.uid), {
-            fullName: name, // Added to Firestore
-            email: email,
-            role: role,
-            status: "active",
-            createdAt: new Date()
-        });
-
-        alert("User Created! System will now sign you out to verify the new account.");
-        
-        await signOut(auth);
-        location.reload();
-} catch (error) {
-    if (error.code === 'auth/email-already-in-use') {
-        alert("This email is already registered. Please use a different email or delete the existing user first.");
-    } else {
-        alert("Error: " + error.message);
-    }
-}
-};
-
-// 3. Delete user doc (Global function for the 'Remove' button)
-window.deleteUserDoc = async (id) => {
-    if(confirm("Revoke this user's database access?")){
-        try {
-            await deleteDoc(doc(db, "users", id));
-            loadUsers();
-        } catch (e) {
-            alert("Delete failed: " + e.message);
-        }
-    }
-};
-// 1. Open Modal and Load Data
-window.editUser = async (id) => {
-    const userEditModal = document.getElementById('userEditModal');
-    try {
-        const snap = await getDocs(collection(db, "users"));
-        snap.forEach(d => {
-            if(d.id === id) {
-                const u = d.data();
-                document.getElementById('editUserId').value = id;
-                document.getElementById('euName').value = u.fullName || "";
-                document.getElementById('euEmail').value = u.email;
-                document.getElementById('euRole').value = u.role;
-                userEditModal.style.display = 'flex';
-            }
-        });
-    } catch (err) {
-        alert("Error loading user: " + err.message);
-    }
-};
-
-// 2. Handle Update Click
-document.getElementById("updateUserBtn").onclick = async () => {
-    const id = document.getElementById('editUserId').value;
-    const updatedData = {
-        fullName: document.getElementById('euName').value,
-        role: document.getElementById('euRole').value
-    };
-
-    try {
-        await updateDoc(doc(db, "users", id), updatedData);
-        alert("User updated successfully!");
-        document.getElementById('userEditModal').style.display = 'none';
-        loadUsers(); // Refresh the table
-    } catch (err) {
-        alert("Update failed: " + err.message);
-    }
-};
-
-
-    
-// 4. Inquiries Loader
-async function loadInquiries(){
-    const snap = await getDocs(collection(db,"inquiries"));
-    const list = document.getElementById('inquiryList');
-    if(!list) return;
-    list.innerHTML="";
-    snap.forEach(d=>{
-        list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
-    });
-}
-
-// 5. Tab Interaction Updates
-document.getElementById("usersTab").addEventListener('click', loadUsers);
-document.getElementById("inquiryTab").addEventListener('click', loadInquiries);
-
-
-// --- CLASS MANAGEMENT ---
-
-async function loadClasses() {
-    const tbody = document.getElementById('classListBody');
-    try {
-        const snap = await getDocs(collection(db, "classes"));
-        tbody.innerHTML = "";
-        snap.forEach(d => {
-            const c = d.data();
-            tbody.innerHTML += `
-                <tr>
-                    <td style="padding:8px;">${c.name}</td>
-                    <td style="padding:8px;">${c.section}</td>
-                    <td style="padding:8px;">
-                        <button onclick="deleteClass('${d.id}')">Delete</button>
-                    </td>
-                </tr>`;
-        });
-    } catch (err) {
-        console.error("Error loading classes:", err);
-    }
-}
-
-document.getElementById("saveClassBtn").onclick = async () => {
-    const name = document.getElementById("className").value;
-    const section = document.getElementById("classSection").value;
-
-    if (!name) return alert("Class name is required");
-
-    try {
-        await addDoc(collection(db, "classes"), {
-            name: name,
-            section: section,
-            createdAt: new Date()
-        });
-        alert("Class Created!");
-        document.getElementById("className").value = "";
-        document.getElementById("classSection").value = "";
-        loadClasses();
-        await populateClassDropdowns();
-    } catch (err) {
-        alert("Error: " + err.message);
-    }
-};
-
-window.deleteClass = async (id) => {
-    if(confirm("Delete this class?")){
-        await deleteDoc(doc(db, "classes", id));
-        loadClasses();
-    }
-};
-
-// Ensure it loads when tab is clicked
-document.getElementById("classesTab").addEventListener('click', loadClasses);
-    
-// Initial Loads
-loadStudents();   
-loadUsers();     // Added this to ensure data is fetched in the background
-loadInquiries(); // Added this for consistency;   
-populateClassDropdowns();
-
-</script>
-</body>
+                  <th>Photo</th>
+                  <th>Name</th>
+                  <th>Class</th>
+                  <th>Mother</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="stuBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- CLASS -->
+        <div id="classesSection" style="display:none;">
+          <div class="card">
+            <h3>Create New Class</h3>
+            <input id="className" placeholder="Class Name (e.g., 1st Grade)">
+            <input id="classSection" placeholder="Section (e.g., A)">
+            <button id="saveClassBtn">Create Class</button>
+          </div>
+          <div class="card">
+            <h3>Available Classes</h3>
+            <table border="1" width="100%" style="border-collapse: collapse;">
+              <thead>
+                <tr style="background: #eee;">
+                  <th>Class Name</th>
+                  <th>Section</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="classListBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- USERS -->
+        <div id="usersSection" style="display:none;">
+          <div class="card">
+            <h3>Create New User (Staff/Admin)</h3>
+            <input id="uName" placeholder="Full Name"> 
+            <input id="uEmail" placeholder="Email">
+            <input id="uPass" placeholder="Password" type="password">
+            <select id="uRole">
+              <option value="teacher">Teacher</option>
+              <option value="admin">Admin admin</option>
+            </select>
+            <button id="createUserBtn">Register User</button>
+            <p style="font-size: 0.8em; color: #666;">Note: Creating a user will sign you out for security.</p>
+          </div>
+          <div class="card">
+            <h3>System Access List</h3>
+            <table border="1" width="100%" style="border-collapse: collapse;">
+              <thead>
+                <tr style="background: #eee;">
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="userListBody"></tbody>
+            </table>
+          </div>
+          <div id="userEditModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+            <div class="modal">
+              <h3>Edit User</h3>
+              <input type="hidden" id="editUserId">
+              <input id="euName" placeholder="Full Name">
+              <input id="euEmail" placeholder="Email" readonly style="background:#eee;"> 
+              <select id="euRole">
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin admin</option>
+              </select>
+              <button id="updateUserBtn">Update User</button>
+              <button onclick="document.getElementById('userEditModal').style.display='none'">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <!-- ATTENDANCE -->
+        <div id="attendanceSection" style="display:none;">
+          <div class="card">
+            <h3>Attendance Ready</h3>
+          </div>
+        </div>
+        <!-- INQUIRIES -->
+        <div id="inquirySection" style="display:none;">
+          <div class="card">
+            <h3>Inquiries</h3>
+            <ul id="inquiryList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- EDIT MODAL -->
+    <div id="editModal">
+      <div class="modal">
+        <h3>Edit Student</h3>
+        <input type="hidden" id="editId">
+        <input id="efName" placeholder="First Name">
+        <input id="efatherName" placeholder="Father Name">
+        <input id="elName" placeholder="Last Name">
+        <input id="emomName" placeholder="Mother Name">
+        <select id="eClass">
+          <option value="">Select Class</option>
+        </select>
+        <label>Photo</label>
+        <input type="file" id="editPhotoFile" accept="image/*">
+        <img id="editPreview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
+        <button id="updateBtn">Update</button>
+        <button onclick="editModal.style.display='none'">Cancel</button>
+      </div>
+    </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+      import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+      
+      const firebaseConfig = {
+      apiKey:"AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
+      authDomain:"bkids-56a2a.firebaseapp.com",
+      projectId:"bkids-56a2a"
+      };
+      
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      
+      // TAB SWITCH
+      // TAB SWITCH WITH ACTIVE STATE
+      const tabs = {
+          studentsTab: "studentsSection",
+          classesTab: "classesSection",
+          usersTab: "usersSection",
+          attendanceTab: "attendanceSection",
+          inquiryTab: "inquirySection"
+      };
+      
+      Object.keys(tabs).forEach(id => {
+          const btn = document.getElementById(id);
+          if (!btn) return;
+      
+          btn.onclick = () => {
+              // 1. Hide all sections and remove 'active' from all buttons
+              Object.keys(tabs).forEach(tabId => {
+                  const sectionId = tabs[tabId];
+                  document.getElementById(sectionId).style.display = "none";
+                  document.getElementById(tabId).classList.remove("active");
+              });
+              
+              // 2. Show the clicked section
+              document.getElementById(tabs[id]).style.display = "block";
+              
+              // 3. Add the 'active' class to the clicked button
+              btn.classList.add("active");
+              
+              // 4. Load relevant data for that section
+              if (id === 'usersTab') loadUsers();
+              if (id === 'inquiryTab') loadInquiries();
+              if (id === 'classesTab') loadClasses();
+              if (id === 'studentsTab') loadStudents();
+          };
+      });
+      
+      
+          
+      
+      // IMAGE TO BASE64
+      const toBase64 = (file)=> new Promise((res,rej)=>{
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload=()=>res(reader.result);
+      reader.onerror=err=>rej(err);
+      });
+      
+      // PREVIEW NEW
+      document.getElementById('photoFile').onchange = function(){
+      if(this.files[0]){
+      preview.src = URL.createObjectURL(this.files[0]);
+      preview.style.display='block';
+      }
+      };
+      
+      // ADD STUDENT
+      saveBtn.onclick = async () => {
+          let photo = "";
+          if(photoFile.files) photo = await toBase64(photoFile.files);
+      
+          await addDoc(collection(db, "students"), {
+              firstName: document.getElementById('fName').value,
+              fatherName: document.getElementById('fatherName').value, // Added
+              lastName: document.getElementById('lName').value,
+              motherName: document.getElementById('momName').value,
+              class: document.getElementById('stuClass').value,
+              photo: photo
+          });
+          fName.value = ""; fatherName.value = ""; lName.value = ""; // Clear inputs
+          loadStudents();
+      };
+      
+      
+          
+      // LOAD STUDENTS TABLE
+      async function loadStudents() {
+          const snap = await getDocs(collection(db, "students"));
+          const body = document.getElementById('stuBody');
+          body.innerHTML = "";
+          snap.forEach(d => {
+              const s = d.data();
+              const img = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
+              body.innerHTML += `<tr>
+                  <td>${img}</td>
+                  <td>${s.firstName} ${s.fatherName || ''} ${s.lastName}</td> <td>${s.class}</td>
+                  <td>${s.motherName}</td>
+                  <td>
+                      <button onclick="edit('${d.id}')">Edit</button>
+                      <button onclick="del('${d.id}')">Delete</button>
+                  </td>
+              </tr>`;
+          });
+      }
+      
+      
+      // Function to populate all class dropdowns in the app
+      async function populateClassDropdowns() {
+          const addSelect = document.getElementById('stuClass');
+          const editSelect = document.getElementById('eClass');
+          
+          try {
+              const snap = await getDocs(collection(db, "classes"));
+              
+              // Clear existing options except the first "Select" option
+              addSelect.innerHTML = '<option value="">Select Class</option>';
+              editSelect.innerHTML = '<option value="">Select Class</option>';
+              
+              snap.forEach(d => {
+                  const c = d.data();
+                  const optionText = `${c.name} ${c.section ? '(' + c.section + ')' : ''}`;
+                  const optionValue = c.name; // Or use d.id if you prefer to store the ID
+      
+                  const opt1 = document.createElement('option');
+                  opt1.value = optionValue;
+                  opt1.textContent = optionText;
+                  addSelect.appendChild(opt1);
+      
+                  const opt2 = document.createElement('option');
+                  opt2.value = optionValue;
+                  opt2.textContent = optionText;
+                  editSelect.appendChild(opt2);
+              });
+          } catch (err) {
+              console.error("Error loading classes for dropdowns:", err);
+          }
+      }
+      
+          
+      // EDIT FUNCTION (Populate Modal)
+      window.edit = async (id) => {
+          const snap = await getDocs(collection(db, "students"));
+          editPhotoFile.value = "";
+          editPreview.style.display = "none";
+      
+          snap.forEach(d => {
+              if(d.id === id) {
+                  const s = d.data();
+                  editModal.style.display = 'flex';
+                  editId.value = id;
+                  document.getElementById('efName').value = s.firstName;
+                  document.getElementById('efatherName').value = s.fatherName || ""; // Added
+                  document.getElementById('elName').value = s.lastName;
+                  document.getElementById('emomName').value = s.motherName;
+                  document.getElementById('eClass').value = s.class;
+                  if(s.photo) { editPreview.src = s.photo; editPreview.style.display = 'block'; }
+              }
+          });
+      };
+      
+      // PREVIEW EDIT
+      editPhotoFile.onchange=function(){
+      if(this.files[0]){
+      editPreview.src = URL.createObjectURL(this.files[0]);
+      editPreview.style.display='block';
+      }
+      };
+      
+      // UPDATE
+      updateBtn.onclick = async () => {
+          let data = {
+              firstName: document.getElementById('efName').value,
+              fatherName: document.getElementById('efatherName').value, // Added
+              lastName: document.getElementById('elName').value,
+              motherName: document.getElementById('emomName').value,
+              class: document.getElementById('eClass').value
+          };
+          if(editPhotoFile.files) data.photo = await toBase64(editPhotoFile.files);
+      
+          await updateDoc(doc(db, "students", editId.value), data);
+          editModal.style.display = 'none';
+          loadStudents();
+      };
+      
+      window.del = async (id)=>{
+      await deleteDoc(doc(db,"students",id));
+      loadStudents();
+      };
+      
+      
+       // --- USER MANAGEMENT ---
+      
+      // 1. Unified function to load the user list
+      async function loadUsers() {
+          const tbody = document.getElementById('userListBody');
+          if(!tbody) return;
+          
+          try {
+              const snap = await getDocs(collection(db, "users"));
+              tbody.innerHTML = "";
+              snap.forEach(d => {
+                  const u = d.data();
+                  tbody.innerHTML += `
+                      <tr>
+                          <td style="padding:8px;">${u.fullName || 'N/A'}</td>
+                          <td style="padding:8px;">${u.email}</td>
+                          <td style="padding:8px;"><strong>${u.role}</strong></td>
+                          <td style="padding:8px;">
+                              <button onclick="editUser('${d.id}')">Edit</button>
+                              <button onclick="deleteUserDoc('${d.id}')">Remove Access</button>
+                          </td>
+                      </tr>`;
+              });
+          } catch (err) {
+              console.error("Access Denied:", err);
+              tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red; padding:10px;'>Login as Admin to view users.</td></tr>";
+          }
+      }
+      
+      // 2. The Create User Logic (Targets the correct 'createUserBtn' ID)
+      document.getElementById("createUserBtn").onclick = async () => {
+          const name = document.getElementById("uName").value; // Capture Name
+          const email = document.getElementById("uEmail").value;
+          const pass = document.getElementById("uPass").value;
+          const role = document.getElementById("uRole").value;
+      
+          if (!name || !email || !pass) return alert("Please enter name, email, and password.");
+      
+          try {
+              const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+              
+              // Save to Firestore including the name
+              await setDoc(doc(db, "users", userCred.user.uid), {
+                  fullName: name, // Added to Firestore
+                  email: email,
+                  role: role,
+                  status: "active",
+                  createdAt: new Date()
+              });
+      
+              alert("User Created! System will now sign you out to verify the new account.");
+              
+              await signOut(auth);
+              location.reload();
+      } catch (error) {
+          if (error.code === 'auth/email-already-in-use') {
+              alert("This email is already registered. Please use a different email or delete the existing user first.");
+          } else {
+              alert("Error: " + error.message);
+          }
+      }
+      };
+      
+      // 3. Delete user doc (Global function for the 'Remove' button)
+      window.deleteUserDoc = async (id) => {
+          if(confirm("Revoke this user's database access?")){
+              try {
+                  await deleteDoc(doc(db, "users", id));
+                  loadUsers();
+              } catch (e) {
+                  alert("Delete failed: " + e.message);
+              }
+          }
+      };
+      // 1. Open Modal and Load Data
+      window.editUser = async (id) => {
+          const userEditModal = document.getElementById('userEditModal');
+          try {
+              const snap = await getDocs(collection(db, "users"));
+              snap.forEach(d => {
+                  if(d.id === id) {
+                      const u = d.data();
+                      document.getElementById('editUserId').value = id;
+                      document.getElementById('euName').value = u.fullName || "";
+                      document.getElementById('euEmail').value = u.email;
+                      document.getElementById('euRole').value = u.role;
+                      userEditModal.style.display = 'flex';
+                  }
+              });
+          } catch (err) {
+              alert("Error loading user: " + err.message);
+          }
+      };
+      
+      // 2. Handle Update Click
+      document.getElementById("updateUserBtn").onclick = async () => {
+          const id = document.getElementById('editUserId').value;
+          const updatedData = {
+              fullName: document.getElementById('euName').value,
+              role: document.getElementById('euRole').value
+          };
+      
+          try {
+              await updateDoc(doc(db, "users", id), updatedData);
+              alert("User updated successfully!");
+              document.getElementById('userEditModal').style.display = 'none';
+              loadUsers(); // Refresh the table
+          } catch (err) {
+              alert("Update failed: " + err.message);
+          }
+      };
+      
+      
+          
+      // 4. Inquiries Loader
+      async function loadInquiries(){
+          const snap = await getDocs(collection(db,"inquiries"));
+          const list = document.getElementById('inquiryList');
+          if(!list) return;
+          list.innerHTML="";
+          snap.forEach(d=>{
+              list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
+          });
+      }
+      
+      // 5. Tab Interaction Updates
+      document.getElementById("usersTab").addEventListener('click', loadUsers);
+      document.getElementById("inquiryTab").addEventListener('click', loadInquiries);
+      
+      
+      // --- CLASS MANAGEMENT ---
+      
+      async function loadClasses() {
+          const tbody = document.getElementById('classListBody');
+          try {
+              const snap = await getDocs(collection(db, "classes"));
+              tbody.innerHTML = "";
+              snap.forEach(d => {
+                  const c = d.data();
+                  tbody.innerHTML += `
+                      <tr>
+                          <td style="padding:8px;">${c.name}</td>
+                          <td style="padding:8px;">${c.section}</td>
+                          <td style="padding:8px;">
+                              <button onclick="deleteClass('${d.id}')">Delete</button>
+                          </td>
+                      </tr>`;
+              });
+          } catch (err) {
+              console.error("Error loading classes:", err);
+          }
+      }
+      
+      document.getElementById("saveClassBtn").onclick = async () => {
+          const name = document.getElementById("className").value;
+          const section = document.getElementById("classSection").value;
+      
+          if (!name) return alert("Class name is required");
+      
+          try {
+              await addDoc(collection(db, "classes"), {
+                  name: name,
+                  section: section,
+                  createdAt: new Date()
+              });
+              alert("Class Created!");
+              document.getElementById("className").value = "";
+              document.getElementById("classSection").value = "";
+              loadClasses();
+              await populateClassDropdowns();
+          } catch (err) {
+              alert("Error: " + err.message);
+          }
+      };
+      
+      window.deleteClass = async (id) => {
+          if(confirm("Delete this class?")){
+              await deleteDoc(doc(db, "classes", id));
+              loadClasses();
+          }
+      };
+      
+      // Ensure it loads when tab is clicked
+      document.getElementById("classesTab").addEventListener('click', loadClasses);
+          
+      // Initial Loads
+      loadStudents();   
+      loadUsers();     // Added this to ensure data is fetched in the background
+      loadInquiries(); // Added this for consistency;   
+      populateClassDropdowns();
+      
+    </script>
+  </body>
 </html>
