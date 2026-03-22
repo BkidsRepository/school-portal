@@ -277,12 +277,14 @@ const photoImg = s.photo
 
 
 
+
 document.getElementById('updateBtn').onclick = async () => {
     const btn = document.getElementById('updateBtn');
     const id = document.getElementById('editId').value;
     
-    // FIX: Add to get the actual image file instead of the list
-    const file = document.getElementById('editPhotoFile').files; 
+    // FIX: Get the first file from the FileList object
+    const fileInput = document.getElementById('editPhotoFile');
+    const file = fileInput.files; 
 
     btn.disabled = true;
     btn.innerText = "Updating...";
@@ -296,9 +298,10 @@ document.getElementById('updateBtn').onclick = async () => {
             class: document.getElementById('eClass').value
         };
 
-        // Only process the photo if a new one was picked
+        // Only process if a new file was actually selected
         if (file) {
             btn.innerText = "⚡ Processing...";
+            // Pass the single file object to your fastCompress function
             updateData.photo = await fastCompress(file);
         }
 
@@ -313,6 +316,8 @@ document.getElementById('updateBtn').onclick = async () => {
         btn.innerText = "Update Record";
     }
 };
+
+    
 
 
     
