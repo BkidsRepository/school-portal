@@ -6,32 +6,160 @@
 <title>School ERP Admin</title>
 
 <style>
-:root { --primary:#2c3e50; --secondary:#3498db; --bg:#f4f7f6; }
-body { margin:0; font-family:sans-serif; display:flex; height:100vh; }
+:root {
+    --primary:#2c3e50;
+    --secondary:#3498db;
+    --bg:#f4f7f6;
+}
 
-#sidebar { width:250px; background:var(--primary); color:#fff; padding:20px; display:flex; flex-direction:column; }
-.nav-link { padding:12px; margin-bottom:8px; background:none; border:none; color:#ccc; cursor:pointer; text-align:left; }
-.nav-link.active, .nav-link:hover { background:rgba(255,255,255,0.1); color:#fff; }
+body {
+    margin:0;
+    font-family:'Segoe UI',sans-serif;
+    display:flex;
+    height:100vh;
+    background:var(--bg);
+}
 
-#main { flex:1; display:flex; flex-direction:column; }
-#header { background:#fff; padding:15px; border-bottom:1px solid #ddd; }
-#content { padding:20px; overflow:auto; }
+#sidebar {
+    width:260px;
+    background:var(--primary);
+    color:#fff;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+}
 
-.card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px; }
-input, select { width:100%; padding:10px; margin-bottom:10px; }
-button { padding:10px; cursor:pointer; }
+#sidebar h2 {
+    text-align:center;
+    margin-bottom:20px;
+}
 
-.avatar { width:50px; height:50px; border-radius:50%; object-fit:cover; background:#ccc; }
+.nav-link {
+    padding:12px;
+    margin-bottom:8px;
+    border-radius:8px;
+    border:none;
+    color:#bdc3c7;
+    background:none;
+    cursor:pointer;
+    text-align:left;
+    transition:0.3s;
+}
 
-#editModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-.modal { background:#fff; padding:20px; border-radius:10px; width:320px; }
+.nav-link.active, .nav-link:hover {
+    background:rgba(255,255,255,0.1);
+    color:#fff;
+}
+
+#main {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+#header {
+    background:#fff;
+    padding:15px 25px;
+    border-bottom:1px solid #ddd;
+    font-weight:bold;
+}
+
+#content {
+    padding:20px;
+    overflow:auto;
+}
+
+.card {
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+input, select {
+    width:100%;
+    padding:12px;
+    margin-bottom:12px;
+    border:1px solid #ddd;
+    border-radius:6px;
+}
+
+button {
+    padding:12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.btn-primary {
+    background:var(--secondary);
+    color:#fff;
+    width:100%;
+}
+
+.table-wrap {
+    overflow-x:auto;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+}
+
+th {
+    background:#f8f9fa;
+    padding:12px;
+    text-align:left;
+}
+
+td {
+    padding:10px;
+    border-top:1px solid #eee;
+}
+
+.avatar {
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.action-btn {
+    padding:6px 10px;
+    border-radius:4px;
+    margin-right:5px;
+}
+
+.edit { background:#3498db; color:#fff; }
+.delete { background:#e74c3c; color:#fff; }
+
+#editModal {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal {
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    width:320px;
+}
 
 </style>
 </head>
 <body>
 
 <div id="sidebar">
-<h2>ERP Panel</h2>
+<h2>🎓 ERP Panel</h2>
 <button class="nav-link active" id="studentsTab">Students</button>
 <button class="nav-link" id="usersTab">Users</button>
 <button class="nav-link" id="attendanceTab">Attendance</button>
@@ -54,20 +182,21 @@ button { padding:10px; cursor:pointer; }
 <option>Jr. KG</option>
 <option>Sr. KG</option>
 </select>
-<label>Photo</label>
 <input type="file" id="photoFile" accept="image/*">
 <img id="preview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
-<button id="saveBtn">Save</button>
+<button class="btn-primary" id="saveBtn">Save Student</button>
 </div>
 
 <div class="card">
 <h3>Students</h3>
-<table border="1" width="100%">
+<div class="table-wrap">
+<table>
 <thead>
 <tr><th>Photo</th><th>Name</th><th>Class</th><th>Mother</th><th>Action</th></tr>
 </thead>
 <tbody id="stuBody"></tbody>
 </table>
+</div>
 </div>
 
 </div>
@@ -82,13 +211,13 @@ button { padding:10px; cursor:pointer; }
 <option value="teacher">Teacher</option>
 <option value="admin">Admin</option>
 </select>
-<button id="createUser">Create</button>
+<button class="btn-primary" id="createUser">Create User</button>
 </div>
 </div>
 
 <!-- ATTENDANCE -->
 <div id="attendanceSection" style="display:none;">
-<div class="card"><h3>Attendance Ready</h3></div>
+<div class="card"><h3>Attendance (Coming Soon)</h3></div>
 </div>
 
 <!-- INQUIRIES -->
@@ -102,22 +231,18 @@ button { padding:10px; cursor:pointer; }
 </div>
 </div>
 
-<!-- EDIT MODAL -->
+<!-- MODAL -->
 <div id="editModal">
 <div class="modal">
 <h3>Edit Student</h3>
 <input type="hidden" id="editId">
-<input id="efName" placeholder="First Name">
-<input id="elName" placeholder="Last Name">
-<input id="emomName" placeholder="Mother Name">
-<select id="eClass">
-<option>Jr. KG</option>
-<option>Sr. KG</option>
-</select>
-<label>Photo</label>
-<input type="file" id="editPhotoFile" accept="image/*">
-<img id="editPreview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
-<button id="updateBtn">Update</button>
+<input id="efName">
+<input id="elName">
+<input id="emomName">
+<select id="eClass"><option>Jr. KG</option><option>Sr. KG</option></select>
+<input type="file" id="editPhotoFile">
+<img id="editPreview" style="display:none;width:60px;height:60px;border-radius:50%;">
+<button class="btn-primary" id="updateBtn">Update</button>
 <button onclick="editModal.style.display='none'">Cancel</button>
 </div>
 </div>
@@ -127,158 +252,65 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebas
 import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-const firebaseConfig = {
-apiKey:"AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
-authDomain:"bkids-56a2a.firebaseapp.com",
-projectId:"bkids-56a2a"
-};
-
-const app = initializeApp(firebaseConfig);
+const app = initializeApp({ apiKey:"AIzaSy...", authDomain:"bkids-56a2a.firebaseapp.com", projectId:"bkids-56a2a" });
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// TAB SWITCH
-const tabs = {studentsTab:"studentsSection",usersTab:"usersSection",attendanceTab:"attendanceSection",inquiryTab:"inquirySection"};
-Object.keys(tabs).forEach(id=>{
-document.getElementById(id).onclick=()=>{
-Object.values(tabs).forEach(sec=>document.getElementById(sec).style.display="none");
-document.getElementById(tabs[id]).style.display="block";
-};
-});
+const toBase64 = file => new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(file);});
 
-// IMAGE TO BASE64
-const toBase64 = (file)=> new Promise((res,rej)=>{
-const reader = new FileReader();
-reader.readAsDataURL(file);
-reader.onload=()=>res(reader.result);
-reader.onerror=err=>rej(err);
-});
-
-// PREVIEW NEW
-document.getElementById('photoFile').onchange = function(){
-if(this.files[0]){
-preview.src = URL.createObjectURL(this.files[0]);
-preview.style.display='block';
-}
-};
-
-// ADD STUDENT
-saveBtn.onclick = async ()=>{
+saveBtn.onclick=async()=>{
 let photo="";
-if(photoFile.files[0]) photo = await toBase64(photoFile.files[0]);
-
-await addDoc(collection(db,"students"),{
-firstName:fName.value,
-lastName:lName.value,
-motherName:momName.value,
-class:stuClass.value,
-photo:photo
-});
+if(photoFile.files[0]) photo=await toBase64(photoFile.files[0]);
+await addDoc(collection(db,"students"),{firstName:fName.value,lastName:lName.value,motherName:momName.value,class:stuClass.value,photo});
 loadStudents();
 };
 
 async function loadStudents(){
-const snap = await getDocs(collection(db,"students"));
-const body = document.getElementById('stuBody');
-body.innerHTML="";
+const snap=await getDocs(collection(db,"students"));
+stuBody.innerHTML="";
 snap.forEach(d=>{
-const s = d.data();
-const img = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
-body.innerHTML += `<tr>
-<td>${img}</td>
+const s=d.data();
+stuBody.innerHTML+=`<tr>
+<td>${s.photo?`<img src="${s.photo}" class="avatar">`:''}</td>
 <td>${s.firstName} ${s.lastName}</td>
 <td>${s.class}</td>
 <td>${s.motherName}</td>
 <td>
-<button onclick="edit('${d.id}')">Edit</button>
-<button onclick="del('${d.id}')">Delete</button>
+<button class="action-btn edit" onclick="edit('${d.id}')">Edit</button>
+<button class="action-btn delete" onclick="del('${d.id}')">Delete</button>
 </td>
 </tr>`;
 });
 }
 
-window.edit = async (id)=>{
-    const snap = await getDocs(collection(db,"students"));
+window.del=async id=>{await deleteDoc(doc(db,"students",id));loadStudents();};
 
-    // 🔥 RESET FIRST (IMPORTANT)
-    editPhotoFile.value = "";
-    editPreview.src = "";
-    editPreview.style.display = "none";
-
-    snap.forEach(d=>{
-        if(d.id===id){
-            const s=d.data();
-
-            editModal.style.display='flex';
-            editId.value=id;
-
-            efName.value=s.firstName;
-            elName.value=s.lastName;
-            emomName.value=s.motherName;
-            eClass.value=s.class;
-
-            // ✅ Show correct photo
-            if(s.photo){
-                editPreview.src = s.photo;
-                editPreview.style.display = 'block';
-            }
-        }
-    });
-};
-
-// PREVIEW EDIT
-editPhotoFile.onchange=function(){
-if(this.files[0]){
-editPreview.src = URL.createObjectURL(this.files[0]);
-editPreview.style.display='block';
+window.edit=async id=>{
+editPhotoFile.value="";editPreview.style.display="none";
+const snap=await getDocs(collection(db,"students"));
+snap.forEach(d=>{
+if(d.id===id){
+const s=d.data();
+editModal.style.display='flex';
+editId.value=id;
+efName.value=s.firstName;
+elName.value=s.lastName;
+emomName.value=s.motherName;
+eClass.value=s.class;
+if(s.photo){editPreview.src=s.photo;editPreview.style.display='block';}
 }
+});
 };
 
-// UPDATE
-updateBtn.onclick = async ()=>{
-let data={
-firstName:efName.value,
-lastName:elName.value,
-motherName:emomName.value,
-class:eClass.value
-};
-
-if(editPhotoFile.files[0]){
-data.photo = await toBase64(editPhotoFile.files[0]);
-}
-
+updateBtn.onclick=async()=>{
+let data={firstName:efName.value,lastName:elName.value,motherName:emomName.value,class:eClass.value};
+if(editPhotoFile.files[0]) data.photo=await toBase64(editPhotoFile.files[0]);
 await updateDoc(doc(db,"students",editId.value),data);
 editModal.style.display='none';
 loadStudents();
 };
 
-window.del = async (id)=>{
-await deleteDoc(doc(db,"students",id));
 loadStudents();
-};
-
-loadStudents();
-
-// CREATE USER
-createUser.onclick = async ()=>{
-const userCred = await createUserWithEmailAndPassword(auth,uEmail.value,uPass.value);
-await setDoc(doc(db,"users",userCred.user.uid),{email:uEmail.value,role:uRole.value});
-alert("User Created");
-await signOut(auth);
-location.reload();
-};
-
-// INQUIRIES
-async function loadInquiries(){
-const snap = await getDocs(collection(db,"inquiries"));
-const list = document.getElementById('inquiryList');
-list.innerHTML="";
-snap.forEach(d=>{
-list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
-});
-}
-loadInquiries();
-
 </script>
 </body>
 </html>
