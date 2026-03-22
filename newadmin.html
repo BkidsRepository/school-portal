@@ -75,28 +75,30 @@ button { padding:10px; cursor:pointer; }
 <!-- USERS -->
 <div id="usersSection" style="display:none;">
     <div class="card">
-        <h3>Create User</h3>
+        <h3>Create New User (Staff/Admin)</h3>
         <input id="uEmail" placeholder="Email">
         <input id="uPass" placeholder="Password" type="password">
         <select id="uRole">
             <option value="teacher">Teacher</option>
-            <option value="admin">Admin</option>
+            <option value="admin">Admin admin</option>
         </select>
-        <button id="createUserBtn">Create User</button>
+        <button id="createUserBtn">Register User</button>
+        <p style="font-size: 0.8em; color: #666;">Note: Creating a user will sign you out for security.</p>
     </div>
 
-<div class="card">
-    <h3>Existing Users</h3>
-    <table border="1" width="100%" style="border-collapse: collapse; margin-top: 10px;">
-        <thead>
-            <tr style="background: #eee;">
-                <th>Email</th>
-                <th>Role</th>
-            </tr>
-        </thead>
-        <tbody id="userListBody"></tbody>
-    </table>
-</div>
+    <div class="card">
+        <h3>System Access List</h3>
+        <table border="1" width="100%" style="border-collapse: collapse;">
+            <thead>
+                <tr style="background: #eee;">
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="userListBody"></tbody>
+        </table>
+    </div>
 </div>
 
 <!-- ATTENDANCE -->
@@ -299,87 +301,68 @@ list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
 
 // --- USER MANAGEMENT LOGIC ---
 
-// 1. Fetch and display users
+// 1. Unified function to load the user list
 async function loadUsers() {
-    const userBody = document.getElementById('userBody');
-    userBody.innerHTML = "Loading...";
+    const tbody = document.getElementById('userListBody');
+    if(!tbody) return;
+    
     try {
         const snap = await getDocs(collection(db, "users"));
-        userBody.innerHTML = "";
+        tbody.innerHTML = "";
         snap.forEach(d => {
             const u = d.data();
-            userBody.innerHTML += `
+            tbody.innerHTML += `
                 <tr>
-                    <td>${u.email}</td>
-                    <td>${u.role}</td>
-                    <td><button onclick="deleteUserDoc('${d.id}')">Remove Access</button></td>
+                    <td style="padding:8px;">${u.email}</td>
+                    <td style="padding:8px;"><strong>${u.role}</strong></td>
+                    <td style="padding:8px;">
+                        <button onclick="deleteUserDoc('${d.id}')">Remove</button>
+                    </td>
                 </tr>`;
         });
     } catch (err) {
-        console.error("Error loading users:", err);
-        userBody.innerHTML = "Error loading users.";
+        console.error("Access Denied:", err);
+        tbody.innerHTML = "<tr><td colspan='3'>Login as Admin to view users.</td></tr>";
     }
 }
 
-// 2. Create User Fix
+// 2. The Create User Logic
 document.getElementById("createUserBtn").onclick = async () => {
     const email = document.getElementById("uEmail").value;
     const pass = document.getElementById("uPass").value;
     const role = document.getElementById("uRole").value;
 
-    if (!email || !pass) return alert("Fields cannot be empty");
+    if (!email || !pass) return alert("Please enter both email and password.");
 
     try {
-        // 1. This action will sign the ADMIN out and the NEW USER in
+        // Firebase creates the user and automatically swaps the session
         const userCred = await createUserWithEmailAndPassword(auth, email, pass);
         
-        // 2. Create the Firestore record for the NEW user
-        // Note: This works because the NEW user is now the "request.auth" 
-        // IF you use the 'allow create: if request.auth.uid == userId' rule.
-        // STICKING TO ADMIN-ONLY: The Admin must log back in to see the list again.
-        
+        // Save to Firestore (The new user has permission to 'create' their own doc per your rules)
         await setDoc(doc(db, "users", userCred.user.uid), {
             email: email,
             role: role,
-            createdBy: "Admin"
+            status: "active"
         });
 
-        alert("User account created. You will now be signed out. Please log back in as Admin.");
+        alert("User Created! System will now sign you out to verify the new account.");
         
         await signOut(auth);
-        location.reload(); // Redirects to login
+        location.reload(); 
     } catch (error) {
-        alert("System Error: " + error.message);
+        alert("Error: " + error.message);
     }
 };
-// 3. Delete User Document (Firestore Only)
+
+    
+// 3. Delete user doc
 window.deleteUserDoc = async (id) => {
-    if(confirm("Remove this user's record? (Note: This does not delete them from Firebase Auth)")){
+    if(confirm("Revoke this user's database access?")){
         await deleteDoc(doc(db, "users", id));
         loadUsers();
     }
 };
-
-async function loadUserList() {
-    const tbody = document.getElementById('userListBody');
-    try {
-        const snap = await getDocs(collection(db, "users"));
-        tbody.innerHTML = "";
-        snap.forEach(doc => {
-            const user = doc.data();
-            tbody.innerHTML += `
-                <tr>
-                    <td style="padding:8px;">${user.email}</td>
-                    <td style="padding:8px;"><strong>${user.role}</strong></td>
-                </tr>`;
-        });
-    } catch (e) {
-        tbody.innerHTML = "<tr><td colspan='2'>Access Denied or Login Required</td></tr>";
-    }
-}
-    
-// Initial Load
-loadUsers();    
+document.getElementById("usersTab").addEventListener('click', loadUsers);
 
 loadInquiries();
 
