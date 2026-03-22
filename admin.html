@@ -61,7 +61,7 @@
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:16 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:30 am</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -233,48 +233,51 @@ function filterTable() {
 
     window.filterTable = filterTable;
 
+
+
+async function loadTable() {
+    const body = document.getElementById('stuBody');
+    // Fetch students sorted by first name
+    const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+    body.innerHTML = "";
     
-    async function loadTable() {
-        const body = document.getElementById('stuBody');
-        const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
-        // Update this specific part inside your loadTable loop
-const photoImg = s.photo 
-    ? `<img src="${s.photo}" class="avatar">` 
-    : `<div class="avatar" style="background:#ddd; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
-        body.innerHTML = "";
+    snap.forEach(d => {
+        const s = d.data();
+        // Fixed variable name to 'photoImg'
+        const photoImg = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar" style="background:#ddd; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
         
-        snap.forEach(d => {
-            const s = d.data();
-            const photoImg = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar" style="background:#ddd; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${photoImg}</td>
-                <td><b>${s.firstName} ${s.lastName}</b></td>
-                <td>${s.class}</td>
-                <td>${s.motherName || '-'}</td>
-                <td>
-                    <button class="edit-btn" style="color:blue; border:none; background:none; cursor:pointer;">Edit</button> | 
-                    <button class="del-btn" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
-                </td>`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${photoImg}</td>
+            <td><b>${s.firstName} ${s.lastName}</b></td>
+            <td>${s.class}</td>
+            <td>${s.motherName || '-'}</td>
+            <td>
+                <button class="edit-btn" style="color:blue; border:none; background:none; cursor:pointer;">Edit</button> | 
+                <button class="del-btn" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
+            </td>`;
 
-            tr.querySelector('.edit-btn').onclick = () => {
-                document.getElementById('editId').value = d.id;
-                document.getElementById('efName').value = s.firstName;
-                document.getElementById('emName').value = s.middleName || "";
-                document.getElementById('elName').value = s.lastName;
-                document.getElementById('emomName').value = s.motherName || "";
-                document.getElementById('eClass').value = s.class;
-                document.getElementById('editModal').style.display = 'flex';
-            };
+        // Link the Edit button to your modal
+        tr.querySelector('.edit-btn').onclick = () => {
+            document.getElementById('editId').value = d.id;
+            document.getElementById('efName').value = s.firstName;
+            document.getElementById('elName').value = s.lastName;
+            document.getElementById('emomName').value = s.motherName || "";
+            document.getElementById('eClass').value = s.class;
+            document.getElementById('editModal').style.display = 'flex';
+        };
 
-            tr.querySelector('.del-btn').onclick = async () => {
-                if (confirm("Delete?")) { await deleteDoc(doc(db, "students", d.id)); loadTable(); }
-            };
-            body.appendChild(tr);
-        });
-    }
+        // Link the Delete button
+        tr.querySelector('.del-btn').onclick = async () => {
+            if (confirm("Delete this student?")) { 
+                await deleteDoc(doc(db, "students", d.id)); 
+                loadTable(); 
+            }
+        };
 
-
+        body.appendChild(tr);
+    });
+}
 
 
 
