@@ -233,21 +233,62 @@
       };
       
       // ADD STUDENT
-      saveBtn.onclick = async () => {
-          let photo = "";
-          if(photoFile.files) photo = await toBase64(photoFile.files);
-      
-          await addDoc(collection(db, "students"), {
-              firstName: document.getElementById('fName').value,
-              fatherName: document.getElementById('fatherName').value, // Added
-              lastName: document.getElementById('lName').value,
-              motherName: document.getElementById('momName').value,
-              class: document.getElementById('stuClass').value,
-              photo: photo
-          });
-          fName.value = ""; fatherName.value = ""; lName.value = ""; // Clear inputs
-          loadStudents();
-      };
+saveBtn.onclick = async () => {
+    let photo = "";
+    // FIX: Pass photoFile.files instead of photoFile.files
+    if (photoFile.files && photoFile.files) {
+        photo = await toBase64(photoFile.files);
+    }
+
+    try {
+        await addDoc(collection(db, "students"), {
+            firstName: document.getElementById('fName').value,
+            fatherName: document.getElementById('fatherName').value,
+            lastName: document.getElementById('lName').value,
+            motherName: document.getElementById('momName').value,
+            class: document.getElementById('stuClass').value,
+            photo: photo
+        });
+        
+        // Clear inputs after success
+        document.getElementById('fName').value = "";
+        document.getElementById('fatherName').value = "";
+        document.getElementById('lName').value = "";
+        document.getElementById('momName').value = "";
+        photoFile.value = ""; 
+        preview.style.display = 'none';
+        
+        alert("Student added successfully!");
+        loadStudents();
+    } catch (err) {
+        alert("Error saving student: " + err.message);
+    }
+};
+
+// --- FIXED UPDATE STUDENT ---
+updateBtn.onclick = async () => {
+    let data = {
+        firstName: document.getElementById('efName').value,
+        fatherName: document.getElementById('efatherName').value,
+        lastName: document.getElementById('elName').value,
+        motherName: document.getElementById('emomName').value,
+        class: document.getElementById('eClass').value
+    };
+
+    // FIX: Pass editPhotoFile.files instead of editPhotoFile.files
+    if (editPhotoFile.files && editPhotoFile.files) {
+        data.photo = await toBase64(editPhotoFile.files);
+    }
+
+    try {
+        await updateDoc(doc(db, "students", editId.value), data);
+        editModal.style.display = 'none';
+        alert("Student updated!");
+        loadStudents();
+    } catch (err) {
+        alert("Update failed: " + err.message);
+    }
+};      
       
       
           
@@ -334,22 +375,7 @@
       }
       };
       
-      // UPDATE
-      updateBtn.onclick = async () => {
-          let data = {
-              firstName: document.getElementById('efName').value,
-              fatherName: document.getElementById('efatherName').value, // Added
-              lastName: document.getElementById('elName').value,
-              motherName: document.getElementById('emomName').value,
-              class: document.getElementById('eClass').value
-          };
-          if(editPhotoFile.files) data.photo = await toBase64(editPhotoFile.files);
-      
-          await updateDoc(doc(db, "students", editId.value), data);
-          editModal.style.display = 'none';
-          loadStudents();
-      };
-      
+     
       window.del = async (id)=>{
       await deleteDoc(doc(db,"students",id));
       loadStudents();
