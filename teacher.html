@@ -206,12 +206,11 @@
             snap.forEach(sDoc => {
                 const s = sDoc.data();
                 const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                // Normalizing student data to ensure fields exist for carousel
                 studentDataList.push({ 
                     id: sDoc.id, 
                     ...s, 
                     fullName: name,
-                    photo: s.photoUrl || s.photo || "" // Check multiple possible field names
+                    photo: s.photoUrl || s.photo || ""
                 });
                 table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="att" data-id="${sDoc.id}" checked></td></tr>`;
             });
@@ -238,14 +237,22 @@
             
             overlay.style.display = 'flex';
             
-            // 1. Get today's attendance map first
+            // 1. Get today's attendance map from DB
             const aSnap = await getDocs(query(collection(db, "attendance"), where("date", "==", todayStr)));
             const attMap = {};
             aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
 
+            // 2. Also check the UI checkboxes in case user hasn't saved yet
+            const uiChecks = document.querySelectorAll('.att');
+            const uiAttMap = {};
+            uiChecks.forEach(cb => {
+                uiAttMap[cb.dataset.id] = cb.checked ? "present" : "absent";
+            });
+
             for (let i = 0; i < studentDataList.length; i++) {
                 const s = studentDataList[i];
-                const status = attMap[s.id] || "unknown";
+                // Prioritize UI state if available, then DB state, then default to "present"
+                const status = uiAttMap[s.id] || attMap[s.id] || "present";
                 const studentImg = s.photo || (placeholder + encodeURIComponent(s.fullName));
                 
                 statusText.innerText = `Displaying ${i+1} of ${studentDataList.length}`;
