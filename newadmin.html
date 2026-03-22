@@ -300,7 +300,7 @@ list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
 }
 // --- USER MANAGEMENT ---
 
-// 1. Function to load the user list
+// 1. Unified function to load the user list
 async function loadUsers() {
     const tbody = document.getElementById('userListBody');
     if(!tbody) return;
@@ -315,17 +315,17 @@ async function loadUsers() {
                     <td style="padding:8px;">${u.email}</td>
                     <td style="padding:8px;"><strong>${u.role}</strong></td>
                     <td style="padding:8px;">
-                        <button onclick="deleteUserDoc('${d.id}')">Remove</button>
+                        <button onclick="deleteUserDoc('${d.id}')">Remove Access</button>
                     </td>
                 </tr>`;
         });
     } catch (err) {
         console.error("Access Denied:", err);
-        tbody.innerHTML = "<tr><td colspan='3'>Permission Denied. Login as Admin.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; color:red; padding:10px;'>Login as Admin to view users.</td></tr>";
     }
 }
 
-// 2. The Create User Logic (Fixed ID to match your HTML 'createUserBtn')
+// 2. The Create User Logic (Corrected to use 'createUserBtn')
 document.getElementById("createUserBtn").onclick = async () => {
     const email = document.getElementById("uEmail").value;
     const pass = document.getElementById("uPass").value;
@@ -334,17 +334,18 @@ document.getElementById("createUserBtn").onclick = async () => {
     if (!email || !pass) return alert("Please enter both email and password.");
 
     try {
-        // Create user in Firebase Auth
+        // Firebase creates the user and automatically swaps the session
         const userCred = await createUserWithEmailAndPassword(auth, email, pass);
         
-        // Save profile to Firestore
+        // Save to Firestore 
         await setDoc(doc(db, "users", userCred.user.uid), {
             email: email,
             role: role,
-            status: "active"
+            status: "active",
+            createdAt: new Date()
         });
 
-        alert("User Created! You will be signed out now. Please log back in as Admin.");
+        alert("User Created! System will now sign you out to verify the new account.");
         
         await signOut(auth);
         location.reload(); 
@@ -353,7 +354,7 @@ document.getElementById("createUserBtn").onclick = async () => {
     }
 };
 
-// 3. Global Delete Function
+// 3. Delete user doc
 window.deleteUserDoc = async (id) => {
     if(confirm("Revoke this user's database access?")){
         try {
@@ -365,9 +366,12 @@ window.deleteUserDoc = async (id) => {
     }
 };
 
-// 4. Trigger load when clicking the tab
+// 4. Tab Switch Enhancements
 document.getElementById("usersTab").addEventListener('click', loadUsers);
+document.getElementById("inquiryTab").addEventListener('click', loadInquiries);
 
+// Initial Loads
+loadStudents();
 loadInquiries();
 
 </script>
