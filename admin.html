@@ -62,7 +62,7 @@
 
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:04 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:08 am</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -89,6 +89,10 @@
             <div class="card">
                 <h3>Registered Students</h3>
                 <div class="table-wrap">
+                    <div class="form-group" style="margin-bottom: 15px;">
+    <label>Search Students</label>
+    <input type="text" id="searchInput" placeholder="Type a name, class, or mother's name..." onkeyup="filterTable()">
+</div>
                     <table>
                         <thead>
                             <tr>
@@ -201,6 +205,34 @@
         } catch (err) { alert(err.message); btn.disabled = false; }
     };
 
+function filterTable() {
+    // Get the search string and convert to lowercase for case-insensitive matching
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.getElementById('stuBody').getElementsByTagName('tr');
+
+    // Loop through all table rows
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName('td');
+        let matchFound = false;
+
+        // Check each cell in the current row (starting from index 1 to skip the photo)
+        for (let j = 1; j < cells.length; j++) {
+            const cellText = cells[j].textContent || cells[j].innerText;
+            if (cellText.toLowerCase().indexOf(filter) > -1) {
+                matchFound = true;
+                break; // Stop checking other cells in this row if a match is found
+            }
+        }
+
+        // Show the row if a match was found, otherwise hide it
+        row.style.display = matchFound ? "" : "none";
+    }
+}
+
+    window.filterTable = filterTable;
+
+    
     async function loadTable() {
         const body = document.getElementById('stuBody');
         const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
