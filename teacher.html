@@ -45,7 +45,7 @@
         }
         @keyframes cardSlide { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         
-        .card img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid var(--bg); margin-bottom: 15px; }
+        .card img { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid #eee; margin-bottom: 15px; background: #fafafa; }
         .card h2 { margin: 10px 0 5px; color: var(--primary); }
         .card p { margin: 3px 0; font-size: 0.9rem; color: #666; }
 
@@ -206,7 +206,13 @@
             snap.forEach(sDoc => {
                 const s = sDoc.data();
                 const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                studentDataList.push({ id: sDoc.id, ...s, fullName: name });
+                // Normalizing student data to ensure fields exist for carousel
+                studentDataList.push({ 
+                    id: sDoc.id, 
+                    ...s, 
+                    fullName: name,
+                    photo: s.photoUrl || s.photo || "" // Check multiple possible field names
+                });
                 table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="att" data-id="${sDoc.id}" checked></td></tr>`;
             });
         }
@@ -228,6 +234,7 @@
             const overlay = document.getElementById('carouselOverlay');
             const container = document.getElementById('cardContainer');
             const statusText = document.getElementById('carouselStatus');
+            const placeholder = "https://ui-avatars.com/api/?background=random&color=fff&size=128&name=";
             
             overlay.style.display = 'flex';
             
@@ -238,17 +245,20 @@
 
             for (let i = 0; i < studentDataList.length; i++) {
                 const s = studentDataList[i];
-                const status = attMap[s.id] || "unknown"; // Fallback if not submitted yet
+                const status = attMap[s.id] || "unknown";
+                const studentImg = s.photo || (placeholder + encodeURIComponent(s.fullName));
                 
-                statusText.innerText = `Student ${i+1} of ${studentDataList.length}`;
+                statusText.innerText = `Displaying ${i+1} of ${studentDataList.length}`;
                 
                 container.innerHTML = `
                     <div class="card">
-                        <img src="${s.photoUrl || 'https://via.placeholder.com/150?text=Student'}" alt="Photo">
+                        <img src="${studentImg}" 
+                             alt="Student Photo" 
+                             onerror="this.src='${placeholder + encodeURIComponent(s.fullName)}'">
                         <h2>${s.fullName}</h2>
-                        <p><strong>Roll No:</strong> ${s.rollNo || 'N/A'}</p>
+                        <p><strong>Roll No:</strong> ${s.rollNo || '---'}</p>
                         <p><strong>Class:</strong> ${s.class}</p>
-                        <p><strong>DOB:</strong> ${s.dob || 'N/A'}</p>
+                        <p><strong>DOB:</strong> ${s.dob || '---'}</p>
                         <div class="stamp ${status === 'absent' ? 'stamp-absent' : 'stamp-present'}" id="stampNode">
                             ${status.toUpperCase()}
                         </div>
@@ -257,17 +267,17 @@
 
                 // Delay for card slide-in, then trigger stamp
                 await new Promise(r => setTimeout(r, 600));
-                document.getElementById('stampNode').classList.add('animate-stamp');
+                const stamp = document.getElementById('stampNode');
+                if(stamp) stamp.classList.add('animate-stamp');
                 
-                // Show card for a few seconds
+                // Show card for 2.5 seconds
                 await new Promise(r => setTimeout(r, 2500));
                 
-                // If the user closed the overlay during wait, stop loop
                 if (overlay.style.display === 'none') break;
             }
 
             statusText.innerText = "Carousel Finished.";
-            setTimeout(() => overlay.style.display = 'none', 1500);
+            setTimeout(() => { if(overlay.style.display === 'flex') overlay.style.display = 'none'; }, 1500);
         }
 
         // Past Attendance Logic
@@ -275,7 +285,7 @@
             const selDate = e.target.value;
             if(!selDate) return;
             const table = document.getElementById('pastStuTable');
-            table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Loading...</td></tr>";
+            table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Loading records...</td></tr>";
             
             try {
                 const qS = query(collection(db, "students"), where("class", "==", globalTeacherClass));
@@ -292,7 +302,10 @@
                     table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isAbsent ? "" : "checked"}></td></tr>`;
                 });
                 document.getElementById('updatePastBtn').style.display = "block";
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e);
+                table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error loading past records.</td></tr>";
+            }
         });
 
         document.getElementById('updatePastBtn').onclick = async () => {
@@ -303,7 +316,7 @@
                     studentId: cb.dataset.id, date: selDate, status: cb.checked ? "present" : "absent"
                 });
             }
-            alert("Updated!");
+            alert("Records updated successfully!");
         };
     </script>
 </body>
