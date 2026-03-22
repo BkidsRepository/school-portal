@@ -170,27 +170,35 @@
         }
     });
 
-    const fastCompress = (file) => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200; 
-                    const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
-                    canvas.height = img.height * scale;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.5)); 
-                };
-            };
-        });
-    };
 
+const fastCompress = (file) => {
+    return new Promise((resolve, reject) => {
+        // Double check the file is a Blob before starting
+        if (!file || !(file instanceof Blob)) {
+            return reject(new Error("No valid file provided for compression"));
+        }
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 200; 
+                const scale = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                resolve(canvas.toDataURL('image/jpeg', 0.5)); 
+            };
+            img.onerror = () => reject(new Error("Failed to load image"));
+        };
+        reader.onerror = () => reject(new Error("Failed to read file"));
+    });
+};
+    
     // SAVE LOGIC - NO PHOTO HANDLING
     document.getElementById('saveBtn').onclick = async () => {
         const btn = document.getElementById('saveBtn');
@@ -257,35 +265,43 @@
 
     // UPDATE LOGIC - PHOTO HANDLING ENABLED
     document.getElementById('updateBtn').onclick = async () => {
-        const btn = document.getElementById('updateBtn');
-        const id = document.getElementById('editId').value;
-        const photoInput = document.getElementById('editPhotoFile');
-        const file = photoInput.files;
+    const btn = document.getElementById('updateBtn');
+    const id = document.getElementById('editId').value;
+    const photoInput = document.getElementById('editPhotoFile');
+    
+    // Safety check: Get the first file if it exists
+    const file = photoInput.files ? photoInput.files : null;
 
-        btn.disabled = true;
-        btn.innerText = "Updating...";
+    btn.disabled = true;
+    btn.innerText = "Updating...";
 
-        try {
-            const updateData = {
-                firstName: document.getElementById('efName').value,
-                middleName: document.getElementById('emName').value,
-                lastName: document.getElementById('elName').value,
-                motherName: document.getElementById('emomName').value,
-                class: document.getElementById('eClass').value
-            };
+    try {
+        const updateData = {
+            firstName: document.getElementById('efName').value.trim(),
+            middleName: document.getElementById('emName').value.trim(),
+            lastName: document.getElementById('elName').value.trim(),
+            motherName: document.getElementById('emomName').value.trim(),
+            class: document.getElementById('eClass').value
+        };
 
-            if (file) {
-                updateData.photo = await fastCompress(file);
-            }
-
-            await updateDoc(doc(db, "students", id), updateData);
-            location.reload();
-        } catch (err) { 
-            alert(err.message); 
-            btn.disabled = false; 
-            btn.innerText = "Update Info";
+        // ONLY execute photo processing if a file is actually present
+        // This prevents the 'readAsDataURL' error
+        if (file && file instanceof Blob) {
+            btn.innerText = "⚡ Compressing...";
+            updateData.photo = await fastCompress(file);
         }
-    };
+
+        await updateDoc(doc(db, "students", id), updateData);
+        
+        btn.innerText = "✅ Updated!";
+        setTimeout(() => location.reload(), 500);
+    } catch (err) { 
+        console.error("Update Error:", err);
+        alert("Update failed: " + err.message); 
+        btn.disabled = false; 
+        btn.innerText = "Update Info";
+    }
+};
 
     window.closeModal = () => document.getElementById('editModal').style.display = 'none';
     
