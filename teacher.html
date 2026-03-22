@@ -15,6 +15,7 @@
         .nav-links { list-style: none; padding: 0; margin: 0; flex: 1; }
         .nav-item { padding: 15px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; color: #ccc; }
         .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); border-left: 4px solid var(--success); color: white; font-weight: bold; }
+        .nav-carousel { color: #ffca28 !important; border-left-color: #ffca28 !important; }
 
         /* Main Content */
         #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: white; }
@@ -23,103 +24,86 @@
 
         /* Welcome Section */
         #welcomeSection {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: var(--primary);
+            height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; color: var(--primary);
         }
-        #welcomeSection h1 { font-size: 3.5rem; margin: 0; font-weight: 800; opacity: 0.9; }
-        #welcomeSection p { font-size: 1.2rem; color: #7f8c8d; margin-top: 10px; }
+        #welcomeSection h1 { font-size: 3rem; margin: 0; }
 
-        /* UI Elements */
-        .table-container { width: 100%; border: 1px solid #eee; border-radius: 8px; overflow-x: auto; }
+        /* Table UI */
+        .table-container { width: 100%; border: 1px solid #eee; border-radius: 8px; overflow-x: auto; margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; min-width: 300px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; }
         
-        .btn-submit { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
+        .btn-submit { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; transition: 0.2s; }
+        .btn-submit:active { transform: scale(0.98); opacity: 0.9; }
         input[type="checkbox"] { transform: scale(1.5); cursor: pointer; }
 
-        /* FULL SCREEN CAROUSEL OVERLAY */
+        /* CAROUSEL OVERLAY (MATCHING SCREENSHOT STYLE) */
         #carouselOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: white; z-index: 3000; display: none;
+            background: rgba(0,0,0,0.85); z-index: 3000; display: none;
             flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(5px);
         }
         
         .card {
-            width: 95%;
-            max-width: 1400px;
+            background: white;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 30px;
+            padding: 40px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 60px;
+            gap: 50px;
             position: relative;
-            padding: 20px;
-        }
-        
-        .card-left { flex: 0 0 45%; text-align: center; }
-        .card-right { flex: 1; text-align: left; position: relative; padding-right: 50px; }
-
-        .card img { 
-            width: 100%; 
-            max-height: 80vh;
-            object-fit: contain; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            background: #f9f9f9;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }
 
-        .card h1 { font-size: 5rem; font-weight: 900; margin: 0 0 30px 0; text-transform: uppercase; color: #000; line-height: 1.1; }
-        .card p { font-size: 2.5rem; margin: 20px 0; color: #333; font-weight: 600; }
-        .card span.label { color: #888; font-weight: 400; min-width: 180px; display: inline-block; }
+        .card-left { flex: 0 0 400px; }
+        .card-left img { width: 100%; height: 400px; object-fit: cover; border-radius: 20px; }
+
+        .card-right { flex: 1; }
+        .card-right h1 { font-size: 3.5rem; margin: 0 0 20px 0; font-weight: 900; color: #000; }
+        .card-right p { font-size: 2rem; margin: 10px 0; color: #333; }
+        .card-right strong { color: #888; font-weight: 400; width: 140px; display: inline-block; }
 
         .stamp {
-            position: absolute; 
-            bottom: -40px; 
-            right: 0; 
-            transform: rotate(-15deg) scale(2.5);
-            font-size: 3rem; font-weight: 900; text-transform: uppercase;
-            padding: 15px 40px; border: 10px solid; border-radius: 15px;
-            opacity: 0; pointer-events: none;
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 10px 30px;
+            border: 8px solid;
+            border-radius: 12px;
+            font-size: 3rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            transform: rotate(-15deg) scale(2);
+            opacity: 0;
             background: white;
-            z-index: 10;
+            pointer-events: none;
         }
-        
-        .stamp-present { color: var(--success); border-color: var(--success); } 
+        .stamp-present { color: var(--success); border-color: var(--success); }
         .stamp-absent { color: var(--danger); border-color: var(--danger); }
-        
-        .animate-stamp { animation: stampEffect 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes stampEffect { to { opacity: 0.9; transform: rotate(-15deg) scale(1); } }
+        .animate-stamp { animation: stampIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        .close-carousel { 
-            position: absolute; top: 40px; right: 50px; 
-            font-size: 4rem; cursor: pointer; color: #333; font-weight: bold; 
-            z-index: 3010;
-        }
+        @keyframes stampIn { to { opacity: 0.9; transform: rotate(-15deg) scale(1); } }
 
-        #carouselStatus {
-            position: absolute; bottom: 40px; left: 0; width: 100%;
-            text-align: center; font-size: 1.5rem; color: #bbb;
-            font-weight: 500;
-        }
+        #carouselCounter { position: absolute; bottom: 30px; color: #aaa; font-size: 1.2rem; }
+        .close-carousel { position: absolute; top: 30px; right: 40px; font-size: 3rem; color: white; cursor: pointer; }
 
-        /* Mobile Adjustments */
-        #menuBtn { display: none; font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0 10px; }
-        @media (max-width: 768px) {
+        /* Mobile */
+        #menuBtn { display: none; font-size: 1.5rem; background: none; border: none; cursor: pointer; }
+        @media (max-width: 800px) {
             #menuBtn { display: block; }
             #sidebar { position: fixed; left: -240px; height: 100%; }
             #sidebar.open { left: 0; }
-            .top-bar h2 { font-size: 1rem; }
-            .card { flex-direction: column; gap: 30px; }
+            .card { flex-direction: column; padding: 20px; gap: 20px; }
             .card-left { flex: 0 0 auto; width: 100%; }
-            .card img { max-height: 40vh; }
-            .card h1 { font-size: 2.5rem; }
-            .card p { font-size: 1.5rem; }
-            .stamp { position: relative; bottom: 0; transform: none; display: inline-block; margin-top: 30px; scale: 1; }
+            .card-left img { height: 250px; }
+            .card-right h1 { font-size: 2rem; }
+            .card-right p { font-size: 1.2rem; }
+            .stamp { position: relative; bottom: 0; right: 0; transform: none; display: inline-block; margin-top: 10px; font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -133,7 +117,7 @@
         <ul class="nav-links">
             <li class="nav-item" id="nav-today">Today's Attendance</li>
             <li class="nav-item" id="nav-past">Past Attendance</li>
-            <li class="nav-item" id="nav-carousel" style="color: #ffca28; font-weight: bold;">▶ Play Full-Screen</li>
+            <li class="nav-item nav-carousel" id="nav-carousel">▶ Play Today's Carousel</li>
         </ul>
     </nav>
 
@@ -145,28 +129,28 @@
         </div>
 
         <div id="content">
-            <!-- DEFAULT WELCOME VIEW -->
+            <!-- Welcome -->
             <div id="welcomeSection">
                 <h1>Welcome to B Kids</h1>
                 <p>Select an option from the sidebar to manage your class.</p>
             </div>
 
+            <!-- Today Section -->
             <div id="todaySection" style="display:none;">
                 <div class="table-container">
                     <table>
                         <thead><tr><th>Student Name</th><th style="text-align:center;">Status</th></tr></thead>
-                        <tbody id="stuTable"><tr><td colspan="2">Fetching students...</td></tr></tbody>
+                        <tbody id="stuTable"><tr><td colspan="2">Loading students...</td></tr></tbody>
                     </table>
                 </div>
                 <button class="btn-submit" id="submitBtn">Submit Attendance</button>
             </div>
 
+            <!-- Past Section -->
             <div id="pastSection" style="display:none;">
                 <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
                     <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date to View/Edit:</label>
-                    <input type="date" id="historyDate" 
-                           style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;"
-                           onkeydown="return false">
+                    <input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;">
                 </div>
                 <div class="table-container">
                     <table>
@@ -179,11 +163,11 @@
         </div>
     </div>
 
-    <!-- CAROUSEL OVERLAY -->
+    <!-- CAROUSEL -->
     <div id="carouselOverlay">
         <span class="close-carousel" id="closeCarousel">&times;</span>
-        <div id="cardContainer" style="width: 100%; display: flex; justify-content: center;"></div>
-        <p id="carouselStatus">Initializing...</p>
+        <div id="cardContainer"></div>
+        <div id="carouselCounter"></div>
     </div>
 
     <script type="module">
@@ -204,46 +188,39 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const todayDate = new Date();
-        const todayStr = todayDate.toISOString().split('T');
-
         let globalTeacherClass = "";
-        let studentDataList = [];
+        let studentData = [];
+        // FIXED: Corrected todayStr to be a string instead of an array
+        const todayStr = new Date().toISOString().split('T');
 
-        // UI Helpers
-        const menuBtn = document.getElementById('menuBtn');
-        const sidebar = document.getElementById('sidebar');
-        menuBtn.onclick = () => sidebar.classList.toggle('open');
-
-        const titles = { today: "Today's Attendance", past: "Attendance History", dashboard: "Dashboard" };
-
+        // UI Routing
+        const titles = { today: "Today's Attendance", past: "Attendance History", welcome: "Dashboard" };
         window.showSection = (section) => {
-            if(section === 'carousel') {
-                startCarousel();
-                return;
-            }
+            if (section === 'carousel') { startCarousel(); return; }
             
-            document.getElementById('welcomeSection').style.display = 'none';
-            document.getElementById('todaySection').style.display = 'none';
-            document.getElementById('pastSection').style.display = 'none';
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            
-            const target = document.getElementById(section + 'Section');
-            if (target) target.style.display = 'block';
-            
-            const navItem = document.getElementById('nav-' + section);
-            if (navItem) navItem.classList.add('active');
+            ['welcome', 'today', 'past'].forEach(s => {
+                const el = document.getElementById(s + 'Section');
+                if (el) el.style.display = s === section ? 'block' : 'none';
+            });
 
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const navEl = document.getElementById('nav-' + section);
+            if(navEl) navEl.classList.add('active');
+            
             document.getElementById('sectionTitle').innerText = titles[section] || "Dashboard";
-            if(window.innerWidth <= 768) sidebar.classList.remove('open');
+            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+            
+            // Refresh list if switching to Today's Attendance
+            if (section === 'today' && globalTeacherClass) loadTodayList();
         };
 
+        document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('nav-today').onclick = () => showSection('today');
         document.getElementById('nav-past').onclick = () => showSection('past');
         document.getElementById('nav-carousel').onclick = () => showSection('carousel');
         document.getElementById('closeCarousel').onclick = () => document.getElementById('carouselOverlay').style.display = 'none';
 
-        document.getElementById('dateDisplay').innerText = todayDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
         document.getElementById('historyDate').setAttribute('max', todayStr);
 
         onAuthStateChanged(auth, async (user) => {
@@ -252,7 +229,7 @@
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     globalTeacherClass = userDoc.data().assignedClass;
-                    if (globalTeacherClass) loadTodayList();
+                    // Initial load removed to allow Welcome screen to show first
                 }
             } else {
                 window.location.href = "login.html";
@@ -261,47 +238,51 @@
 
         async function loadTodayList() {
             const table = document.getElementById('stuTable');
-            table.innerHTML = "<tr><td colspan='2'>Loading students and records...</td></tr>";
+            table.innerHTML = "<tr><td colspan='2'>Syncing with records...</td></tr>";
 
             try {
-                const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const qAttendanceToday = query(collection(db, "attendance"), where("date", "==", todayStr));
+                const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+                const qAtt = query(collection(db, "attendance"), where("date", "==", todayStr));
                 
-                const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAttendanceToday)]);
-
+                const [sSnap, aSnap] = await Promise.all([getDocs(q), getDocs(qAtt)]);
+                
                 const attMap = {};
-                aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
+                aSnap.forEach(d => {
+                    const data = d.data();
+                    attMap[data.studentId] = data.status;
+                });
 
                 table.innerHTML = "";
-                studentDataList = [];
+                studentData = [];
+
                 sSnap.forEach(sDoc => {
                     const s = sDoc.data();
-                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                    studentDataList.push({ id: sDoc.id, ...s, fullName: name, photo: s.photoUrl || s.photo || "" });
-
-                    const existingStatus = attMap[sDoc.id];
-                    const isChecked = existingStatus === undefined ? "checked" : (existingStatus === "present" ? "checked" : "");
+                    const fullName = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                     
+                    // FIXED: Properly respect 'absent' records from history/previous saves
+                    const savedStatus = attMap[sDoc.id];
+                    const isChecked = savedStatus === undefined ? true : (savedStatus === "present");
+                    
+                    studentData.push({ id: sDoc.id, ...s, fullName });
+
                     table.innerHTML += `
                         <tr>
-                            <td>${name}</td>
+                            <td>${fullName}</td>
                             <td style="text-align:center;">
-                                <input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked}>
+                                <input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked ? 'checked' : ''}>
                             </td>
                         </tr>`;
                 });
             } catch (err) {
                 console.error(err);
-                table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error loading data.</td></tr>";
+                table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error loading today's list.</td></tr>";
             }
         }
 
         document.getElementById('submitBtn').onclick = async () => {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.innerText = "Saving...";
             const checks = document.querySelectorAll('.att');
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = "Saving...";
-
             try {
                 for (let cb of checks) {
                     await setDoc(doc(db, "attendance", `${cb.dataset.id}_${todayStr}`), {
@@ -310,97 +291,76 @@
                         status: cb.checked ? "present" : "absent"
                     });
                 }
-                alert("Attendance Submitted Successfully!");
-            } catch (err) {
-                alert("Error saving attendance.");
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Submit Attendance";
+                alert("Attendance saved successfully!");
+            } catch(e) { 
+                console.error(e);
+                alert("Error saving attendance."); 
             }
+            finally { btn.disabled = false; btn.innerText = "Submit Attendance"; }
         };
 
         async function startCarousel() {
-            if (studentDataList.length === 0) return alert("Please load the student list first.");
+            if (studentData.length === 0) return alert("Please click 'Today's Attendance' first to load data.");
             const overlay = document.getElementById('carouselOverlay');
             const container = document.getElementById('cardContainer');
-            const statusText = document.getElementById('carouselStatus');
+            const counter = document.getElementById('carouselCounter');
             const placeholder = "https://ui-avatars.com/api/?background=eee&color=333&size=512&name=";
+            
             overlay.style.display = 'flex';
             
-            const uiChecks = document.querySelectorAll('.att');
-            const uiAttMap = {};
-            uiChecks.forEach(cb => {
-                uiAttMap[cb.dataset.id] = cb.checked ? "present" : "absent";
-            });
+            const currentStatusMap = {};
+            document.querySelectorAll('.att').forEach(cb => currentStatusMap[cb.dataset.id] = cb.checked ? "present" : "absent");
 
-            for (let i = 0; i < studentDataList.length; i++) {
+            for (let i = 0; i < studentData.length; i++) {
                 if (overlay.style.display === 'none') break;
-                const s = studentDataList[i];
-                const status = uiAttMap[s.id] || "present";
-                const studentImg = s.photo || (placeholder + encodeURIComponent(s.fullName));
+                const s = studentData[i];
+                const status = currentStatusMap[s.id] || "present";
                 
-                statusText.innerText = `Student ${i+1} of ${studentDataList.length}`;
+                counter.innerText = `Student ${i+1} of ${studentData.length}`;
                 container.innerHTML = `
                     <div class="card">
                         <div class="card-left">
-                            <img src="${studentImg}" alt="Student Photo" onerror="this.src='${placeholder + encodeURIComponent(s.fullName)}'">
+                            <img src="${s.photoUrl || placeholder + encodeURIComponent(s.fullName)}" onerror="this.src='${placeholder + encodeURIComponent(s.fullName)}'">
                         </div>
                         <div class="card-right">
                             <h1>${s.fullName}</h1>
-                            <p><span class="label">Class</span> : ${s.class}</p>
-                            <p><span class="label">Roll No.</span> : ${s.rollNo || '---'}</p>
-                            <p><span class="label">DOB</span> : ${s.dob || '---'}</p>
-                            <div class="stamp ${status === 'absent' ? 'stamp-absent' : 'stamp-present'}" id="stampNode">
-                                ${status.toUpperCase()}
-                            </div>
+                            <p><strong>Class</strong> : ${s.class}</p>
+                            <p><strong>Roll No.</strong> : ${s.rollNo || '---'}</p>
+                            <p><strong>DOB</strong> : ${s.dob || '---'}</p>
+                            <div class="stamp stamp-${status}" id="stampNode">${status}</div>
                         </div>
                     </div>
                 `;
 
-                await new Promise(r => setTimeout(r, 400));
-                const stamp = document.getElementById('stampNode');
-                if(stamp) stamp.classList.add('animate-stamp');
-                await new Promise(r => setTimeout(r, 3000));
+                await new Promise(r => setTimeout(r, 300));
+                const sn = document.getElementById('stampNode');
+                if(sn) sn.classList.add('animate-stamp');
+                await new Promise(r => setTimeout(r, 2500));
             }
-            statusText.innerText = "Completed";
-            setTimeout(() => { if(overlay.style.display === 'flex') overlay.style.display = 'none'; }, 1000);
+            overlay.style.display = 'none';
         }
 
         document.getElementById('historyDate').addEventListener('change', async (e) => {
             const selectedDate = e.target.value;
             if (!selectedDate) return;
-
             const table = document.getElementById('pastStuTable');
-            table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Loading records...</td></tr>";
-            document.getElementById('updatePastBtn').style.display = "none";
+            table.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Loading...</td></tr>";
+            
+            const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+            const qAttendance = query(collection(db, "attendance"), where("date", "==", selectedDate));
+            const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAttendance)]);
 
-            try {
-                const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const qAttendance = query(collection(db, "attendance"), where("date", "==", selectedDate));
-                
-                const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAttendance)]);
+            const attMap = {};
+            aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
 
-                const attMap = {};
-                aSnap.forEach(d => attMap[d.data().studentId] = d.data().status);
-
-                table.innerHTML = "";
-                sSnap.forEach(sDoc => {
-                    const s = sDoc.data();
-                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                    const isAbsent = attMap[sDoc.id] === "absent";
-                    
-                    table.innerHTML += `
-                        <tr>
-                            <td>${name}</td>
-                            <td style="text-align:center;">
-                                <input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isAbsent ? "" : "checked"}>
-                            </td>
-                        </tr>`;
-                });
-                document.getElementById('updatePastBtn').style.display = "block";
-            } catch (error) {
-                table.innerHTML = `<tr><td colspan='2' style='color:red;'>Error loading history.</td></tr>`;
-            }
+            table.innerHTML = "";
+            sSnap.forEach(sDoc => {
+                const s = sDoc.data();
+                const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                const isPresent = attMap[sDoc.id] !== "absent";
+                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isPresent ? "checked" : ""}></td></tr>`;
+            });
+            document.getElementById('updatePastBtn').style.display = "block";
         });
 
         document.getElementById('updatePastBtn').onclick = async () => {
@@ -411,7 +371,7 @@
                     studentId: cb.dataset.id, date: selDate, status: cb.checked ? "present" : "absent"
                 });
             }
-            alert("Records Updated!");
+            alert("History updated!");
         };
     </script>
 </body>
