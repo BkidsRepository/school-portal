@@ -232,10 +232,14 @@
       }
       };
       
+
+
+
+
 // --- FIXED ADD STUDENT ---
 saveBtn.onclick = async () => {
     let photo = "";
-    // FIX: Check for files and pass photoFile.files (the specific image)
+    // FIX: Pass photoFile.files (the specific Blob) instead of the FileList collection
     if (photoFile.files && photoFile.files) {
         photo = await toBase64(photoFile.files); 
     }
@@ -275,7 +279,7 @@ updateBtn.onclick = async () => {
         class: document.getElementById('eClass').value
     };
 
-    // FIX: Check for files and pass editPhotoFile.files
+    // FIX: Pass editPhotoFile.files instead of the FileList collection
     if (editPhotoFile.files && editPhotoFile.files) {
         data.photo = await toBase64(editPhotoFile.files);
     }
@@ -288,29 +292,32 @@ updateBtn.onclick = async () => {
     } catch (err) {
         alert("Update failed: " + err.message);
     }
-};   
+};
+
+
       
       
           
       // LOAD STUDENTS TABLE
-      async function loadStudents() {
-          const snap = await getDocs(collection(db, "students"));
-          const body = document.getElementById('stuBody');
-          body.innerHTML = "";
-          snap.forEach(d => {
-              const s = d.data();
-              const img = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
-              body.innerHTML += `<tr>
-                  <td>${img}</td>
-                  <td>${s.firstName} ${s.fatherName || ''} ${s.lastName}</td> <td>${s.class}</td>
-                  <td>${s.motherName}</td>
-                  <td>
-                      <button onclick="edit('${d.id}')">Edit</button>
-                      <button onclick="del('${d.id}')">Delete</button>
-                  </td>
-              </tr>`;
-          });
-      }
+async function loadStudents() {
+    const snap = await getDocs(collection(db, "students"));
+    const body = document.getElementById('stuBody');
+    body.innerHTML = "";
+    snap.forEach(d => {
+        const s = d.data();
+        const img = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
+        body.innerHTML += `<tr>
+            <td>${img}</td>
+            <td>${s.firstName} ${s.fatherName || ''} ${s.lastName}</td> 
+            <td>${s.class}</td>
+            <td>${s.motherName}</td>
+            <td>
+                <button onclick="edit('${d.id}')">Edit</button>
+                <button onclick="del('${d.id}')">Delete</button>
+            </td>
+        </tr>`;
+    });
+}
       
       
       // Function to populate all class dropdowns in the app
