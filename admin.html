@@ -62,7 +62,7 @@
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Admin Panel as on 01:03</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Admin Panel as on 01:07</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -186,6 +186,38 @@
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+    import { createUserWithEmailAndPassword, signOut } 
+from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+import { setDoc, doc } 
+from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const studentsTab = document.getElementById('studentsTab');
+const usersTab = document.getElementById('usersTab');
+
+const studentsSection = document.getElementById('studentsSection');
+const usersSection = document.getElementById('usersSection');
+
+// Switch to Students
+studentsTab.onclick = () => {
+    studentsSection.style.display = "block";
+    usersSection.style.display = "none";
+
+    studentsTab.classList.add("active");
+    usersTab.classList.remove("active");
+};
+
+// Switch to Users
+usersTab.onclick = () => {
+    studentsSection.style.display = "none";
+    usersSection.style.display = "block";
+
+    usersTab.classList.add("active");
+    studentsTab.classList.remove("active");
+};
+
+    
+    
     const firebaseConfig = {
         apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
         authDomain: "bkids-56a2a.firebaseapp.com",
@@ -321,6 +353,8 @@
         });
     }
 
+
+    
     // THE FIXED UPDATE LOGIC
     document.getElementById('updateBtn').onclick = async () => {
         const btn = document.getElementById('updateBtn');
@@ -370,6 +404,35 @@
         }
     };
 
+document.getElementById('createUserBtn').onclick = async () => {
+    const email = document.getElementById('uEmail').value.trim();
+    const password = document.getElementById('uPassword').value.trim();
+    const role = document.getElementById('uRole').value;
+
+    if (!email || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+        await setDoc(doc(db, "users", userCred.user.uid), {
+            email: email,
+            role: role
+        });
+
+        alert("✅ User created successfully!");
+
+        // IMPORTANT: logout new user and go back to admin
+        await signOut(auth);
+        location.reload();
+
+    } catch (err) {
+        alert(err.message);
+    }
+};
+    
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 </script>
 </body>
