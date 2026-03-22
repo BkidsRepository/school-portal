@@ -54,18 +54,23 @@
 
     <nav id="sidebar">
         <h2>B Kids Admin</h2>
-        <button class="nav-link active">Students</button>
-        <button class="nav-link">Inquiries</button>
+<button class="nav-link active" id="studentsTab">Students</button>
+<button class="nav-link" id="usersTab">Users</button>
+<button class="nav-link">Inquiries</button>
         <div style="flex-grow: 1;"></div>
         <button class="nav-link" id="logoutBtn" style="color: #ff7675;">Logout</button>
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 12:46</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Admin Panel as on 01:03</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
         <div id="content">
+
+
+    <!-- STUDENTS SECTION -->
+    <div id="studentsSection">
             <div class="card">
                 <h3>Add New Student</h3>
                 <div class="grid-row">
@@ -106,6 +111,42 @@
                     </table>
                 </div>
             </div>
+    </div>
+
+            
+
+
+
+    <div id="usersSection" style="display:none;">
+        <div class="card">
+            <h3>Create New User</h3>
+            <div class="grid-row">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="uEmail">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="uPassword">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Role</label>
+                <select id="uRole">
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" id="createUserBtn">
+                Create User
+            </button>
+        </div>
+    </div>
+
+
+            
         </div>
     </div>
 
