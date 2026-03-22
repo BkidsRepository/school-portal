@@ -61,7 +61,7 @@
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:34 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:37 am</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -286,9 +286,9 @@ async function loadTable() {
 document.getElementById('updateBtn').onclick = async () => {
     const btn = document.getElementById('updateBtn');
     const id = document.getElementById('editId').value;
-    
-    // 1. Correctly grab the single file object
     const fileInput = document.getElementById('editPhotoFile');
+    
+    // IMPORTANT: Get the single file object (the first item in the list)
     const file = fileInput.files; 
 
     btn.disabled = true;
@@ -303,9 +303,9 @@ document.getElementById('updateBtn').onclick = async () => {
             class: document.getElementById('eClass').value
         };
 
-        // 2. Only run compression if a file was actually picked
+        // Only compress if a new file was actually selected by the user
         if (file) {
-            btn.innerText = "⚡ Processing...";
+            btn.innerText = "⚡ Compressing...";
             updateData.photo = await fastCompress(file);
         }
 
@@ -314,8 +314,9 @@ document.getElementById('updateBtn').onclick = async () => {
         btn.innerText = "✅ Success!";
         setTimeout(() => location.reload(), 500);
     } catch (err) { 
-        console.error("Update Error:", err);
-        alert("Error: " + err); 
+        console.error("Update failed:", err);
+        // This will now show the actual error message instead of 'undefined'
+        alert("Error: " + (err.message || err)); 
         btn.disabled = false; 
         btn.innerText = "Update Record";
     }
