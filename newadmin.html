@@ -240,8 +240,8 @@
 saveBtn.onclick = async () => {
     let photo = "";
     // FIX: Pass photoFile.files (the specific Blob) instead of the FileList collection
-    if (photoFile.files && photoFile.files) {
-        photo = await toBase64(photoFile.files); 
+    if (photoFile.files && photoFile.files[0]) {
+        photo = await toBase64(photoFile.files[0]); 
     }
 
     try {
@@ -280,8 +280,8 @@ updateBtn.onclick = async () => {
     };
 
     // FIX: Pass editPhotoFile.files instead of the FileList collection
-    if (editPhotoFile.files && editPhotoFile.files) {
-        data.photo = await toBase64(editPhotoFile.files);
+    if (editPhotoFile.files && editPhotoFile.files[0]) {
+        data.photo = await toBase64(editPhotoFile.files[0]);
     }
 
     try {
