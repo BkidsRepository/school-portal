@@ -272,7 +272,7 @@
             
             overlay.style.display = 'flex';
             
-            // Sync current UI state
+            // Fix: Sync from "att" class only (Today's UI)
             const uiChecks = document.querySelectorAll('.att');
             const uiAttMap = {};
             uiChecks.forEach(cb => {
