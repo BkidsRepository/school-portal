@@ -287,7 +287,7 @@
         const fileInput = document.getElementById('editPhotoFile');
         
         // This safely checks if a file exists and grabs it, otherwise sets it to null
-        const file = fileInput.files.length > 0 ? fileInput.files : null; 
+        const file = fileInput.files.length > 0 ? fileInput.files[0] : null; 
 
         btn.disabled = true;
         btn.innerText = "Updating...";
@@ -322,7 +322,7 @@
     // Show image preview when a new file is selected
     document.getElementById('editPhotoFile').onchange = function(evt) {
         if (this.files && this.files.length > 0) {
-            const file = this.files;
+            const file = this.files[0];
             const preview = document.getElementById('editPreview');
             preview.src = URL.createObjectURL(file);
             preview.style.display = 'block';
