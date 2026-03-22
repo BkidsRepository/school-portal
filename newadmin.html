@@ -195,23 +195,35 @@ const db = getFirestore(app);
 // TAB SWITCH WITH ACTIVE STATE
 const tabs = {
     studentsTab: "studentsSection",
-    classesTab: "classesSection", 
+    classesTab: "classesSection",
     usersTab: "usersSection",
     attendanceTab: "attendanceSection",
     inquiryTab: "inquirySection"
 };
-    
-// Updated TAB SWITCH
+
 Object.keys(tabs).forEach(id => {
-    document.getElementById(id).onclick = () => {
-        Object.values(tabs).forEach(sec => document.getElementById(sec).style.display = "none");
+    const btn = document.getElementById(id);
+    if (!btn) return;
+
+    btn.onclick = () => {
+        // 1. Hide all sections and remove 'active' from all buttons
+        Object.keys(tabs).forEach(tabId => {
+            const sectionId = tabs[tabId];
+            document.getElementById(sectionId).style.display = "none";
+            document.getElementById(tabId).classList.remove("active");
+        });
+        
+        // 2. Show the clicked section
         document.getElementById(tabs[id]).style.display = "block";
-populateClassDropdowns();
-    loadStudents();        
-        // Refresh data based on the tab clicked
-        if (id === "studentsTab") loadStudents();
-        if (id === "usersTab") loadUsers();
-        if (id === "inquiryTab") loadInquiries();
+        
+        // 3. Add the 'active' class to the clicked button
+        btn.classList.add("active");
+        
+        // 4. Load relevant data for that section
+        if (id === 'usersTab') loadUsers();
+        if (id === 'inquiryTab') loadInquiries();
+        if (id === 'classesTab') loadClasses();
+        if (id === 'studentsTab') loadStudents();
     };
 });
 
