@@ -34,16 +34,16 @@
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { background: #f8f9fa; padding: 15px; text-align: left; font-size: 13px; color: #7f8c8d; }
         td { padding: 12px 15px; border-top: 1px solid #eee; font-size: 14px; vertical-align: middle; }
-        /* Update this in the <style> section of admin.html */
-.avatar { 
-    width: 50px; 
-    height: 50px; 
-    border-radius: 50%; 
-    object-fit: cover; /* This makes the photo fill the circle neatly */
-    background: #eee; 
-    border: 1px solid #ddd; 
-    display: block; /* Ensure it renders properly */
-}
+        
+        .avatar { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            background: #eee; 
+            border: 1px solid #ddd; 
+            display: block; 
+        }
 
         /* Modal Styling */
         #editModal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
@@ -61,7 +61,7 @@
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:41 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 12:46</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -89,9 +89,9 @@
                 <h3>Registered Students</h3>
                 <div class="table-wrap">
                     <div class="form-group" style="margin-bottom: 15px;">
-    <label>Search Students</label>
-    <input type="text" id="searchInput" placeholder="Type a name, class, or mother's name..." onkeyup="filterTable()">
-</div>
+                        <label>Search Students</label>
+                        <input type="text" id="searchInput" placeholder="Type a name, class, or mother's name..." onkeyup="filterTable()">
+                    </div>
                     <table>
                         <thead>
                             <tr>
@@ -127,12 +127,11 @@
                         <option value="Sr. KG">Sr. KG</option>
                     </select>
                 </div>
-
-                <div class="form-group">
-    <label>Update Photo</label>
-    <input type="file" id="editPhotoFile" accept="image/*">
-    <img id="editPreview" src="" style="display:none; width:80px; height:80px; border-radius:50%; margin-top:10px; object-fit:cover; border:1px solid #ddd;">
-</div>
+            </div>
+            <div class="form-group">
+                <label>Update Photo</label>
+                <input type="file" id="editPhotoFile" accept="image/*">
+                <img id="editPreview" src="" style="display:none; width:80px; height:80px; border-radius:50%; margin-top:10px; object-fit:cover; border:1px solid #ddd;">
             </div>
             <div style="display: flex; gap: 10px; margin-top: 15px;">
                 <button class="btn btn-primary" id="updateBtn">Update Record</button>
@@ -206,156 +205,130 @@
         } catch (err) { alert(err.message); btn.disabled = false; }
     };
 
-function filterTable() {
-    // Get the search string and convert to lowercase for case-insensitive matching
-    const filter = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.getElementById('stuBody').getElementsByTagName('tr');
+    function filterTable() {
+        const filter = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.getElementById('stuBody').getElementsByTagName('tr');
 
-    // Loop through all table rows
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.getElementsByTagName('td');
-        let matchFound = false;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            let matchFound = false;
 
-        // Check each cell in the current row (starting from index 1 to skip the photo)
-        for (let j = 1; j < cells.length; j++) {
-            const cellText = cells[j].textContent || cells[j].innerText;
-            if (cellText.toLowerCase().indexOf(filter) > -1) {
-                matchFound = true;
-                break; // Stop checking other cells in this row if a match is found
+            for (let j = 1; j < cells.length; j++) {
+                const cellText = cells[j].textContent || cells[j].innerText;
+                if (cellText.toLowerCase().indexOf(filter) > -1) {
+                    matchFound = true;
+                    break; 
+                }
             }
+            row.style.display = matchFound ? "" : "none";
         }
-
-        // Show the row if a match was found, otherwise hide it
-        row.style.display = matchFound ? "" : "none";
     }
-}
-
     window.filterTable = filterTable;
 
-
-
-async function loadTable() {
-    const body = document.getElementById('stuBody');
-    // Fetch students sorted by first name
-    const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
-    body.innerHTML = "";
-    
-    snap.forEach(d => {
-        const s = d.data();
-        // Fixed variable name to 'photoImg'
-        const photoImg = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar" style="background:#ddd; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
+    async function loadTable() {
+        const body = document.getElementById('stuBody');
+        const snap = await getDocs(query(collection(db, "students"), orderBy("firstName")));
+        body.innerHTML = "";
         
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${photoImg}</td>
-            <td><b>${s.firstName} ${s.lastName}</b></td>
-            <td>${s.class}</td>
-            <td>${s.motherName || '-'}</td>
-            <td>
-                <button class="edit-btn" style="color:blue; border:none; background:none; cursor:pointer;">Edit</button> | 
-                <button class="del-btn" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
-            </td>`;
+        snap.forEach(d => {
+            const s = d.data();
+            const photoImg = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar" style="background:#ddd; display:flex; align-items:center; justify-content:center; font-size:9px; color:#999;">No Image</div>`;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${photoImg}</td>
+                <td><b>${s.firstName} ${s.lastName}</b></td>
+                <td>${s.class}</td>
+                <td>${s.motherName || '-'}</td>
+                <td>
+                    <button class="edit-btn" style="color:blue; border:none; background:none; cursor:pointer;">Edit</button> | 
+                    <button class="del-btn" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
+                </td>`;
 
-        // Link the Edit button to your modal
-        tr.querySelector('.edit-btn').onclick = () => {
-            document.getElementById('editId').value = d.id;
-            document.getElementById('efName').value = s.firstName;
-            document.getElementById('elName').value = s.lastName;
-            document.getElementById('emomName').value = s.motherName || "";
-            document.getElementById('eClass').value = s.class;
-            document.getElementById('editModal').style.display = 'flex';
-        };
+            // Setup Edit Button
+            tr.querySelector('.edit-btn').onclick = () => {
+                document.getElementById('editId').value = d.id;
+                document.getElementById('efName').value = s.firstName || "";
+                document.getElementById('emName').value = s.middleName || "";
+                document.getElementById('elName').value = s.lastName || "";
+                document.getElementById('emomName').value = s.motherName || "";
+                document.getElementById('eClass').value = s.class || "Jr. KG";
+                
+                const preview = document.getElementById('editPreview');
+                if (s.photo) {
+                    preview.src = s.photo;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                    preview.src = "";
+                }
+                
+                document.getElementById('editPhotoFile').value = ""; 
+                document.getElementById('editModal').style.display = 'flex';
+            };
 
-        // Link the Delete button
-        tr.querySelector('.del-btn').onclick = async () => {
-            if (confirm("Delete this student?")) { 
-                await deleteDoc(doc(db, "students", d.id)); 
-                loadTable(); 
+            // Setup Delete Button
+            tr.querySelector('.del-btn').onclick = async () => {
+                if (confirm("Delete this student?")) { 
+                    await deleteDoc(doc(db, "students", d.id)); 
+                    loadTable(); 
+                }
+            };
+
+            body.appendChild(tr);
+        });
+    }
+
+    // THE FIXED UPDATE LOGIC
+    document.getElementById('updateBtn').onclick = async () => {
+        const btn = document.getElementById('updateBtn');
+        const id = document.getElementById('editId').value;
+        const fileInput = document.getElementById('editPhotoFile');
+        
+        // This safely checks if a file exists and grabs it, otherwise sets it to null
+        const file = fileInput.files.length > 0 ? fileInput.files : null; 
+
+        btn.disabled = true;
+        btn.innerText = "Updating...";
+
+        try {
+            const updateData = {
+                firstName: document.getElementById('efName').value.trim(),
+                middleName: document.getElementById('emName').value.trim(),
+                lastName: document.getElementById('elName').value.trim(),
+                motherName: document.getElementById('emomName').value.trim(),
+                class: document.getElementById('eClass').value
+            };
+
+            // Only run compression if a file was explicitly picked
+            if (file) {
+                btn.innerText = "⚡ Compressing...";
+                updateData.photo = await fastCompress(file);
             }
-        };
 
-        body.appendChild(tr);
-    });
-}
-
-
-
-
-    
-document.getElementById('updateBtn').onclick = async () => {
-    const btn = document.getElementById('updateBtn');
-    const id = document.getElementById('editId').value;
-    const fileInput = document.getElementById('editPhotoFile');
-    
-    // THE FIX: Added to get the actual image file, not the list
-    const file = fileInput.files; 
-
-    btn.disabled = true;
-    btn.innerText = "Updating...";
-
-    try {
-        const updateData = {
-            firstName: document.getElementById('efName').value.trim(),
-            middleName: document.getElementById('emName').value.trim(),
-            lastName: document.getElementById('elName').value.trim(),
-            motherName: document.getElementById('emomName').value.trim(),
-            class: document.getElementById('eClass').value
-        };
-
-        // SUPER STRICT CHECK: Only run this if a file is actually present
-        if (file) {
-            btn.innerText = "⚡ Compressing...";
-            updateData.photo = await fastCompress(file);
+            await updateDoc(doc(db, "students", id), updateData);
+            
+            btn.innerText = "✅ Success!";
+            setTimeout(() => location.reload(), 500);
+        } catch (err) { 
+            console.error("Update failed:", err);
+            alert("Error: " + (err.message || err)); 
+            btn.disabled = false; 
+            btn.innerText = "Update Record";
         }
+    };
 
-        await updateDoc(doc(db, "students", id), updateData);
-        
-        btn.innerText = "✅ Success!";
-        setTimeout(() => location.reload(), 500);
-    } catch (err) { 
-        console.error("Update failed:", err);
-        alert("Error: " + (err.message || err)); 
-        btn.disabled = false; 
-        btn.innerText = "Update Record";
-    }
-};
+    // Show image preview when a new file is selected
+    document.getElementById('editPhotoFile').onchange = function(evt) {
+        if (this.files && this.files.length > 0) {
+            const file = this.files;
+            const preview = document.getElementById('editPreview');
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+        }
+    };
 
-    
-    
-
-// Add this inside your script to handle the preview
-document.getElementById('editPhotoFile').onchange = function(evt) {
-    const [file] = this.files;
-    const preview = document.getElementById('editPreview');
-    if (file) {
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = 'block';
-    }
-};
-
-// Also, update your openEdit function to show the CURRENT photo in the preview
-window.openEdit = (id, data) => {
-    document.getElementById('editId').value = id;
-    document.getElementById('efName').value = data.firstName;
-    document.getElementById('emName').value = data.middleName || "";
-    document.getElementById('elName').value = data.lastName;
-    document.getElementById('emomName').value = data.motherName || "";
-    document.getElementById('eClass').value = data.class;
-    
-    // Show current photo in preview if it exists
-    const preview = document.getElementById('editPreview');
-    if (data.photo) {
-        preview.src = data.photo;
-        preview.style.display = 'block';
-    } else {
-        preview.style.display = 'none';
-    }
-    
-    document.getElementById('editPhotoFile').value = ""; 
-    document.getElementById('editModal').style.display = 'flex';
-};
-    
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 </script>
 </body>
