@@ -2,14 +2,103 @@
 <html>
 <head>
     <title>Teacher - B Kids, Padgha</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .holiday { background: #e74c3c; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
-        .submit { background: #27ae60; color: white; width: 100%; padding: 15px; border: none; cursor: pointer; font-size: 16px; border-radius: 4px; }
-    </style>
+<style>
+    :root {
+        --primary: #2c3e50;
+        --success: #27ae60;
+        --danger: #e74c3c;
+        --bg: #f4f7f6;
+    }
+
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        padding: 10px; 
+        background: var(--bg); 
+        margin: 0; 
+    }
+
+    .container { 
+        max-width: 100%; 
+        margin: auto; 
+        background: white; 
+        padding: 15px; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+    }
+
+    /* Header & Info */
+    #userDisplay { 
+        font-size: 0.85rem; 
+        color: #7f8c8d; 
+        margin-bottom: 15px; 
+        word-break: break-all; /* Prevents long emails from breaking layout */
+    }
+
+    h2 { font-size: 1.4rem; color: var(--primary); margin-top: 0; }
+
+    /* Responsive Table */
+    .table-container {
+        width: 100%;
+        overflow-x: auto; /* Allows horizontal scroll on very small phones */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        margin: 15px 0; 
+        font-size: 0.9rem;
+    }
+
+    th, td { 
+        border: 1px solid #eee; 
+        padding: 12px 8px; 
+        text-align: left; 
+    }
+
+    th { background: #f8f9fa; color: var(--primary); }
+
+    /* Touch-Friendly Inputs */
+    input[type="checkbox"] {
+        transform: scale(1.5); /* Makes checkboxes easier to tap */
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    /* Buttons */
+    .holiday { 
+        background: var(--danger); 
+        color: white; 
+        border: none; 
+        padding: 12px; 
+        cursor: pointer; 
+        border-radius: 6px; 
+        width: 100%; /* Full width on mobile */
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .submit { 
+        background: var(--success); 
+        color: white; 
+        width: 100%; 
+        padding: 18px; 
+        border: none; 
+        cursor: pointer; 
+        font-size: 1rem; 
+        border-radius: 6px; 
+        font-weight: bold;
+        position: sticky; /* Keeps submit button visible at bottom */
+        bottom: 10px;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Mobile specific adjustment */
+    @media (max-width: 480px) {
+        th:nth-child(1), td:nth-child(1) { display: none; } /* Hide "Class" column to save space since teacher knows their class */
+        td { padding: 15px 10px; }
+    }
+</style>
 </head>
 <body>
     <div class="container">
@@ -18,10 +107,21 @@
 </div>
         <h2>B Kids Teacher Dashboard</h2>
         <button class="holiday" id="holidayBtn">Mark Today as Holiday</button>
-        <table>
-            <thead><tr><th>Class</th><th>Student Name</th><th>Attendance</th></tr></thead>
-            <tbody id="stuTable"></tbody>
-        </table>
+        
+<div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Student Name</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="stuTable">
+                    </tbody>
+            </table>
+        </div>
+        
         <button class="submit" id="submitBtn">Submit Attendance</button>
     </div>
 <script type="module">
