@@ -28,7 +28,6 @@
         th { background: #f8f9fa; font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; }
         
         .btn-submit { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
-        .btn-holiday { background: var(--danger); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
         
         input[type="checkbox"] { transform: scale(1.5); cursor: pointer; }
 
@@ -52,7 +51,6 @@
         <ul class="nav-links">
             <li class="nav-item active" id="nav-today">Today's Attendance</li>
             <li class="nav-item" id="nav-past">Past Attendance</li>
-            <li class="nav-item" id="nav-holiday">Mark Holiday</li>
         </ul>
     </nav>
 
@@ -77,7 +75,9 @@
             <div id="pastSection" style="display:none;">
 <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
 <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date to View/Edit:</label>
-<input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;">
+<input type="date" id="historyDate" 
+       style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;"
+       onkeydown="return false"> ```
 </div>
                 <div class="table-container">
                     <table>
@@ -88,13 +88,6 @@
                 <button class="btn-submit" id="updatePastBtn" style="display:none;">Update Records</button>
             </div>
 
-            <div id="holidaySection" style="display:none;">
-                <div style="text-align:center; padding: 40px 10px; background: #fff5f5; border-radius: 10px; border: 1px dashed var(--danger);">
-                    <p style="font-weight: bold; color: var(--danger);">School Closed?</p>
-                    <p>Click below to mark today as a school holiday.</p>
-                    <button class="btn-holiday" id="holidayBtn">Confirm Holiday</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -115,7 +108,28 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+// 1. Get today's date in YYYY-MM-DD format
+const todayStr = new Date().toISOString().split('T');
 
+// 2. Set the 'max' attribute on the date picker
+const dateInput = document.getElementById('historyDate');
+dateInput.setAttribute('max', todayStr);
+
+// 3. Optional: Default the picker to today's date
+dateInput.value = todayStr;
+
+// 4. Add a secondary check inside your 'change' event listener
+dateInput.addEventListener('change', async (e) => {
+    const selectedDate = e.target.value;
+    
+    if (selectedDate > todayStr) {
+        alert("Error: You cannot record attendance for future dates.");
+        e.target.value = todayStr; // Reset to today
+        return;
+    }
+    
+    // ... rest of your existing loadHistory logic ...
+});
         let globalTeacherClass = "";
 
         // UI Helpers
@@ -126,13 +140,9 @@
         window.showSection = (section) => {
             document.getElementById('todaySection').style.display = 'none';
             document.getElementById('pastSection').style.display = 'none';
-            document.getElementById('holidaySection').style.display = 'none';
-            document.getElementById(section + 'Section').style.display = 'block';
-
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById('nav-' + section).classList.add('active');
 
-            const titles = { today: "Today's Attendance", past: "Attendance History", holiday: "Mark Holiday" };
             document.getElementById('sectionTitle').innerText = titles[section];
             if(window.innerWidth <= 768) sidebar.classList.remove('open');
         };
@@ -140,7 +150,6 @@
         // Wire up nav buttons
         document.getElementById('nav-today').onclick = () => showSection('today');
         document.getElementById('nav-past').onclick = () => showSection('past');
-        document.getElementById('nav-holiday').onclick = () => showSection('holiday');
 
         // Date Display
         const today = new Date();
