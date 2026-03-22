@@ -190,7 +190,6 @@
 
         let globalTeacherClass = "";
         let studentData = [];
-        // FIXED: Corrected todayStr to be a string instead of an array
         const todayStr = new Date().toISOString().split('T');
 
         // UI Routing
@@ -229,7 +228,6 @@
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
                     globalTeacherClass = userDoc.data().assignedClass;
-                    // Initial load removed to allow Welcome screen to show first
                 }
             } else {
                 window.location.href = "login.html";
@@ -238,13 +236,16 @@
 
         async function loadTodayList() {
             const table = document.getElementById('stuTable');
-            table.innerHTML = "<tr><td colspan='2'>Syncing with records...</td></tr>";
+            table.innerHTML = "<tr><td colspan='2'>Checking records...</td></tr>";
 
             try {
+                // Get all students in the teacher's class
                 const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const qAtt = query(collection(db, "attendance"), where("date", "==", todayStr));
+                const sSnap = await getDocs(q);
                 
-                const [sSnap, aSnap] = await Promise.all([getDocs(q), getDocs(qAtt)]);
+                // Get existing attendance for today
+                const qAtt = query(collection(db, "attendance"), where("date", "==", todayStr));
+                const aSnap = await getDocs(qAtt);
                 
                 const attMap = {};
                 aSnap.forEach(d => {
@@ -259,7 +260,7 @@
                     const s = sDoc.data();
                     const fullName = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                     
-                    // FIXED: Properly respect 'absent' records from history/previous saves
+                    // CHECK DATABASE: If status exists, use it. If no record for today, default to "present"
                     const savedStatus = attMap[sDoc.id];
                     const isChecked = savedStatus === undefined ? true : (savedStatus === "present");
                     
@@ -275,7 +276,7 @@
                 });
             } catch (err) {
                 console.error(err);
-                table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error loading today's list.</td></tr>";
+                table.innerHTML = "<tr><td colspan='2' style='color:red;'>Error syncing with database.</td></tr>";
             }
         }
 
@@ -291,16 +292,16 @@
                         status: cb.checked ? "present" : "absent"
                     });
                 }
-                alert("Attendance saved successfully!");
+                alert("Attendance records updated!");
             } catch(e) { 
                 console.error(e);
-                alert("Error saving attendance."); 
+                alert("Error saving records."); 
             }
             finally { btn.disabled = false; btn.innerText = "Submit Attendance"; }
         };
 
         async function startCarousel() {
-            if (studentData.length === 0) return alert("Please click 'Today's Attendance' first to load data.");
+            if (studentData.length === 0) return alert("Please visit 'Today's Attendance' first to load data.");
             const overlay = document.getElementById('carouselOverlay');
             const container = document.getElementById('cardContainer');
             const counter = document.getElementById('carouselCounter');
