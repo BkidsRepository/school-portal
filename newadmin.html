@@ -153,12 +153,31 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // TAB SWITCH
-const tabs = {studentsTab:"studentsSection",usersTab:"usersSection",attendanceTab:"attendanceSection",inquiryTab:"inquirySection"};
-Object.keys(tabs).forEach(id=>{
-document.getElementById(id).onclick=()=>{
-Object.values(tabs).forEach(sec=>document.getElementById(sec).style.display="none");
-document.getElementById(tabs[id]).style.display="block";
+// TAB SWITCH WITH ACTIVE STATE
+const tabs = {
+    studentsTab: "studentsSection",
+    usersTab: "usersSection",
+    attendanceTab: "attendanceSection",
+    inquiryTab: "inquirySection"
 };
+    
+Object.keys(tabs).forEach(id => {
+    document.getElementById(id).onclick = () => {
+        // Hide all sections and remove active class from all buttons
+        Object.keys(tabs).forEach(tabId => {
+            document.getElementById(tabs[tabId]).style.display = "none";
+            document.getElementById(tabId).classList.remove("active");
+        });
+        
+        // Show clicked section and add active class
+        document.getElementById(tabs[id]).style.display = "block";
+        document.getElementById(id).classList.add("active");
+        
+        // Contextual Data Loading
+        if (id === 'usersTab') loadUsers();
+        if (id === 'inquiryTab') loadInquiries();
+        if (id === 'studentsTab') loadStudents();
+    };
 });
 
 // IMAGE TO BASE64
