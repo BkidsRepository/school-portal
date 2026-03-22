@@ -3,127 +3,110 @@
 <head>
     <title>Teacher - B Kids, Padgha</title>
 <style>
-    :root {
-        --primary: #2c3e50;
-        --success: #27ae60;
-        --danger: #e74c3c;
-        --bg: #f4f7f6;
+    :root { 
+        --primary: #2c3e50; 
+        --success: #27ae60; 
+        --danger: #e74c3c; 
+        --bg: #f4f7f6; 
     }
-
+    
     body { 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        padding: 10px; 
+        font-family: 'Segoe UI', sans-serif; 
+        padding: 8px; /* Reduced for mobile */
         background: var(--bg); 
         margin: 0; 
+        box-sizing: border-box;
     }
 
     .container { 
-        max-width: 100%; 
+        width: 100%; /* Ensure it fills the screen width */
+        max-width: 600px; 
         margin: auto; 
         background: white; 
-        padding: 15px; 
+        padding: 12px; /* Balanced padding */
         border-radius: 8px; 
         box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        box-sizing: border-box;
     }
 
-    /* Header & Info */
-    #userDisplay { 
-        font-size: 0.85rem; 
-        color: #7f8c8d; 
-        margin-bottom: 15px; 
-        word-break: break-all; /* Prevents long emails from breaking layout */
-    }
+    h2 { font-size: 1.2rem; color: var(--primary); margin: 10px 0; }
 
-    h2 { font-size: 1.4rem; color: var(--primary); margin-top: 0; }
-
-    /* Responsive Table */
+    /* The Scrollable Wrapper */
     .table-container {
         width: 100%;
-        overflow-x: auto; /* Allows horizontal scroll on very small phones */
+        overflow-x: auto; /* Allows side-scrolling if names are too long */
         -webkit-overflow-scrolling: touch;
+        border: 1px solid #eee;
+        border-radius: 4px;
     }
 
     table { 
         width: 100%; 
         border-collapse: collapse; 
-        margin: 15px 0; 
-        font-size: 0.9rem;
+        font-size: 0.85rem; /* Slightly smaller font for mobile */
     }
 
     th, td { 
-        border: 1px solid #eee; 
-        padding: 12px 8px; 
+        padding: 10px 5px; 
         text-align: left; 
+        border-bottom: 1px solid #eee;
     }
 
-    th { background: #f8f9fa; color: var(--primary); }
-
-    /* Touch-Friendly Inputs */
-    input[type="checkbox"] {
-        transform: scale(1.5); /* Makes checkboxes easier to tap */
-        margin-right: 10px;
-        cursor: pointer;
-    }
-
-    /* Buttons */
+    /* Buttons adjusted for tap targets */
     .holiday { 
         background: var(--danger); 
-        color: white; 
-        border: none; 
-        padding: 12px; 
-        cursor: pointer; 
+        color: white; border: none; 
+        padding: 12px; width: 100%; 
         border-radius: 6px; 
-        width: 100%; /* Full width on mobile */
-        font-weight: bold;
-        margin-bottom: 10px;
+        font-weight: bold; 
+        margin-bottom: 15px; 
     }
 
     .submit { 
         background: var(--success); 
         color: white; 
         width: 100%; 
-        padding: 18px; 
+        padding: 15px; 
         border: none; 
-        cursor: pointer; 
         font-size: 1rem; 
         border-radius: 6px; 
-        font-weight: bold;
-        position: sticky; /* Keeps submit button visible at bottom */
-        bottom: 10px;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        font-weight: bold; 
+        margin-top: 15px;
     }
 
-    /* Mobile specific adjustment */
-    @media (max-width: 480px) {
-        th:nth-child(1), td:nth-child(1) { display: none; } /* Hide "Class" column to save space since teacher knows their class */
-        td { padding: 15px 10px; }
-    }
+    /* Column Widths */
+    th:nth-child(1), td:nth-child(1) { width: 25%; } /* Class column */
+    th:nth-child(2), td:nth-child(2) { width: 55%; } /* Student Name */
+    th:nth-child(3), td:nth-child(3) { width: 20%; text-align: center; } /* Checkbox */
+
+    input[type="checkbox"] { transform: scale(1.3); }
 </style>
 </head>
 <body>
-    <div class="container">
-        <div id="userDisplay" style="font-size: 0.9em; color: #7f8c8d; margin-bottom: 10px; font-weight: bold;">
-    Logged in as: <span id="userEmail">Loading...</span>
-</div>
-        <h2>B Kids Teacher Dashboard</h2>
-        <button class="holiday" id="holidayBtn">Mark Today as Holiday</button>
-        
-<div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Class</th>
-                        <th>Student Name</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="stuTable">
-                    </tbody>
-            </table>
-        </div>
-        
-        <button class="submit" id="submitBtn">Submit Attendance</button>
+<div class="container">
+    <div id="userDisplay" style="font-size: 0.8rem; margin-bottom: 5px;">
+        Logged in as: <span id="userEmail"></span>
     </div>
+    <h2>Teacher Dashboard</h2>
+    
+    <button class="holiday" id="holidayBtn">Mark Today as Holiday</button>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Student Name</th>
+                    <th>Att.</th>
+                </tr>
+            </thead>
+            <tbody id="stuTable">
+                </tbody>
+        </table>
+    </div>
+
+    <button class="submit" id="submitBtn">Submit Attendance</button>
+</div>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
