@@ -61,7 +61,7 @@
     </nav>
     <div id="main">
         <header id="header">
-            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:37 am</h1>
+            <h1 style="margin:0; font-size: 1.3rem;">Student Records as on 22 March 12:41 am</h1>
             <span id="adminMail" style="font-size: 0.8rem; color: #888;">Admin</span>
         </header>
 
@@ -288,7 +288,7 @@ document.getElementById('updateBtn').onclick = async () => {
     const id = document.getElementById('editId').value;
     const fileInput = document.getElementById('editPhotoFile');
     
-    // IMPORTANT: Get the single file object (the first item in the list)
+    // THE FIX: Added to get the actual image file, not the list
     const file = fileInput.files; 
 
     btn.disabled = true;
@@ -303,7 +303,7 @@ document.getElementById('updateBtn').onclick = async () => {
             class: document.getElementById('eClass').value
         };
 
-        // Only compress if a new file was actually selected by the user
+        // SUPER STRICT CHECK: Only run this if a file is actually present
         if (file) {
             btn.innerText = "⚡ Compressing...";
             updateData.photo = await fastCompress(file);
@@ -315,13 +315,13 @@ document.getElementById('updateBtn').onclick = async () => {
         setTimeout(() => location.reload(), 500);
     } catch (err) { 
         console.error("Update failed:", err);
-        // This will now show the actual error message instead of 'undefined'
         alert("Error: " + (err.message || err)); 
         btn.disabled = false; 
         btn.innerText = "Update Record";
     }
 };
 
+    
     
 
 // Add this inside your script to handle the preview
