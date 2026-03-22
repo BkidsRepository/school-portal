@@ -259,13 +259,20 @@ loadStudents();
 loadStudents();
 
 // CREATE USER
-createUser.onclick = async ()=>{
-const userCred = await createUserWithEmailAndPassword(auth,uEmail.value,uPass.value);
-await setDoc(doc(db,"users",userCred.user.uid),{email:uEmail.value,role:uRole.value});
+
+document.getElementById("createUser").onclick = async ()=>{
+const email = document.getElementById("uEmail").value;
+const pass = document.getElementById("uPass").value;
+const role = document.getElementById("uRole").value;
+const userCred = await createUserWithEmailAndPassword(auth,email,pass);
+await setDoc(doc(db,"users",userCred.user.uid),{
+email:email,
+role:role
+});
 alert("User Created");
 await signOut(auth);
 location.reload();
-};
+};    
 
 // INQUIRIES
 async function loadInquiries(){
