@@ -198,19 +198,32 @@ body.innerHTML += `<tr>
 }
 
 window.edit = async (id)=>{
-const snap = await getDocs(collection(db,"students"));
-snap.forEach(d=>{
-if(d.id===id){
-const s=d.data();
-editModal.style.display='flex';
-editId.value=id;
-efName.value=s.firstName;
-elName.value=s.lastName;
-emomName.value=s.motherName;
-eClass.value=s.class;
-if(s.photo){ editPreview.src=s.photo; editPreview.style.display='block'; }
-}
-});
+    const snap = await getDocs(collection(db,"students"));
+
+    // 🔥 RESET FIRST (IMPORTANT)
+    editPhotoFile.value = "";
+    editPreview.src = "";
+    editPreview.style.display = "none";
+
+    snap.forEach(d=>{
+        if(d.id===id){
+            const s=d.data();
+
+            editModal.style.display='flex';
+            editId.value=id;
+
+            efName.value=s.firstName;
+            elName.value=s.lastName;
+            emomName.value=s.motherName;
+            eClass.value=s.class;
+
+            // ✅ Show correct photo
+            if(s.photo){
+                editPreview.src = s.photo;
+                editPreview.style.display = 'block';
+            }
+        }
+    });
 };
 
 // PREVIEW EDIT
