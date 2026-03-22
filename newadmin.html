@@ -85,19 +85,18 @@ button { padding:10px; cursor:pointer; }
         <button id="createUserBtn">Create User</button>
     </div>
 
-    <div class="card">
-        <h3>System Users</h3>
-        <table border="1" width="100%">
-            <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="userBody"></tbody>
-        </table>
-    </div>
+<div class="card">
+    <h3>Existing Users</h3>
+    <table border="1" width="100%" style="border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="background: #eee;">
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody id="userListBody"></tbody>
+    </table>
+</div>
 </div>
 
 <!-- ATTENDANCE -->
@@ -328,32 +327,31 @@ document.getElementById("createUserBtn").onclick = async () => {
     const pass = document.getElementById("uPass").value;
     const role = document.getElementById("uRole").value;
 
-    if(!email || !pass) return alert("Please fill all fields");
+    if (!email || !pass) return alert("Fields cannot be empty");
 
     try {
-        // Create in Auth
+        // 1. This action will sign the ADMIN out and the NEW USER in
         const userCred = await createUserWithEmailAndPassword(auth, email, pass);
         
-        // Save Role in Firestore
+        // 2. Create the Firestore record for the NEW user
+        // Note: This works because the NEW user is now the "request.auth" 
+        // IF you use the 'allow create: if request.auth.uid == userId' rule.
+        // STICKING TO ADMIN-ONLY: The Admin must log back in to see the list again.
+        
         await setDoc(doc(db, "users", userCred.user.uid), {
             email: email,
             role: role,
-            createdAt: new Date()
+            createdBy: "Admin"
         });
 
-        alert("User Created Successfully!");
+        alert("User account created. You will now be signed out. Please log back in as Admin.");
         
-        // Clear fields
-        document.getElementById("uEmail").value = "";
-        document.getElementById("uPass").value = "";
-        
-        loadUsers(); // Refresh the list
+        await signOut(auth);
+        location.reload(); // Redirects to login
     } catch (error) {
-        console.error("Creation Error:", error);
-        alert("Error: " + error.message);
+        alert("System Error: " + error.message);
     }
 };
-
 // 3. Delete User Document (Firestore Only)
 window.deleteUserDoc = async (id) => {
     if(confirm("Remove this user's record? (Note: This does not delete them from Firebase Auth)")){
@@ -362,6 +360,24 @@ window.deleteUserDoc = async (id) => {
     }
 };
 
+async function loadUserList() {
+    const tbody = document.getElementById('userListBody');
+    try {
+        const snap = await getDocs(collection(db, "users"));
+        tbody.innerHTML = "";
+        snap.forEach(doc => {
+            const user = doc.data();
+            tbody.innerHTML += `
+                <tr>
+                    <td style="padding:8px;">${user.email}</td>
+                    <td style="padding:8px;"><strong>${user.role}</strong></td>
+                </tr>`;
+        });
+    } catch (e) {
+        tbody.innerHTML = "<tr><td colspan='2'>Access Denied or Login Required</td></tr>";
+    }
+}
+    
 // Initial Load
 loadUsers();    
 
