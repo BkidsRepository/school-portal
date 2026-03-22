@@ -51,8 +51,7 @@ button { padding:10px; cursor:pointer; }
 <input id="lName" placeholder="Last Name">
 <input id="momName" placeholder="Mother Name">
 <select id="stuClass">
-<option>Jr. KG</option>
-<option>Sr. KG</option>
+    <option value="">Select Class</option>
 </select>
 <label>Photo</label>
 <input type="file" id="photoFile" accept="image/*">
@@ -151,8 +150,7 @@ button { padding:10px; cursor:pointer; }
 <input id="elName" placeholder="Last Name">
 <input id="emomName" placeholder="Mother Name">
 <select id="eClass">
-<option>Jr. KG</option>
-<option>Sr. KG</option>
+    <option value="">Select Class</option>
 </select>
 <label>Photo</label>
 <input type="file" id="editPhotoFile" accept="image/*">
@@ -192,7 +190,8 @@ Object.keys(tabs).forEach(id => {
     document.getElementById(id).onclick = () => {
         Object.values(tabs).forEach(sec => document.getElementById(sec).style.display = "none");
         document.getElementById(tabs[id]).style.display = "block";
-        
+populateClassDropdowns();
+    loadStudents();        
         // Refresh data based on the tab clicked
         if (id === "studentsTab") loadStudents();
         if (id === "usersTab") loadUsers();
@@ -234,6 +233,8 @@ photo:photo
 loadStudents();
 };
 
+
+    
 async function loadStudents(){
 const snap = await getDocs(collection(db,"students"));
 const body = document.getElementById('stuBody');
@@ -253,6 +254,41 @@ body.innerHTML += `<tr>
 </tr>`;
 });
 }
+
+
+// Function to populate all class dropdowns in the app
+async function populateClassDropdowns() {
+    const addSelect = document.getElementById('stuClass');
+    const editSelect = document.getElementById('eClass');
+    
+    try {
+        const snap = await getDocs(collection(db, "classes"));
+        
+        // Clear existing options except the first "Select" option
+        addSelect.innerHTML = '<option value="">Select Class</option>';
+        editSelect.innerHTML = '<option value="">Select Class</option>';
+        
+        snap.forEach(d => {
+            const c = d.data();
+            const optionText = `${c.name} ${c.section ? '(' + c.section + ')' : ''}`;
+            const optionValue = c.name; // Or use d.id if you prefer to store the ID
+
+            const opt1 = document.createElement('option');
+            opt1.value = optionValue;
+            opt1.textContent = optionText;
+            addSelect.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = optionValue;
+            opt2.textContent = optionText;
+            editSelect.appendChild(opt2);
+        });
+    } catch (err) {
+        console.error("Error loading classes for dropdowns:", err);
+    }
+}
+
+    
 window.edit = async (id)=>{
     const snap = await getDocs(collection(db,"students"));
 
@@ -441,6 +477,7 @@ document.getElementById("saveClassBtn").onclick = async () => {
         document.getElementById("className").value = "";
         document.getElementById("classSection").value = "";
         loadClasses();
+        await populateClassDropdowns();
     } catch (err) {
         alert("Error: " + err.message);
     }
@@ -460,6 +497,7 @@ document.getElementById("classesTab").addEventListener('click', loadClasses);
 loadStudents();   
 loadUsers();     // Added this to ensure data is fetched in the background
 loadInquiries(); // Added this for consistency;   
+populateClassDropdowns();
 
 </script>
 </body>
