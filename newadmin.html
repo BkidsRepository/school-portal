@@ -298,7 +298,12 @@ snap.forEach(d=>{
 list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
 });
 }
-// --- USER MANAGEMENT ---
+
+
+
+
+
+ // --- USER MANAGEMENT ---
 
 // 1. Unified function to load the user list
 async function loadUsers() {
@@ -325,7 +330,7 @@ async function loadUsers() {
     }
 }
 
-// 2. The Create User Logic (Corrected to use 'createUserBtn')
+// 2. The Create User Logic (Targets the correct 'createUserBtn' ID)
 document.getElementById("createUserBtn").onclick = async () => {
     const email = document.getElementById("uEmail").value;
     const pass = document.getElementById("uPass").value;
@@ -354,7 +359,7 @@ document.getElementById("createUserBtn").onclick = async () => {
     }
 };
 
-// 3. Delete user doc
+// 3. Delete user doc (Global function for the 'Remove' button)
 window.deleteUserDoc = async (id) => {
     if(confirm("Revoke this user's database access?")){
         try {
@@ -366,13 +371,23 @@ window.deleteUserDoc = async (id) => {
     }
 };
 
-// 4. Tab Switch Enhancements
+// 4. Inquiries Loader
+async function loadInquiries(){
+    const snap = await getDocs(collection(db,"inquiries"));
+    const list = document.getElementById('inquiryList');
+    if(!list) return;
+    list.innerHTML="";
+    snap.forEach(d=>{
+        list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
+    });
+}
+
+// 5. Tab Interaction Updates
 document.getElementById("usersTab").addEventListener('click', loadUsers);
 document.getElementById("inquiryTab").addEventListener('click', loadInquiries);
 
 // Initial Loads
-loadStudents();
-loadInquiries();
+loadStudents();   
 
 </script>
 </body>
