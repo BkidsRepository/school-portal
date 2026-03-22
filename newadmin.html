@@ -288,21 +288,6 @@ loadStudents();
 };
 
 
-
-// INQUIRIES
-async function loadInquiries(){
-const snap = await getDocs(collection(db,"inquiries"));
-const list = document.getElementById('inquiryList');
-list.innerHTML="";
-snap.forEach(d=>{
-list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
-});
-}
-
-
-
-
-
  // --- USER MANAGEMENT ---
 
 // 1. Unified function to load the user list
