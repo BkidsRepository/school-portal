@@ -339,9 +339,13 @@ document.getElementById("createUserBtn").onclick = async () => {
         
         await signOut(auth);
         location.reload(); 
-    } catch (error) {
+} catch (error) {
+    if (error.code === 'auth/email-already-in-use') {
+        alert("This email is already registered. Please use a different email or delete the existing user first.");
+    } else {
         alert("Error: " + error.message);
     }
+}
 };
 
 // 3. Delete user doc (Global function for the 'Remove' button)
