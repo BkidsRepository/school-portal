@@ -63,7 +63,7 @@
             <div id="todaySection">
                 <div class="table-container">
                     <table>
-                        <thead><tr><th>Student Name</th><th style="text-align:center;">Status</th></tr></thead>
+                        <thead><tr><th>Class</th><th>Student Name</th><th style="text-align:center;">Status</th></tr></thead>
                         <tbody id="stuTable"></tbody>
                     </table>
                 </div>
@@ -106,18 +106,24 @@
         document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.toggle('open');
 
         // Section Switcher
-        window.showSection = (section) => {
-            const sections = ['today', 'past', 'holiday'];
-            sections.forEach(s => document.getElementById(s + 'Section').style.display = 'none');
-            document.getElementById(section + 'Section').style.display = 'block';
-            
-            // Update Title
-            const titles = { today: "Today's Attendance", past: "Attendance History", holiday: "School Holiday" };
-            document.getElementById('sectionTitle').innerText = titles[section];
-            
-            // Close sidebar on mobile after click
-            if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
-        };
+window.showSection = (section) => {
+    // 1. Switch Content Visibility
+    const sections = ['today', 'past', 'holiday'];
+    sections.forEach(s => document.getElementById(s + 'Section').style.display = 'none');
+    document.getElementById(section + 'Section').style.display = 'block';
+    
+    // 2. Update Sidebar Active State (The Fix)
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    // Find the clicked item by its onclick attribute and add 'active' class
+    event.currentTarget.classList.add('active');
+
+    // 3. Update Title
+    const titles = { today: "Today's Attendance", past: "Attendance History", holiday: "School Holiday" };
+    document.getElementById('sectionTitle').innerText = titles[section];
+    
+    // 4. Close sidebar on mobile
+    if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+};
     
 
 // Function to format the date as "DD Mon. YYYY"
