@@ -251,8 +251,16 @@ td {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+const firebaseConfig = {
+    apiKey: "AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
+    authDomain: "bkids-56a2a.firebaseapp.com",
+    projectId: "bkids-56a2a",
+    storageBucket: "bkids-56a2a.firebasestorage.app",
+    messagingSenderId: "239967618667",
+    appId: "1:239967618667:web:64eed50c8e1b37b703932e"
+};
 
-const app = initializeApp({ apiKey:"AIzaSy...", authDomain:"bkids-56a2a.firebaseapp.com", projectId:"bkids-56a2a" });
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
