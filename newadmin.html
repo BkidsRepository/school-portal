@@ -298,10 +298,9 @@ snap.forEach(d=>{
 list.innerHTML += `<li>${d.data().parent} - ${d.data().child}</li>`;
 });
 }
+// --- USER MANAGEMENT ---
 
-// --- USER MANAGEMENT LOGIC ---
-
-// 1. Unified function to load the user list
+// 1. Function to load the user list
 async function loadUsers() {
     const tbody = document.getElementById('userListBody');
     if(!tbody) return;
@@ -322,11 +321,11 @@ async function loadUsers() {
         });
     } catch (err) {
         console.error("Access Denied:", err);
-        tbody.innerHTML = "<tr><td colspan='3'>Login as Admin to view users.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='3'>Permission Denied. Login as Admin.</td></tr>";
     }
 }
 
-// 2. The Create User Logic
+// 2. The Create User Logic (Fixed ID to match your HTML 'createUserBtn')
 document.getElementById("createUserBtn").onclick = async () => {
     const email = document.getElementById("uEmail").value;
     const pass = document.getElementById("uPass").value;
@@ -335,17 +334,17 @@ document.getElementById("createUserBtn").onclick = async () => {
     if (!email || !pass) return alert("Please enter both email and password.");
 
     try {
-        // Firebase creates the user and automatically swaps the session
+        // Create user in Firebase Auth
         const userCred = await createUserWithEmailAndPassword(auth, email, pass);
         
-        // Save to Firestore (The new user has permission to 'create' their own doc per your rules)
+        // Save profile to Firestore
         await setDoc(doc(db, "users", userCred.user.uid), {
             email: email,
             role: role,
             status: "active"
         });
 
-        alert("User Created! System will now sign you out to verify the new account.");
+        alert("User Created! You will be signed out now. Please log back in as Admin.");
         
         await signOut(auth);
         location.reload(); 
@@ -354,14 +353,19 @@ document.getElementById("createUserBtn").onclick = async () => {
     }
 };
 
-    
-// 3. Delete user doc
+// 3. Global Delete Function
 window.deleteUserDoc = async (id) => {
     if(confirm("Revoke this user's database access?")){
-        await deleteDoc(doc(db, "users", id));
-        loadUsers();
+        try {
+            await deleteDoc(doc(db, "users", id));
+            loadUsers();
+        } catch (e) {
+            alert("Delete failed: " + e.message);
+        }
     }
 };
+
+// 4. Trigger load when clicking the tab
 document.getElementById("usersTab").addEventListener('click', loadUsers);
 
 loadInquiries();
