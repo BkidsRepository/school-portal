@@ -102,8 +102,7 @@
             <h3 style="margin: 0;">B Kids Portal</h3>
         </div>
         <ul class="nav-links">
-            <li class="nav-item" id="nav-today">Today's Attendance</li>
-            <li class="nav-item" id="nav-past">Past Attendance</li>
+            <li class="nav-item" id="nav-att">Attendance</li>
             <li class="nav-item nav-carousel" id="nav-play">▶ Play Today's Carousel</li>
         </ul>
     </nav>
@@ -122,22 +121,8 @@
                 <p>Please select an option from the sidebar to begin.</p>
             </div>
 
-            <!-- Today Section -->
-            <div id="todaySection" style="display:none;">
-                <div id="statusAlert" style="margin-bottom:15px; display:none; padding:10px; background:#e8f5e9; color:#2e7d32; border-radius:5px; font-weight:bold; border:1px solid #a5d6a7;">
-                    ✓ Today's attendance has already been submitted.
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead><tr><th>Student Name</th><th style="text-align:center;">Status</th></tr></thead>
-                        <tbody id="stuTable"><tr><td colspan="2">Fetching students...</td></tr></tbody>
-                    </table>
-                </div>
-                <button class="btn-submit" id="submitBtn">Submit Attendance</button>
-            </div>
-
-            <!-- Past Section -->
-            <div id="pastSection" style="display:none;">
+            <!-- Attendance Section -->
+            <div id="attSection" style="display:none;">
                 <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
                     <label style="font-weight:bold; display:block; margin-bottom:5px;">Select Date:</label>
                     <input type="date" id="historyDate" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:5px; font-size: 1rem;">
@@ -148,7 +133,7 @@
                         <tbody id="pastStuTable"><tr><td colspan="2" style="text-align:center; color:#888;">Select a date</td></tr></tbody>
                     </table>
                 </div>
-                <button class="btn-submit" id="updatePastBtn" style="display:none;">Update Records</button>
+                <button class="btn-submit" id="updatePastBtn" style="display:none;">Save Attendance</button>
             </div>
         </div>
     </div>
@@ -180,8 +165,6 @@
 
         let globalTeacherClass = "";
         let currentStudents = [];
-        
-        // FIX: Ensure todayStr is a string, not an array
         const todayStr = new Date().toISOString().split('T');
 
         // UI Logic
@@ -192,19 +175,17 @@
 
         window.showSection = (section) => {
             document.getElementById('welcomeSection').style.display = 'none';
-            document.getElementById('todaySection').style.display = section === 'today' ? 'block' : 'none';
-            document.getElementById('pastSection').style.display = section === 'past' ? 'block' : 'none';
+            document.getElementById('attSection').style.display = section === 'att' ? 'block' : 'none';
             
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             const activeNav = document.getElementById('nav-' + section);
             if (activeNav) activeNav.classList.add('active');
             
-            document.getElementById('sectionTitle').innerText = section === 'today' ? "Today's Attendance" : "Attendance History";
+            document.getElementById('sectionTitle').innerText = "Attendance Management";
             if (window.innerWidth <= 768) sidebar.classList.remove('open');
         };
 
-        document.getElementById('nav-today').onclick = () => showSection('today');
-        document.getElementById('nav-past').onclick = () => showSection('past');
+        document.getElementById('nav-att').onclick = () => showSection('att');
         document.getElementById('nav-play').onclick = () => startCarousel();
         document.getElementById('closeCarousel').onclick = () => {
             document.getElementById('carouselOverlay').style.display = 'none';
@@ -218,7 +199,15 @@
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists()) {
                         globalTeacherClass = userDoc.data().assignedClass;
-                        loadTodayList();
+                        // Pre-load student list for carousel usage
+                        const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+                        const snap = await getDocs(q);
+                        currentStudents = [];
+                        snap.forEach(sDoc => {
+                            const s = sDoc.data();
+                            const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                            currentStudents.push({ id: sDoc.id, fullName: name, ...s });
+                        });
                     }
                 } catch (err) {
                     console.error("Auth sync error:", err);
@@ -228,82 +217,10 @@
             }
         });
 
-        async function loadTodayList() {
-            if (!globalTeacherClass) return;
-            const table = document.getElementById('stuTable');
-            table.innerHTML = "<tr><td colspan='2'>Fetching students...</td></tr>";
-
-            try {
-                const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const snap = await getDocs(q);
-                table.innerHTML = "";
-                currentStudents = [];
-                
-                // todayStr is now verified as a string
-                const attQ = query(collection(db, "attendance"), where("date", "==", todayStr));
-                const attSnap = await getDocs(attQ);
-                const existingAtt = {};
-                attSnap.forEach(d => existingAtt[d.data().studentId] = d.data().status);
-
-                const isAlreadySubmitted = Object.keys(existingAtt).length > 0;
-                const statusAlert = document.getElementById('statusAlert');
-                const submitBtn = document.getElementById('submitBtn');
-
-                if (isAlreadySubmitted) {
-                    submitBtn.disabled = true;
-                    submitBtn.innerText = "Attendance Submitted";
-                    statusAlert.style.display = "block";
-                } else {
-                    submitBtn.disabled = false;
-                    submitBtn.innerText = "Submit Attendance";
-                    statusAlert.style.display = "none";
-                }
-
-                snap.forEach(sDoc => {
-                    const s = sDoc.data();
-                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                    currentStudents.push({ id: sDoc.id, fullName: name, ...s });
-                    
-                    const isChecked = existingAtt[sDoc.id] ? existingAtt[sDoc.id] === "present" : true;
-                    const disabledAttr = isAlreadySubmitted ? "disabled" : "";
-
-                    table.innerHTML += `
-                        <tr>
-                            <td>${name}</td>
-                            <td style="text-align:center;">
-                                <input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked ? "checked" : ""} ${disabledAttr}>
-                            </td>
-                        </tr>`;
-                });
-            } catch (err) {
-                console.error("Load list error:", err);
-                table.innerHTML = "<tr><td colspan='2'>Error loading data.</td></tr>";
-            }
-        }
-
-        document.getElementById('submitBtn').onclick = async () => {
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = "Saving..."; btn.disabled = true;
-            const checks = document.querySelectorAll('.att');
-            try {
-                for (let cb of checks) {
-                    await setDoc(doc(db, "attendance", `${cb.dataset.id}_${todayStr}`), {
-                        studentId: cb.dataset.id, date: todayStr, status: cb.checked ? "present" : "absent"
-                    });
-                }
-                btn.innerText = "Attendance Submitted";
-                document.getElementById('statusAlert').style.display = "block";
-                document.querySelectorAll('.att').forEach(cb => cb.disabled = true);
-                alert("Attendance Submitted Successfully!");
-            } catch (err) {
-                alert("Submission failed: " + err.message);
-                btn.disabled = false;
-                btn.innerText = "Submit Attendance";
-            }
-        };
-
         async function startCarousel() {
-            if (currentStudents.length === 0) return alert("Please select 'Today's Attendance' first to load students.");
+            if (currentStudents.length === 0) return alert("Student list not loaded. Please wait or refresh.");
+            
+            const selDate = document.getElementById('historyDate').value || todayStr;
             const overlay = document.getElementById('carouselOverlay');
             const content = document.getElementById('carouselContent');
             const progress = document.getElementById('carouselProgress');
@@ -311,23 +228,25 @@
             overlay.style.display = 'flex';
             window.isCarouselRunning = true;
 
+            // Fetch attendance for the currently selected date (or today) for the carousel
             const attState = {};
-            document.querySelectorAll('.att').forEach(cb => attState[cb.dataset.id] = cb.checked ? 'PRESENT' : 'ABSENT');
+            const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
+            const aSnap = await getDocs(qAtt);
+            aSnap.forEach(d => attState[d.data().studentId] = d.data().status.toUpperCase());
 
             for (let i = 0; i < currentStudents.length; i++) {
                 if (!window.isCarouselRunning) break;
                 const s = currentStudents[i];
-                const status = attState[s.id] || 'PRESENT';
+                const status = attState[s.id] || 'NOT MARKED';
                 
-                // Fallback avatar if photoUrl is missing or fails
                 const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
 
-                progress.innerText = `Displaying ${i + 1} of ${currentStudents.length}`;
+                progress.innerText = `Displaying ${i + 1} of ${currentStudents.length} (${selDate})`;
                 content.innerHTML = `
                     <div class="carousel-card">
                         <div class="carousel-left">
                             <img src="${s.photoUrl || avatarFallback}" 
-                                 onerror="console.log('Img fail for: ${s.fullName}'); this.src='${avatarFallback}'; this.onerror=null;" 
+                                 onerror="this.src='${avatarFallback}'; this.onerror=null;" 
                                  alt="${s.fullName}">
                         </div>
                         <div class="carousel-right">
@@ -345,7 +264,6 @@
                     if(st) st.classList.add('stamp-animate');
                 }, 300);
 
-                // Wait 4 seconds per student
                 await new Promise(r => setTimeout(r, 4000));
             }
             overlay.style.display = 'none';
@@ -368,19 +286,33 @@
                 table.innerHTML = "";
                 sSnap.forEach(sDoc => {
                     const s = sDoc.data();
-                    const name = `${s.firstName} ${s.lastName}`;
-                    const isPresent = map[sDoc.id] !== "absent";
-                    table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isPresent ? "checked" : ""}></td></tr>`;
+                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                    const isPresent = map[sDoc.id] === "present";
+                    const hasRecord = map[sDoc.id] !== undefined;
+                    
+                    // Default to checked (present) if no record exists for the selected date
+                    const checkVal = hasRecord ? isPresent : true;
+
+                    table.innerHTML += `
+                        <tr>
+                            <td>${name}</td>
+                            <td style="text-align:center;">
+                                <input type="checkbox" class="past-att" data-id="${sDoc.id}" ${checkVal ? "checked" : ""}>
+                            </td>
+                        </tr>`;
                 });
                 document.getElementById('updatePastBtn').style.display = "block";
             } catch (err) {
-                table.innerHTML = "<tr><td colspan='2'>Error loading history.</td></tr>";
+                table.innerHTML = "<tr><td colspan='2'>Error loading attendance data.</td></tr>";
             }
         });
 
         document.getElementById('updatePastBtn').onclick = async () => {
             const selDate = document.getElementById('historyDate').value;
             if (!selDate) return;
+            const btn = document.getElementById('updatePastBtn');
+            btn.innerText = "Saving..."; btn.disabled = true;
+
             const checks = document.querySelectorAll('.past-att');
             try {
                 for (let cb of checks) {
@@ -388,9 +320,12 @@
                         studentId: cb.dataset.id, date: selDate, status: cb.checked ? "present" : "absent"
                     });
                 }
-                alert("Records Updated Successfully!");
+                alert("Attendance saved successfully for " + selDate);
             } catch (err) {
                 alert("Update failed: " + err.message);
+            } finally {
+                btn.innerText = "Save Attendance";
+                btn.disabled = false;
             }
         };
     </script>
