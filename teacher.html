@@ -118,7 +118,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 20px;
-    padding: 40px;
+    padding: 180px 40px 40px;
     justify-items: center;
 }
 
@@ -183,13 +183,7 @@
     z-index: 10000;
 }
 /* HEADER */
-.pin-header {
-    position: sticky;
-    top: 0;
-    background: rgba(255,255,255,0.8);
-    padding: 10px 0;
-    z-index: 10;
-}
+.pin-header { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 10000; }
 
 .pin-header h1 {
     margin: 0;
