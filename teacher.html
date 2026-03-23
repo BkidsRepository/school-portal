@@ -199,7 +199,15 @@
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists()) {
                         globalTeacherClass = userDoc.data().assignedClass;
-                        fetchStudents();
+                        // Pre-load student list for carousel usage
+                        const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+                        const snap = await getDocs(q);
+                        currentStudents = [];
+                        snap.forEach(sDoc => {
+                            const s = sDoc.data();
+                            const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                            currentStudents.push({ id: sDoc.id, fullName: name, ...s });
+                        });
                     }
                 } catch (err) {
                     console.error("Auth sync error:", err);
@@ -209,23 +217,8 @@
             }
         });
 
-        async function fetchStudents() {
-            if (!globalTeacherClass) return;
-            const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-            const snap = await getDocs(q);
-            currentStudents = [];
-            snap.forEach(sDoc => {
-                const s = sDoc.data();
-                const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                currentStudents.push({ id: sDoc.id, fullName: name, ...s });
-            });
-        }
-
         async function startCarousel() {
-            // Ensure student list is fresh
-            await fetchStudents();
-            
-            if (currentStudents.length === 0) return alert("No students found for this class.");
+            if (currentStudents.length === 0) return alert("Student list not loaded. Please wait or refresh.");
             
             const selDate = document.getElementById('historyDate').value || todayStr;
             const overlay = document.getElementById('carouselOverlay');
@@ -235,6 +228,7 @@
             overlay.style.display = 'flex';
             window.isCarouselRunning = true;
 
+            // Fetch attendance for the currently selected date (or today) for the carousel
             const attState = {};
             const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
             const aSnap = await getDocs(qAtt);
@@ -298,6 +292,8 @@
                     const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                     const isPresent = map[sDoc.id] === "present";
                     const hasRecord = map[sDoc.id] !== undefined;
+                    
+                    // Default to checked (present) if no record exists for the selected date
                     const checkVal = hasRecord ? isPresent : true;
 
                     table.innerHTML += `
