@@ -135,20 +135,6 @@
     transition: transform 0.2s ease;
 }
 
-/* Notes */
-.pin-note {
-    position: absolute; /* IMPORTANT */
-    width: 140px;
-    padding: 10px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: bold;
-    color: white;
-
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    transition: transform 0.2s ease;
-}
-
 /* Hover effect */
 .pin-note:hover {
     transform: scale(1.05) rotate(0deg) !important;
@@ -525,44 +511,6 @@ async function loadPinBoardStudents() {
         aSnap.forEach(doc => {
             attMap[doc.data().studentId] = doc.data().status;
         });
-
-        // 🧠 STORE USED POSITIONS (to avoid overlap)
-        const placed = [];
-
-        function getSafePosition() {
-            let tries = 0;
-
-            while (tries < 50) {
-                let x = Math.random() * (window.innerWidth - 160);
-                let y = Math.random() * (window.innerHeight - 220);
-
-                let safe = true;
-
-                for (let p of placed) {
-                    const dx = p.x - x;
-                    const dy = p.y - y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-
-                    if (dist < 150) { // spacing between notes
-                        safe = false;
-                        break;
-                    }
-                }
-
-                if (safe) {
-                    placed.push({ x, y });
-                    return { x, y };
-                }
-
-                tries++;
-            }
-
-            // fallback if crowded
-            return {
-                x: Math.random() * (window.innerWidth - 160),
-                y: Math.random() * (window.innerHeight - 220)
-            };
-        }
 
         // 🔁 LOOP THROUGH STUDENTS
         sSnap.forEach(docSnap => {
