@@ -495,47 +495,65 @@ document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass 
             }
         };
 
-       async function loadPinBoardStudents() {
-const board = document.getElementById('pinBoard');
-board.innerHTML = "";
+async function loadPinBoardStudents() {
+    const board = document.getElementById('pinBoard');
+    board.innerHTML = "";
 
-// Get board size
-const boardWidth = window.innerWidth;
-const boardHeight = window.innerHeight;
+    const selDate = document.getElementById('historyDate').value || todayStr;
 
-sSnap.forEach(docSnap => {
-    const s = docSnap.data();
-    const id = docSnap.id;
+    try {
+        // ✅ Fetch students
+        const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+        const sSnap = await getDocs(qStudents);
 
-    const name = `${s.firstName} ${s.lastName}`;
-    const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
+        // ✅ Fetch attendance
+        const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
+        const aSnap = await getDocs(qAtt);
 
-    const isPresent = attMap[id] === "present";
+        const attMap = {};
+        aSnap.forEach(d => {
+            attMap[d.data().studentId] = d.data().status;
+        });
 
-    const note = document.createElement("div");
-    note.className = "pin-note " + (isPresent ? "green" : "red");
+        // ✅ Create notes
+        sSnap.forEach(docSnap => {
+            const s = docSnap.data();
+            const id = docSnap.id;
 
-    // 🎯 RANDOM POSITION (scatter)
-    const x = Math.random() * (boardWidth - 160);
-    const y = Math.random() * (boardHeight - 220);
+            const name = `${s.firstName} ${s.lastName}`;
+            const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
 
-    note.style.left = x + "px";
-    note.style.top = y + "px";
+            const isPresent = attMap[id] === "present";
 
-    // 🎯 RANDOM ROTATION
-    const rotate = (Math.random() * 10 - 5); // -5 to +5 deg
-    note.style.transform = `rotate(${rotate}deg)`;
+            const note = document.createElement("div");
+            note.className = "pin-note " + (isPresent ? "green" : "red");
 
-    note.innerHTML = `
-        <img src="${photo}">
-        <div>${name}</div>
-        <div style="font-size:12px; margin-top:5px;">
-            ${isPresent ? "Present ✅" : "Absent ❌"}
-        </div>
-    `;
+            // 🎯 RANDOM POSITION
+            const x = Math.random() * (window.innerWidth - 160);
+            const y = Math.random() * (window.innerHeight - 220);
 
-    board.appendChild(note);
-});
+            note.style.left = x + "px";
+            note.style.top = y + "px";
+
+            // 🎯 ROTATION
+            const rotate = (Math.random() * 10 - 5);
+            note.style.transform = `rotate(${rotate}deg)`;
+
+            note.innerHTML = `
+                <img src="${photo}">
+                <div>${name}</div>
+                <div style="font-size:12px; margin-top:5px;">
+                    ${isPresent ? "Present ✅" : "Absent ❌"}
+                </div>
+            `;
+
+            board.appendChild(note);
+        });
+
+    } catch (err) {
+        console.error("Pinboard error:", err);
+        board.innerHTML = "<p style='color:white'>Error loading students</p>";
+    }
 }
         
         
