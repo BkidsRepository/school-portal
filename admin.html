@@ -219,7 +219,7 @@ img {
   <body>
     <div id="sidebar">
       <h2>ERP Panel</h2>
-      <button class="nav-link active" id="studentsTab">Students</button>
+      <button class="nav-link" id="studentsTab">Students</button>
       <button class="nav-link" id="classesTab">Classes</button> <button class="nav-link" id="usersTab">Users</button>
       <button class="nav-link" id="attendanceTab">Attendance</button>
       <button class="nav-link" id="inquiryTab">Inquiries</button>
@@ -234,8 +234,14 @@ img {
       
 
       <div id="content">
+        <div id="welcomeSection">
+  <div class="card" style="text-align:center;">
+    <h2>Welcome to B Kids 🎉</h2>
+    <p>Select a section from the menu to get started.</p>
+  </div>
+</div>
         <!-- STUDENTS -->
-        <div id="studentsSection">
+        <div id="studentsSection" style="display:none;">
           <div class="card">
             <h3>Add Student</h3>
             <input id="fName" placeholder="First Name">
@@ -407,31 +413,34 @@ onAuthStateChanged(auth, (user) => {
     }
 });
       
-      Object.keys(tabs).forEach(id => {
-          const btn = document.getElementById(id);
-          if (!btn) return;
-      
-          btn.onclick = () => {
-              // 1. Hide all sections and remove 'active' from all buttons
-              Object.keys(tabs).forEach(tabId => {
-                  const sectionId = tabs[tabId];
-                  document.getElementById(sectionId).style.display = "none";
-                  document.getElementById(tabId).classList.remove("active");
-              });
-              
-              // 2. Show the clicked section
-              document.getElementById(tabs[id]).style.display = "block";
-              
-              // 3. Add the 'active' class to the clicked button
-              btn.classList.add("active");
-              
-              // 4. Load relevant data for that section
-              if (id === 'usersTab') loadUsers();
-              if (id === 'inquiryTab') loadInquiries();
-              if (id === 'classesTab') loadClasses();
-              if (id === 'studentsTab') loadStudents();
-          };
-      });
+Object.keys(tabs).forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+
+    btn.onclick = () => {
+
+        // Hide welcome screen
+        document.getElementById("welcomeSection").style.display = "none";
+
+        // Hide all sections
+        Object.keys(tabs).forEach(tabId => {
+            document.getElementById(tabs[tabId]).style.display = "none";
+            document.getElementById(tabId).classList.remove("active");
+        });
+
+        // Show selected section
+        document.getElementById(tabs[id]).style.display = "block";
+
+        // Highlight active tab
+        btn.classList.add("active");
+
+        // Load data
+        if (id === 'usersTab') loadUsers();
+        if (id === 'inquiryTab') loadInquiries();
+        if (id === 'classesTab') loadClasses();
+        if (id === 'studentsTab') loadStudents();
+    };
+});
       
       
           
