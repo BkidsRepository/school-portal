@@ -114,6 +114,14 @@
     z-index: 9999;
 }
 
+#pinBoard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px;
+    padding: 120px 40px 40px; /* top space for header */
+    justify-items: center;
+}
+
 /* Board Background */
 .pin-board {
     position: fixed;
@@ -127,7 +135,6 @@
 
 /* Notes */
 .pin-note {
-    position: absolute;
     width: 140px;
     padding: 10px;
     border-radius: 10px;
@@ -135,6 +142,8 @@
     font-weight: bold;
     color: white;
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+
+    position: relative; /* 🔥 IMPORTANT */
 }
 
 /* IMAGE */
@@ -256,22 +265,17 @@
     <!-- PIN BOARD -->
 <div id="pinBoardOverlay">
     <div class="pin-close" id="closePin">&times;</div>
-    <div class="pin-board">
-        <!-- HEADER -->
-<div class="pin-header">
-    <h1>B Kids</h1>
-    <h2 id="pinClass">Class: Jr. KG</h2>
-    <p id="pinDate"></p> <!-- NEW -->
-</div>
-        <div id="pinBoard">
-            <div class="pin-note green" style="top: 30%; left: 20%;">
-    Homework completed ✅
-</div>
 
-<div class="pin-note red" style="top: 55%; left: 60%;">
-    Bring books tomorrow ❗
-</div>
+    <div class="pin-board">
+
+        <div class="pin-header">
+            <h1>B Kids</h1>
+            <h2 id="pinClass"></h2>
+            <p id="pinDate"></p>
         </div>
+
+        <!-- 🔥 IMPORTANT CONTAINER -->
+        <div id="pinBoard"></div>
 
     </div>
 </div>
