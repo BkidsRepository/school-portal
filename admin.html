@@ -31,6 +31,9 @@
     </div>
     <div id="main">
       <div id="header">Admin Dashboard</div>
+        <button id="logoutBtn" style="background:#e74c3c; color:#fff; border:none; padding:8px 12px; border-radius:5px;">
+    Logout
+  </button>
       <div id="content">
         <!-- STUDENTS -->
         <div id="studentsSection">
@@ -172,7 +175,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
       import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
       import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-      
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
       const firebaseConfig = {
       apiKey:"AIzaSyBix-KTRXdKDA1pT0VkmXbpzP6hc97CwN4",
       authDomain:"bkids-56a2a.firebaseapp.com",
@@ -192,6 +195,15 @@
           attendanceTab: "attendanceSection",
           inquiryTab: "inquirySection"
       };
+
+
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        // Not logged in → redirect
+        window.location.href = "index.html";
+    }
+});
       
       Object.keys(tabs).forEach(id => {
           const btn = document.getElementById(id);
@@ -239,7 +251,18 @@
       };
       
 
-
+document.getElementById("logoutBtn").onclick = async () => {
+    try {
+        await signOut(auth);
+        alert("Logged out successfully!");
+        
+        // Redirect to login page (change if needed)
+        window.location.href = "index.html";
+        
+    } catch (error) {
+        alert("Logout failed: " + error.message);
+    }
+};
 
 
 // --- FIXED ADD STUDENT ---
