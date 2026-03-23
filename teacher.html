@@ -165,7 +165,7 @@
 
         let globalTeacherClass = "";
         let currentStudents = [];
-        const todayStr = new Date().toISOString().split('T');
+        const todayStr = new Date().toISOString().split('T')[0];
 
         // UI Logic
         const sidebar = document.getElementById('sidebar');
@@ -220,7 +220,8 @@
         async function startCarousel() {
             if (currentStudents.length === 0) return alert("Student list not loaded. Please wait or refresh.");
             
-            const selDate = document.getElementById('historyDate').value || todayStr;
+            const selDateInput = document.getElementById('historyDate').value;
+            const selDate = selDateInput ? selDateInput : todayStr;
             const overlay = document.getElementById('carouselOverlay');
             const content = document.getElementById('carouselContent');
             const progress = document.getElementById('carouselProgress');
