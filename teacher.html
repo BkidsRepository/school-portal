@@ -507,10 +507,7 @@ document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass 
         const row = Math.floor(index / 5);
         const col = index % 5;
 
-        note.style.top = (150 + row * 160) + "px";
-        note.style.left = (100 + col * 160) + "px";
-
-        note.innerHTML = `
+           note.innerHTML = `
             <img src="${photo}">
             <div>${name}</div>
             <div style="font-size:12px; margin-top:5px;">
