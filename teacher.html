@@ -245,7 +245,7 @@
                 content.innerHTML = `
                     <div class="carousel-card">
                         <div class="carousel-left">
-                            <img src="${s.photoUrl || avatarFallback}" 
+                            <img src="${s.photo || avatarFallback}" 
                                  onerror="this.src='${avatarFallback}'; this.onerror=null;" 
                                  alt="${s.fullName}">
                         </div>
