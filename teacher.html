@@ -65,20 +65,38 @@
     align-items: center;
 }
 
-.carousel-left img {
-    width: 100%;
-    max-width: 900px;   /* ⬅️ increased */
-    height: 95vh;       /* ⬅️ taller */
-    object-fit: contain;
-    border-radius: 15px;
+@keyframes zoomIn {
+    0% {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
-        .carousel-right { flex: 1; padding-left: 50px; position: relative; }
+.carousel-left img {
+    width: 100%;
+    max-width: 800px;
+    height: 90vh;
+    object-fit: contain;
+    border-radius: 15px;
+
+    animation: zoomIn 0.8s ease; /* 🔥 animation */
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+        .carousel-right { flex: 1; padding-left: 50px; position: relative; animation: fadeIn 1s ease; }
         .carousel-right h1 {
             font-size: 4rem; font-weight: 900; text-transform: uppercase;
             margin: 0 0 40px 0; line-height: 1; color: black;
             font-family: 'Arial Black', Gadget, sans-serif;
         }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
         .carousel-right p { font-size: 2.2rem; font-weight: 800; margin: 15px 0; color: black; }
         .carousel-right span { color: #333; }
 
@@ -403,21 +421,27 @@ document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass 
                 const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
 
                 progress.innerText = `Displaying ${i + 1} of ${currentStudents.length} (${selDate})`;
-                content.innerHTML = `
-                    <div class="carousel-card">
-                        <div class="carousel-left">
-                            <img src="${s.photo || avatarFallback}" 
-                                 onerror="this.src='${avatarFallback}'; this.onerror=null;" 
-                                 alt="${s.fullName}">
-                        </div>
-                        <div class="carousel-right">
-                            <h1>${s.fullName}</h1>
-                            <p>Class : <span>${s.class}</span></p>
-                            <p>Roll No. <span>${s.rollNo || '---'}</span></p>
-                            <p>DOB : <span>${s.dob || '---'}</span></p>
-                            <div class="carousel-stamp stamp-${status.toLowerCase()}" id="activeStamp">${status}</div>
-                        </div>
-                    </div>
+
+content.innerHTML = ""; // reset first
+
+setTimeout(() => {
+    content.innerHTML = `
+        <div class="carousel-card">
+            <div class="carousel-left">
+                <img src="${s.photo || avatarFallback}" 
+                     onerror="this.src='${avatarFallback}'; this.onerror=null;" 
+                     alt="${s.fullName}">
+            </div>
+            <div class="carousel-right">
+                <h1>${s.fullName}</h1>
+                <p>Class : <span>${s.class}</span></p>
+                <p>Roll No. <span>${s.rollNo || '---'}</span></p>
+                <p>DOB : <span>${s.dob || '---'}</span></p>
+                <div class="carousel-stamp stamp-${status.toLowerCase()}" id="activeStamp">${status}</div>
+            </div>
+        </div>
+    `;
+}, 50);
                 `;
 
                 setTimeout(() => {
