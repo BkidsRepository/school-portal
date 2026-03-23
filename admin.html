@@ -242,7 +242,28 @@ img {
   </div>
 </div>
         <!-- STUDENTS -->
+<div id="addStudentSection" style="display:none;">
+  <div class="card">
+    <h3>Add Student</h3>
+    <input id="fName" placeholder="First Name">
+    <input id="fatherName" placeholder="Father Name">
+    <input id="lName" placeholder="Last Name">
+    <input id="momName" placeholder="Mother Name">
 
+    <select id="stuClass">
+      <option value="">Select Class</option>
+    </select>
+
+    <label>Photo</label>
+    <input type="file" id="photoFile" accept="image/*">
+    <img id="preview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
+
+    <button id="saveBtn">Save</button>
+  </div>
+</div>
+
+
+        
 <div id="studentListSection" style="display:none;">
   <div class="card">
     <h3>Students List</h3>
@@ -267,40 +288,6 @@ img {
         
 
         
-        <div id="studentsSection" style="display:none;">
-          <div class="card">
-            <h3>Add Student</h3>
-            <input id="fName" placeholder="First Name">
-            <input id="fatherName" placeholder="Father Name">
-            <input id="lName" placeholder="Last Name">
-            <input id="momName" placeholder="Mother Name">
-            <select id="stuClass">
-              <option value="">Select Class</option>
-            </select>
-            <label>Photo</label>
-            <input type="file" id="photoFile" accept="image/*">
-            <img id="preview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
-            <button id="saveBtn">Save</button>
-          </div>
-          <div class="card">
-            <h3>Students</h3>
-            <div class="table-container">
-            <table width="100%">
-              <thead>
-                <tr>
-                  <th>Photo</th>
-                  <th>Name</th>
-                  <th>Class</th>
-                  <th>Mother</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="stuBody"></tbody>
-            </table>              
-            </div>
-
-          </div>
-        </div>
         <!-- CLASS -->
         <div id="classesSection" style="display:none;">
           <div class="card">
@@ -465,7 +452,7 @@ Object.keys(tabs).forEach(id => {
         if (id === 'usersTab') loadUsers();
         if (id === 'inquiryTab') loadInquiries();
         if (id === 'classesTab') loadClasses();
-        if (id === 'studentsTab') loadStudents();
+        if (id === 'studentListTab') loadStudents();
     };
 });
       
