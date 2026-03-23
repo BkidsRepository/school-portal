@@ -180,6 +180,7 @@
 
         let globalTeacherClass = "";
         let currentStudents = [];
+        // Fix: Ensure todayStr is a string, not an array from split
         const todayStr = new Date().toISOString().split('T');
 
         // UI Logic
@@ -223,6 +224,7 @@
         });
 
         async function loadTodayList() {
+            if (!globalTeacherClass) return;
             const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
             const snap = await getDocs(q);
             const table = document.getElementById('stuTable');
@@ -239,6 +241,10 @@
                 document.getElementById('submitBtn').disabled = true;
                 document.getElementById('submitBtn').innerText = "Attendance Submitted";
                 document.getElementById('statusAlert').style.display = "block";
+            } else {
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').innerText = "Submit Attendance";
+                document.getElementById('statusAlert').style.display = "none";
             }
 
             snap.forEach(sDoc => {
@@ -290,13 +296,14 @@
                 if (!window.isCarouselRunning) break;
                 const s = currentStudents[i];
                 const status = attState[s.id];
-                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=random&size=512&color=fff&font-size=0.35`;
+                // Enhanced Fallback Avatar: Added background color to ensure text is visible
+                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
 
                 progress.innerText = `Displaying ${i + 1} of ${currentStudents.length}`;
                 content.innerHTML = `
                     <div class="carousel-card">
                         <div class="carousel-left">
-                            <img src="${s.photoUrl || avatar}" onerror="this.src='${avatar}'">
+                            <img src="${s.photoUrl || avatar}" onerror="this.src='${avatar}'; this.onerror=null;">
                         </div>
                         <div class="carousel-right">
                             <h1>${s.fullName}</h1>
