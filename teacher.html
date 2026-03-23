@@ -115,21 +115,24 @@
 }
 
 #pinBoard {
-    position: relative;
-    width: 100%;
-    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px;
+    padding: 120px 40px 40px;
+    justify-items: center;
 }
 
-.pin-board {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+.pin-note {
+    position: relative; /* ✅ NOT absolute */
+    width: 140px;
+    padding: 10px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
 
-    /* 🧠 Corkboard look */
-    background: url('https://www.transparenttextures.com/patterns/cork-board.png');
-    background-color: #c8a165;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
 }
 
 /* Notes */
@@ -576,12 +579,11 @@ async function loadPinBoardStudents() {
 
             // 🎯 SAFE POSITION (NO OVERLAP)
             const pos = getSafePosition();
-            note.style.left = pos.x + "px";
-            note.style.top = pos.y + "px";
+
 
             // 🎯 RANDOM ROTATION
-            const rotate = (Math.random() * 10 - 5);
-            note.style.transform = `rotate(${rotate}deg)`;
+const rotate = (Math.random() * 6 - 3);
+note.style.transform = `rotate(${rotate}deg)`;
 
             note.innerHTML = `
                 <img src="${photo}">
