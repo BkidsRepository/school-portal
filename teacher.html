@@ -261,8 +261,9 @@
         </div>
         <ul class="nav-links">
             <li class="nav-item" id="nav-att">Attendance</li>
-            <li class="nav-item nav-carousel" id="nav-play">▶ Play Today's Carousel</li>
-            <li class="nav-item" id="nav-pin">📌 Pin Board</li>
+            <li class="nav-item" id="nav-upload">Upload Student Photo</li>
+            <li class="nav-item nav-carousel" id="nav-play">Play Today's Carousel</li>
+            <li class="nav-item" id="nav-pin">Pin Board</li>
         </ul>
     </nav>
 
@@ -294,6 +295,15 @@
                 </div>
                 <button class="btn-submit" id="updatePastBtn" style="display:none;">Save Attendance</button>
             </div>
+            <div id="uploadSection" style="display:none;">
+    <h3>Select Student</h3>
+
+    <select id="studentSelect" style="width:100%; padding:10px; margin-bottom:15px;"></select>
+
+    <input type="file" id="photoInput" accept="image/*" style="margin-bottom:15px;">
+
+    <button class="btn-submit" id="uploadBtn">Upload Photo</button>
+</div>
         </div>
     </div>
 
@@ -350,18 +360,64 @@
         document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
         document.getElementById('historyDate').setAttribute('max', todayStr);
 
-        window.showSection = (section) => {
-            document.getElementById('welcomeSection').style.display = 'none';
-            document.getElementById('attSection').style.display = section === 'att' ? 'block' : 'none';
-            
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            const activeNav = document.getElementById('nav-' + section);
-            if (activeNav) activeNav.classList.add('active');
-            
-            document.getElementById('sectionTitle').innerText = "Attendance Management";
-            if (window.innerWidth <= 768) sidebar.classList.remove('open');
-        };
+window.showSection = (section) => {
+    document.getElementById('welcomeSection').style.display = 'none';
+    document.getElementById('attSection').style.display = section === 'att' ? 'block' : 'none';
+    document.getElementById('uploadSection').style.display = section === 'upload' ? 'block' : 'none';
 
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    const activeNav = document.getElementById('nav-' + section);
+    if (activeNav) activeNav.classList.add('active');
+
+    document.getElementById('sectionTitle').innerText =
+        section === 'upload' ? "Upload Student Photo" : "Attendance Management";
+};
+
+document.getElementById('nav-upload').onclick = async () => {
+    showSection('upload');
+    await loadStudentDropdown();
+};
+
+async function loadStudentDropdown() {
+    const select = document.getElementById('studentSelect');
+    select.innerHTML = "<option>Loading...</option>";
+
+    const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+    const snap = await getDocs(q);
+
+    select.innerHTML = "";
+
+    snap.forEach(docSnap => {
+        const s = docSnap.data();
+        const name = `${s.firstName} ${s.lastName}`;
+
+        select.innerHTML += `<option value="${docSnap.id}">${name}</option>`;
+    });
+}
+
+document.getElementById('uploadBtn').onclick = async () => {
+    const file = document.getElementById('photoInput').files[0];
+    const studentId = document.getElementById('studentSelect').value;
+
+    if (!file) return alert("Please select a photo");
+
+    const storageRef = ref(storage, `students/${studentId}.jpg`);
+
+    try {
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+
+        // Save URL in Firestore
+        await setDoc(doc(db, "students", studentId), {
+            photo: url
+        }, { merge: true });
+
+        alert("Photo uploaded successfully!");
+    } catch (err) {
+        alert("Upload failed: " + err.message);
+    }
+};        
+        
         document.getElementById('nav-att').onclick = () => showSection('att');
         document.getElementById('nav-play').onclick = () => startCarousel();
         document.getElementById('closeCarousel').onclick = () => {
