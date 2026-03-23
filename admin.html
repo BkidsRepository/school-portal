@@ -48,11 +48,24 @@
     flex-direction: column;
   }
 
+#sidebar {
+  width: 220px;
+  background: var(--primary);
+  color: white;
+  padding-top: 20px;
+}
+
+#sidebar h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Overlay effect on mobile */
+@media (max-width: 768px) {
   #sidebar {
-    position: fixed;
-    width: 220px;
-    transform: translateX(-100%);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
   }
+}
 
   #sidebar.open {
     transform: translateX(0);
@@ -61,13 +74,35 @@
   #main {
     width: 100%;
   }
-
-  #header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .card {
+    padding: 12px;
+    border-radius: 8px;
   }
 
+  h3 {
+    font-size: 16px;
+  }
+  #header {
+  background: #fff;
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#menuBtn {
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#logoutBtn {
+  background: var(--danger);
+  padding: 8px 12px;
+  border-radius: 5px;
+}
   /* Tables scroll */
   table {
     display: block;
@@ -163,7 +198,20 @@ img {
   max-width: 100%;
   height: auto;
 }
-      
+ #overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  z-index: 999;
+}
+
+#overlay.show {
+  display: block;
+}     
     </style>
   </head>
   <body>
@@ -174,10 +222,11 @@ img {
       <button class="nav-link" id="attendanceTab">Attendance</button>
       <button class="nav-link" id="inquiryTab">Inquiries</button>
     </div>
+    <div id="overlay"></div>
     <div id="main">
-      <div id="header">
+<div id="header">
   <button id="menuBtn">☰</button>
-  <span>Admin Dashboard</span>
+  <h3>Admin Dashboard</h3>
   <button id="logoutBtn">Logout</button>
 </div>
       
@@ -475,7 +524,17 @@ updateBtn.onclick = async () => {
 };
 
 
-      
+const overlay = document.getElementById("overlay");
+
+menuBtn.onclick = () => {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+};
+
+overlay.onclick = () => {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+};      
       
           
       // LOAD STUDENTS TABLE
