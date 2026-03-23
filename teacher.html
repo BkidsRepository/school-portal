@@ -22,6 +22,19 @@
         .top-bar { padding: 15px; background: white; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
         #content { flex: 1; padding: 20px; overflow-y: auto; }
 
+        /* Welcome Screen */
+        #welcomeSection {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--primary);
+        }
+        #welcomeSection h1 { font-size: 3rem; margin-bottom: 10px; }
+        #welcomeSection p { font-size: 1.2rem; opacity: 0.7; }
+
         /* Tables */
         .table-container { width: 100%; border: 1px solid #eee; border-radius: 8px; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
@@ -33,7 +46,7 @@
         
         input[type="checkbox"] { transform: scale(1.5); cursor: pointer; }
 
-        /* FULL SCREEN CAROUSEL (Matching Reference) */
+        /* FULL SCREEN CAROUSEL */
         #carouselOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: white; z-index: 9999; display: none;
@@ -41,73 +54,36 @@
         }
         
         .carousel-card {
-            display: flex;
-            width: 90%;
-            max-width: 1200px;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            padding: 20px;
+            display: flex; width: 90%; max-width: 1200px; align-items: center;
+            justify-content: space-between; position: relative; padding: 20px;
         }
 
         .carousel-left { flex: 1; display: flex; justify-content: center; }
-        .carousel-left img {
-            max-width: 500px;
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            object-fit: contain;
-        }
+        .carousel-left img { max-width: 500px; width: 100%; height: auto; border-radius: 10px; object-fit: contain; }
 
         .carousel-right { flex: 1; padding-left: 50px; position: relative; }
         .carousel-right h1 {
-            font-size: 4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            margin: 0 0 40px 0;
-            line-height: 1;
-            color: black;
+            font-size: 4rem; font-weight: 900; text-transform: uppercase;
+            margin: 0 0 40px 0; line-height: 1; color: black;
             font-family: 'Arial Black', Gadget, sans-serif;
         }
-        .carousel-right p {
-            font-size: 2.2rem;
-            font-weight: 800;
-            margin: 15px 0;
-            color: black;
-        }
+        .carousel-right p { font-size: 2.2rem; font-weight: 800; margin: 15px 0; color: black; }
         .carousel-right span { color: #333; }
 
         .carousel-stamp {
-            position: absolute;
-            bottom: -80px;
-            right: 0;
-            border: 10px solid;
-            padding: 15px 40px;
-            font-size: 3.5rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            border-radius: 15px;
-            transform: rotate(-15deg) scale(2);
-            opacity: 0;
-            background: white;
-            transition: 0.3s;
+            position: absolute; bottom: -80px; right: 0; border: 10px solid;
+            padding: 15px 40px; font-size: 3.5rem; font-weight: 900;
+            text-transform: uppercase; border-radius: 15px;
+            transform: rotate(-15deg) scale(2); opacity: 0;
+            background: white; transition: 0.3s;
         }
-        /* Updated Stamp Colors: Green for Present, Red for Absent */
         .stamp-present { color: var(--success); border-color: var(--success); }
         .stamp-absent { color: var(--danger); border-color: var(--danger); }
         .stamp-animate { opacity: 0.8; transform: rotate(-15deg) scale(1); }
 
-        .carousel-close {
-            position: absolute; top: 20px; right: 30px;
-            font-size: 3rem; cursor: pointer; color: #ccc; z-index: 10001;
-        }
+        .carousel-close { position: absolute; top: 20px; right: 30px; font-size: 3rem; cursor: pointer; color: #ccc; z-index: 10001; }
+        #carouselProgress { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-weight: bold; color: #888; font-size: 1.2rem; }
 
-        #carouselProgress {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            font-weight: bold; color: #888; font-size: 1.2rem;
-        }
-
-        /* Mobile Adjustments */
         @media (max-width: 900px) {
             .carousel-card { flex-direction: column; text-align: center; }
             .carousel-right { padding-left: 0; margin-top: 30px; }
@@ -126,7 +102,7 @@
             <h3 style="margin: 0;">B Kids Portal</h3>
         </div>
         <ul class="nav-links">
-            <li class="nav-item active" id="nav-today">Today's Attendance</li>
+            <li class="nav-item" id="nav-today">Today's Attendance</li>
             <li class="nav-item" id="nav-past">Past Attendance</li>
             <li class="nav-item nav-carousel" id="nav-play">▶ Play Today's Carousel</li>
         </ul>
@@ -135,13 +111,19 @@
     <div id="main">
         <div class="top-bar">
             <button id="menuBtn" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">☰</button>
-            <h2 id="sectionTitle" style="margin:0;">Today's Attendance</h2>
+            <h2 id="sectionTitle" style="margin:0;">Dashboard</h2>
             <div id="dateDisplay" style="font-weight: bold; color: var(--primary); font-size: 0.9rem;"></div>
         </div>
 
         <div id="content">
+            <!-- Welcome Section -->
+            <div id="welcomeSection">
+                <h1>Welcome to B Kids</h1>
+                <p>Please select an option from the sidebar to begin.</p>
+            </div>
+
             <!-- Today Section -->
-            <div id="todaySection">
+            <div id="todaySection" style="display:none;">
                 <div id="statusAlert" style="margin-bottom:15px; display:none; padding:10px; background:#e8f5e9; color:#2e7d32; border-radius:5px; font-weight:bold; border:1px solid #a5d6a7;">
                     ✓ Today's attendance has already been submitted.
                 </div>
@@ -207,10 +189,14 @@
         document.getElementById('historyDate').setAttribute('max', todayStr);
 
         window.showSection = (section) => {
+            document.getElementById('welcomeSection').style.display = 'none';
             document.getElementById('todaySection').style.display = section === 'today' ? 'block' : 'none';
             document.getElementById('pastSection').style.display = section === 'past' ? 'block' : 'none';
+            
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('nav-' + section).classList.add('active');
+            const activeNav = document.getElementById('nav-' + section);
+            if (activeNav) activeNav.classList.add('active');
+            
             document.getElementById('sectionTitle').innerText = section === 'today' ? "Today's Attendance" : "Attendance History";
             if (window.innerWidth <= 768) sidebar.classList.remove('open');
         };
@@ -243,7 +229,6 @@
             table.innerHTML = "";
             currentStudents = [];
             
-            // Check if attendance already exists for today
             const attQ = query(collection(db, "attendance"), where("date", "==", todayStr));
             const attSnap = await getDocs(attQ);
             const existingAtt = {};
@@ -261,7 +246,6 @@
                 const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                 currentStudents.push({ id: sDoc.id, fullName: name, ...s });
                 
-                // If submitted, use existing value, else default to checked
                 const isChecked = existingAtt[sDoc.id] ? existingAtt[sDoc.id] === "present" : true;
                 const disabledAttr = isAlreadySubmitted ? "disabled" : "";
 
@@ -286,12 +270,10 @@
             }
             btn.innerText = "Attendance Submitted";
             document.getElementById('statusAlert').style.display = "block";
-            // Disable all checkboxes after submit
             document.querySelectorAll('.att').forEach(cb => cb.disabled = true);
             alert("Attendance Submitted Successfully!");
         };
 
-        // CAROUSEL LOGIC
         async function startCarousel() {
             if (currentStudents.length === 0) return alert("Load students first!");
             const overlay = document.getElementById('carouselOverlay');
@@ -326,7 +308,6 @@
                     </div>
                 `;
 
-                // Quick delay then animate stamp
                 setTimeout(() => {
                     const st = document.getElementById('activeStamp');
                     if(st) st.classList.add('stamp-animate');
@@ -337,7 +318,6 @@
             overlay.style.display = 'none';
         }
 
-        // Past Logic
         document.getElementById('historyDate').addEventListener('change', async (e) => {
             const selectedDate = e.target.value;
             const table = document.getElementById('pastStuTable');
