@@ -528,12 +528,23 @@ async function loadPinBoardStudents() {
             const note = document.createElement("div");
             note.className = "pin-note " + (isPresent ? "green" : "red");
 
-            // 🎯 RANDOM POSITION
-            const x = Math.random() * (window.innerWidth - 160);
-            const y = Math.random() * (window.innerHeight - 220);
+const index = Array.from(board.children).length;
 
-            note.style.left = x + "px";
-            note.style.top = y + "px";
+// grid settings
+const cols = Math.floor(window.innerWidth / 180);
+const col = index % cols;
+const row = Math.floor(index / cols);
+
+// base position
+let x = col * 180 + 40;
+let y = row * 180 + 120;
+
+// small random offset (for messy look)
+x += Math.random() * 40 - 20;
+y += Math.random() * 40 - 20;
+
+note.style.left = x + "px";
+note.style.top = y + "px";
 
             // 🎯 ROTATION
             const rotate = (Math.random() * 10 - 5);
