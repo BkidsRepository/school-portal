@@ -128,13 +128,22 @@
 /* Notes */
 .pin-note {
     position: absolute;
-    background: #fff8a6;
     padding: 15px 20px;
     font-weight: bold;
-    border-radius: 5px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transform: rotate(-3deg);
-    cursor: grab;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transform: rotate(-2deg);
+    color: white;
+}
+
+/* GREEN NOTE */
+.pin-note.green {
+    background: #27ae60;
+}
+
+/* RED NOTE */
+.pin-note.red {
+    background: #e74c3c;
 }
 
 /* Close Button */
@@ -176,7 +185,15 @@
     color: #777;
     font-weight: 500;
 }
-        
+.pin-note.green {
+    background: #2ecc71;
+    transform: rotate(-3deg);
+}
+
+.pin-note.red {
+    background: #ff6b6b;
+    transform: rotate(2deg);
+}        
         
     </style>
 </head>
@@ -243,8 +260,13 @@
     <p id="pinDate"></p> <!-- NEW -->
 </div>
         <div id="pinBoard">
-            <div class="pin-note" style="top: 30%; left: 20%;">Welcome to class 🎉</div>
-            <div class="pin-note" style="top: 55%; left: 60%;">Homework: A-Z writing</div>
+            <div class="pin-note green" style="top: 30%; left: 20%;">
+    Homework completed ✅
+</div>
+
+<div class="pin-note red" style="top: 55%; left: 60%;">
+    Bring books tomorrow ❗
+</div>
         </div>
 
     </div>
