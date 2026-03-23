@@ -58,8 +58,20 @@
             justify-content: space-between; position: relative; padding: 20px;
         }
 
-        .carousel-left { flex: 1; display: flex; justify-content: center; }
-        .carousel-left img { max-width: 500px; width: 100%; height: auto; border-radius: 10px; object-fit: contain; background: #f0f0f0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .carousel-left {
+    flex: 0 0 50%; /* takes 50% of screen */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-left img {
+    width: 100%;
+    max-width: 600px; /* optional cap */
+    height: 80vh; /* BIG height (80% of screen) */
+    object-fit: contain;
+    border-radius: 15px;
+}
 
         .carousel-right { flex: 1; padding-left: 50px; position: relative; }
         .carousel-right h1 {
