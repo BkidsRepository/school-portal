@@ -232,10 +232,7 @@
             const attState = {};
             const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
             const aSnap = await getDocs(qAtt);
-            aSnap.forEach(d => {
-                const data = d.data();
-                attState[data.studentId] = data.status.toUpperCase();
-            });
+            aSnap.forEach(d => attState[d.data().studentId] = d.data().status.toUpperCase());
 
             for (let i = 0; i < currentStudents.length; i++) {
                 if (!window.isCarouselRunning) break;
@@ -257,7 +254,7 @@
                             <p>Class : <span>${s.class}</span></p>
                             <p>Roll No. <span>${s.rollNo || '---'}</span></p>
                             <p>DOB : <span>${s.dob || '---'}</span></p>
-                            <div class="carousel-stamp stamp-${status.toLowerCase().replace(' ', '-')}" id="activeStamp">${status}</div>
+                            <div class="carousel-stamp stamp-${status.toLowerCase()}" id="activeStamp">${status}</div>
                         </div>
                     </div>
                 `;
