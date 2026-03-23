@@ -90,8 +90,9 @@
             background: white;
             transition: 0.3s;
         }
-        .stamp-present { color: #e74c3c; border-color: #e74c3c; } /* Red stamp per reference */
-        .stamp-absent { color: #999; border-color: #999; }
+        /* Updated Stamp Colors: Green for Present, Red for Absent */
+        .stamp-present { color: var(--success); border-color: var(--success); }
+        .stamp-absent { color: var(--danger); border-color: var(--danger); }
         .stamp-animate { opacity: 0.8; transform: rotate(-15deg) scale(1); }
 
         .carousel-close {
