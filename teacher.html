@@ -115,14 +115,11 @@
 }
 
 #pinBoard {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 20px;
-    padding: 120px 40px 40px; /* top space for header */
-    justify-items: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
-/* Board Background */
 .pin-board {
     position: fixed;
     top: 0;
@@ -130,23 +127,32 @@
     width: 100vw;
     height: 100vh;
 
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    /* 🧠 Corkboard look */
+    background: url('https://www.transparenttextures.com/patterns/cork-board.png');
+    background-color: #c8a165;
 }
 
 /* Notes */
 .pin-note {
+    position: absolute; /* IMPORTANT */
     width: 140px;
     padding: 10px;
-    border-radius: 10px;
+    border-radius: 12px;
     text-align: center;
     font-weight: bold;
     color: white;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 
-    position: relative; /* 🔥 IMPORTANT */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
 }
 
-/* IMAGE */
+/* Hover effect */
+.pin-note:hover {
+    transform: scale(1.05) rotate(0deg) !important;
+    z-index: 10;
+}
+
+/* Image */
 .pin-note img {
     width: 100%;
     height: 100px;
@@ -155,10 +161,15 @@
     margin-bottom: 8px;
 }
 
-/* COLORS */
-.pin-note.green { background: #27ae60; }
-.pin-note.red { background: #e74c3c; }
+/* Colors */
+.pin-note.green {
+    background: #2ecc71;
+}
 
+.pin-note.red {
+    background: #ff6b6b;
+}
+        
 /* Close Button */
 .pin-close {
     position: absolute;
@@ -207,6 +218,20 @@
     background: #ff6b6b;
     transform: rotate(2deg);
 }        
+
+.pin-note::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    width: 14px;
+    height: 14px;
+    background: #e74c3c;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}
         
     </style>
 </head>
@@ -471,53 +496,46 @@ document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass 
         };
 
        async function loadPinBoardStudents() {
-    const board = document.getElementById('pinBoard');
-    board.innerHTML = "";
+const board = document.getElementById('pinBoard');
+board.innerHTML = "";
 
-    const selDate = document.getElementById('historyDate').value || todayStr;
+// Get board size
+const boardWidth = window.innerWidth;
+const boardHeight = window.innerHeight;
 
-    // Fetch students
-    const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-    const sSnap = await getDocs(qStudents);
+sSnap.forEach(docSnap => {
+    const s = docSnap.data();
+    const id = docSnap.id;
 
-    // Fetch attendance
-    const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
-    const aSnap = await getDocs(qAtt);
+    const name = `${s.firstName} ${s.lastName}`;
+    const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
 
-    const attMap = {};
-    aSnap.forEach(d => {
-        attMap[d.data().studentId] = d.data().status;
-    });
+    const isPresent = attMap[id] === "present";
 
-    let index = 0;
+    const note = document.createElement("div");
+    note.className = "pin-note " + (isPresent ? "green" : "red");
 
-    sSnap.forEach(docSnap => {
-        const s = docSnap.data();
-        const id = docSnap.id;
+    // 🎯 RANDOM POSITION (scatter)
+    const x = Math.random() * (boardWidth - 160);
+    const y = Math.random() * (boardHeight - 220);
 
-        const name = `${s.firstName} ${s.lastName}`;
-        const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
+    note.style.left = x + "px";
+    note.style.top = y + "px";
 
-        const isPresent = attMap[id] === "present";
+    // 🎯 RANDOM ROTATION
+    const rotate = (Math.random() * 10 - 5); // -5 to +5 deg
+    note.style.transform = `rotate(${rotate}deg)`;
 
-        const note = document.createElement("div");
-        note.className = "pin-note " + (isPresent ? "green" : "red");
+    note.innerHTML = `
+        <img src="${photo}">
+        <div>${name}</div>
+        <div style="font-size:12px; margin-top:5px;">
+            ${isPresent ? "Present ✅" : "Absent ❌"}
+        </div>
+    `;
 
-        // RANDOM POSITION (grid style)
-        const row = Math.floor(index / 5);
-        const col = index % 5;
-
-           note.innerHTML = `
-            <img src="${photo}">
-            <div>${name}</div>
-            <div style="font-size:12px; margin-top:5px;">
-    ${isPresent ? "Present ✅" : "Absent ❌"}
-</div>
-        `;
-
-        board.appendChild(note);
-        index++;
-    });
+    board.appendChild(note);
+});
 }
         
         
