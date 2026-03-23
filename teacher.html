@@ -169,6 +169,15 @@
     font-size: 1.5rem;
     color: #555;
 }        
+
+.pin-header p {
+    margin-top: 8px;
+    font-size: 1.1rem;
+    color: #777;
+    font-weight: 500;
+}
+        
+        
     </style>
 </head>
 <body>
@@ -228,10 +237,11 @@
     <div class="pin-close" id="closePin">&times;</div>
     <div class="pin-board">
         <!-- HEADER -->
-        <div class="pin-header">
-            <h1>B Kids</h1>
-            <h2 id="pinClass">Class: Jr. KG</h2>
-        </div>
+<div class="pin-header">
+    <h1>B Kids</h1>
+    <h2 id="pinClass">Class: Jr. KG</h2>
+    <p id="pinDate"></p> <!-- NEW -->
+</div>
         <div id="pinBoard">
             <div class="pin-note" style="top: 30%; left: 20%;">Welcome to class 🎉</div>
             <div class="pin-note" style="top: 55%; left: 60%;">Homework: A-Z writing</div>
@@ -429,7 +439,16 @@ document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass 
                 btn.disabled = false;
             }
         };
+const today = new Date();
 
+const formattedDate = today.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+});
+
+document.getElementById('pinDate').innerText = "Today: " + formattedDate;
+        
         // OPEN PIN BOARD
 document.getElementById('nav-pin').onclick = () => {
     document.getElementById('pinBoardOverlay').style.display = 'block';
