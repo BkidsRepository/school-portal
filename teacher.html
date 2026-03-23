@@ -59,7 +59,7 @@
         }
 
         .carousel-left { flex: 1; display: flex; justify-content: center; }
-        .carousel-left img { max-width: 500px; width: 100%; height: auto; border-radius: 10px; object-fit: contain; }
+        .carousel-left img { max-width: 500px; width: 100%; height: auto; border-radius: 10px; object-fit: contain; background: #f0f0f0; }
 
         .carousel-right { flex: 1; padding-left: 50px; position: relative; }
         .carousel-right h1 {
@@ -180,7 +180,8 @@
 
         let globalTeacherClass = "";
         let currentStudents = [];
-        // Fix: Ensure todayStr is a string, not an array from split
+        
+        // Fix: correctly define todayStr as a string yyyy-mm-dd
         const todayStr = new Date().toISOString().split('T');
 
         // UI Logic
@@ -213,10 +214,14 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('userEmail').textContent = user.email;
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists()) {
-                    globalTeacherClass = userDoc.data().assignedClass;
-                    loadTodayList();
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        globalTeacherClass = userDoc.data().assignedClass;
+                        loadTodayList();
+                    }
+                } catch (err) {
+                    console.error("Auth sync error:", err);
                 }
             } else {
                 window.location.href = "login.html";
@@ -225,63 +230,79 @@
 
         async function loadTodayList() {
             if (!globalTeacherClass) return;
-            const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-            const snap = await getDocs(q);
             const table = document.getElementById('stuTable');
-            table.innerHTML = "";
-            currentStudents = [];
-            
-            const attQ = query(collection(db, "attendance"), where("date", "==", todayStr));
-            const attSnap = await getDocs(attQ);
-            const existingAtt = {};
-            attSnap.forEach(d => existingAtt[d.data().studentId] = d.data().status);
+            table.innerHTML = "<tr><td colspan='2'>Fetching students...</td></tr>";
 
-            const isAlreadySubmitted = Object.keys(existingAtt).length > 0;
-            if (isAlreadySubmitted) {
-                document.getElementById('submitBtn').disabled = true;
-                document.getElementById('submitBtn').innerText = "Attendance Submitted";
-                document.getElementById('statusAlert').style.display = "block";
-            } else {
-                document.getElementById('submitBtn').disabled = false;
-                document.getElementById('submitBtn').innerText = "Submit Attendance";
-                document.getElementById('statusAlert').style.display = "none";
-            }
-
-            snap.forEach(sDoc => {
-                const s = sDoc.data();
-                const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                currentStudents.push({ id: sDoc.id, fullName: name, ...s });
+            try {
+                const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+                const snap = await getDocs(q);
+                table.innerHTML = "";
+                currentStudents = [];
                 
-                const isChecked = existingAtt[sDoc.id] ? existingAtt[sDoc.id] === "present" : true;
-                const disabledAttr = isAlreadySubmitted ? "disabled" : "";
+                const attQ = query(collection(db, "attendance"), where("date", "==", todayStr));
+                const attSnap = await getDocs(attQ);
+                const existingAtt = {};
+                attSnap.forEach(d => existingAtt[d.data().studentId] = d.data().status);
 
-                table.innerHTML += `
-                    <tr>
-                        <td>${name}</td>
-                        <td style="text-align:center;">
-                            <input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked ? "checked" : ""} ${disabledAttr}>
-                        </td>
-                    </tr>`;
-            });
+                const isAlreadySubmitted = Object.keys(existingAtt).length > 0;
+                const statusAlert = document.getElementById('statusAlert');
+                const submitBtn = document.getElementById('submitBtn');
+
+                if (isAlreadySubmitted) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = "Attendance Submitted";
+                    statusAlert.style.display = "block";
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit Attendance";
+                    statusAlert.style.display = "none";
+                }
+
+                snap.forEach(sDoc => {
+                    const s = sDoc.data();
+                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                    currentStudents.push({ id: sDoc.id, fullName: name, ...s });
+                    
+                    const isChecked = existingAtt[sDoc.id] ? existingAtt[sDoc.id] === "present" : true;
+                    const disabledAttr = isAlreadySubmitted ? "disabled" : "";
+
+                    table.innerHTML += `
+                        <tr>
+                            <td>${name}</td>
+                            <td style="text-align:center;">
+                                <input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked ? "checked" : ""} ${disabledAttr}>
+                            </td>
+                        </tr>`;
+                });
+            } catch (err) {
+                console.error("Load list error:", err);
+                table.innerHTML = "<tr><td colspan='2'>Error loading data.</td></tr>";
+            }
         }
 
         document.getElementById('submitBtn').onclick = async () => {
             const btn = document.getElementById('submitBtn');
             btn.innerText = "Saving..."; btn.disabled = true;
             const checks = document.querySelectorAll('.att');
-            for (let cb of checks) {
-                await setDoc(doc(db, "attendance", `${cb.dataset.id}_${todayStr}`), {
-                    studentId: cb.dataset.id, date: todayStr, status: cb.checked ? "present" : "absent"
-                });
+            try {
+                for (let cb of checks) {
+                    await setDoc(doc(db, "attendance", `${cb.dataset.id}_${todayStr}`), {
+                        studentId: cb.dataset.id, date: todayStr, status: cb.checked ? "present" : "absent"
+                    });
+                }
+                btn.innerText = "Attendance Submitted";
+                document.getElementById('statusAlert').style.display = "block";
+                document.querySelectorAll('.att').forEach(cb => cb.disabled = true);
+                alert("Attendance Submitted Successfully!");
+            } catch (err) {
+                alert("Submission failed: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Submit Attendance";
             }
-            btn.innerText = "Attendance Submitted";
-            document.getElementById('statusAlert').style.display = "block";
-            document.querySelectorAll('.att').forEach(cb => cb.disabled = true);
-            alert("Attendance Submitted Successfully!");
         };
 
         async function startCarousel() {
-            if (currentStudents.length === 0) return alert("Load students first!");
+            if (currentStudents.length === 0) return alert("Please select 'Today's Attendance' first to load students.");
             const overlay = document.getElementById('carouselOverlay');
             const content = document.getElementById('carouselContent');
             const progress = document.getElementById('carouselProgress');
@@ -295,15 +316,18 @@
             for (let i = 0; i < currentStudents.length; i++) {
                 if (!window.isCarouselRunning) break;
                 const s = currentStudents[i];
-                const status = attState[s.id];
-                // Enhanced Fallback Avatar: Added background color to ensure text is visible
-                const avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
+                const status = attState[s.id] || 'PRESENT'; // default fallback
+                
+                // Fixed Avatar Fallback: explicitly blue background and white text
+                const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
 
                 progress.innerText = `Displaying ${i + 1} of ${currentStudents.length}`;
                 content.innerHTML = `
                     <div class="carousel-card">
                         <div class="carousel-left">
-                            <img src="${s.photoUrl || avatar}" onerror="this.src='${avatar}'; this.onerror=null;">
+                            <img src="${s.photoUrl || avatarFallback}" 
+                                 onerror="this.src='${avatarFallback}'; this.onerror=null;" 
+                                 alt="${s.fullName}">
                         </div>
                         <div class="carousel-right">
                             <h1>${s.fullName}</h1>
@@ -320,7 +344,7 @@
                     if(st) st.classList.add('stamp-animate');
                 }, 300);
 
-                await new Promise(r => setTimeout(r, 3000));
+                await new Promise(r => setTimeout(r, 4000)); // Increased to 4 seconds for better viewing
             }
             overlay.style.display = 'none';
         }
@@ -330,32 +354,40 @@
             const table = document.getElementById('pastStuTable');
             table.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
 
-            const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-            const qAtt = query(collection(db, "attendance"), where("date", "==", selectedDate));
-            const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAtt)]);
+            try {
+                const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+                const qAtt = query(collection(db, "attendance"), where("date", "==", selectedDate));
+                const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAtt)]);
 
-            const map = {};
-            aSnap.forEach(d => map[d.data().studentId] = d.data().status);
+                const map = {};
+                aSnap.forEach(d => map[d.data().studentId] = d.data().status);
 
-            table.innerHTML = "";
-            sSnap.forEach(sDoc => {
-                const s = sDoc.data();
-                const name = `${s.firstName} ${s.lastName}`;
-                const isPresent = map[sDoc.id] !== "absent";
-                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isPresent ? "checked" : ""}></td></tr>`;
-            });
-            document.getElementById('updatePastBtn').style.display = "block";
+                table.innerHTML = "";
+                sSnap.forEach(sDoc => {
+                    const s = sDoc.data();
+                    const name = `${s.firstName} ${s.lastName}`;
+                    const isPresent = map[sDoc.id] !== "absent";
+                    table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="past-att" data-id="${sDoc.id}" ${isPresent ? "checked" : ""}></td></tr>`;
+                });
+                document.getElementById('updatePastBtn').style.display = "block";
+            } catch (err) {
+                table.innerHTML = "<tr><td colspan='2'>Error loading history.</td></tr>";
+            }
         });
 
         document.getElementById('updatePastBtn').onclick = async () => {
             const selDate = document.getElementById('historyDate').value;
             const checks = document.querySelectorAll('.past-att');
-            for (let cb of checks) {
-                await setDoc(doc(db, "attendance", `${cb.dataset.id}_${selDate}`), {
-                    studentId: cb.dataset.id, date: selDate, status: cb.checked ? "present" : "absent"
-                });
+            try {
+                for (let cb of checks) {
+                    await setDoc(doc(db, "attendance", `${cb.dataset.id}_${selDate}`), {
+                        studentId: cb.dataset.id, date: selDate, status: cb.checked ? "present" : "absent"
+                    });
+                }
+                alert("Records Updated Successfully!");
+            } catch (err) {
+                alert("Update failed: " + err.message);
             }
-            alert("Updated!");
         };
     </script>
 </body>
