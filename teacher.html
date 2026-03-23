@@ -147,7 +147,28 @@
     cursor: pointer;
     z-index: 10000;
 }
-        
+/* HEADER */
+.pin-header {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10000;
+}
+
+.pin-header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    font-weight: 900;
+}
+
+.pin-header h2 {
+    margin: 5px 0 0;
+    font-size: 1.5rem;
+    color: #555;
+}        
     </style>
 </head>
 <body>
@@ -205,7 +226,16 @@
     <!-- PIN BOARD -->
 <div id="pinBoardOverlay">
     <div class="pin-close" id="closePin">&times;</div>
-    <div class="pin-board" id="pinBoard">
+    <div class="pin-board">
+        <!-- HEADER -->
+        <div class="pin-header">
+            <h1>B Kids</h1>
+            <h2 id="pinClass">Class: Jr. KG</h2>
+        </div>
+        <div id="pinBoard">
+            <div class="pin-note" style="top: 30%; left: 20%;">Welcome to class 🎉</div>
+            <div class="pin-note" style="top: 55%; left: 60%;">Homework: A-Z writing</div>
+        </div>
 
     </div>
 </div>
@@ -260,13 +290,18 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 document.getElementById('userEmail').textContent = user.email;
+                
                 try {
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists()) {
                         globalTeacherClass = userDoc.data().assignedClass;
+document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass || "All Classes");
+                        
+                        
                         // Pre-load student list for carousel usage
                         const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
                         const snap = await getDocs(q);
+                        
                         currentStudents = [];
                         snap.forEach(sDoc => {
                             const s = sDoc.data();
