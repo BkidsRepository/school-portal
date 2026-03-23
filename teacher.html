@@ -49,8 +49,13 @@
         /* FULL SCREEN CAROUSEL */
         #carouselOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: white; z-index: 9999; display: none;
-            align-items: center; justify-content: center;
+            /*background: white;*/
+           background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(8px);     
+            z-index: 9999; display: none;
+            align-items: center;
+            justify-content: center;
+            
         }
         
         .carousel-card {
@@ -59,7 +64,7 @@
         }
 
         .carousel-left {
-    flex: 0 0 70%; /* takes 50% of screen */
+    flex: 0 0 75%; /* takes 50% of screen */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -78,13 +83,13 @@
 
 .carousel-left img {
     width: 100%;
-    max-width: 800px;
-    height: 90vh;
+    max-width: 900px;
+    height: 95vh;
     object-fit: contain;
-    border-radius: 15px;
+    border-radius: 20px;
 
     animation: zoomIn 0.8s ease; /* 🔥 animation */
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
 }
 
         .carousel-right { flex: 1; padding-left: 50px; position: relative; animation: fadeIn 1s ease; }
