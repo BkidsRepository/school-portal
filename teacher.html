@@ -181,7 +181,7 @@
         let globalTeacherClass = "";
         let currentStudents = [];
         
-        // Fix: correctly define todayStr as a string yyyy-mm-dd
+        // Correctly define todayStr as a string yyyy-mm-dd
         const todayStr = new Date().toISOString().split('T');
 
         // UI Logic
@@ -316,9 +316,8 @@
             for (let i = 0; i < currentStudents.length; i++) {
                 if (!window.isCarouselRunning) break;
                 const s = currentStudents[i];
-                const status = attState[s.id] || 'PRESENT'; // default fallback
+                const status = attState[s.id] || 'PRESENT';
                 
-                // Fixed Avatar Fallback: explicitly blue background and white text
                 const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
 
                 progress.innerText = `Displaying ${i + 1} of ${currentStudents.length}`;
@@ -344,13 +343,14 @@
                     if(st) st.classList.add('stamp-animate');
                 }, 300);
 
-                await new Promise(r => setTimeout(r, 4000)); // Increased to 4 seconds for better viewing
+                await new Promise(r => setTimeout(r, 4000));
             }
             overlay.style.display = 'none';
         }
 
         document.getElementById('historyDate').addEventListener('change', async (e) => {
             const selectedDate = e.target.value;
+            if (!selectedDate) return;
             const table = document.getElementById('pastStuTable');
             table.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
 
@@ -377,6 +377,7 @@
 
         document.getElementById('updatePastBtn').onclick = async () => {
             const selDate = document.getElementById('historyDate').value;
+            if (!selDate) return;
             const checks = document.querySelectorAll('.past-att');
             try {
                 for (let cb of checks) {
