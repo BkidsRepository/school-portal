@@ -13,7 +13,22 @@
 }
       body { margin:0; font-family:sans-serif; display:flex; height:100vh; font-family: 'Segoe UI', Arial, sans-serif;
   background: var(--bg);}
-#sidebar {
+#menuBtn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--primary);
+}
+
+#logoutBtn {
+  background: var(--danger);
+  padding: 6px 12px;
+  font-size: 14px;
+}
+      
+      
+      #sidebar {
   position: fixed;
   left: 0;
   top: 0;
@@ -160,13 +175,13 @@ img {
       <button class="nav-link" id="inquiryTab">Inquiries</button>
     </div>
     <div id="main">
-        <button id="menuBtn">☰</button>
-      <div id="header">Admin Dashboard</div>
+      <div id="header">
+  <button id="menuBtn">☰</button>
+  <span>Admin Dashboard</span>
+  <button id="logoutBtn">Logout</button>
+</div>
       
-        <button id="logoutBtn" style="background:#e74c3c; color:#fff; border:none; padding:8px 12px; border-radius:5px;">
-          <button id="menuBtn" style="font-size:20px; background:none; border:none; cursor:pointer;">☰</button>
-    Logout
-  </button>
+
       <div id="content">
         <!-- STUDENTS -->
         <div id="studentsSection">
