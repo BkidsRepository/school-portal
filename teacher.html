@@ -59,7 +59,7 @@
         }
 
         .carousel-left { flex: 1; display: flex; justify-content: center; }
-        .carousel-left img { max-width: 500px; width: 100%; height: auto; border-radius: 10px; object-fit: contain; background: #f0f0f0; }
+        .carousel-left img { max-width: 500px; width: 100%; height: auto; border-radius: 10px; object-fit: contain; background: #f0f0f0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
 
         .carousel-right { flex: 1; padding-left: 50px; position: relative; }
         .carousel-right h1 {
@@ -181,7 +181,7 @@
         let globalTeacherClass = "";
         let currentStudents = [];
         
-        // Correctly define todayStr as a string yyyy-mm-dd
+        // FIX: Ensure todayStr is a string, not an array
         const todayStr = new Date().toISOString().split('T');
 
         // UI Logic
@@ -239,6 +239,7 @@
                 table.innerHTML = "";
                 currentStudents = [];
                 
+                // todayStr is now verified as a string
                 const attQ = query(collection(db, "attendance"), where("date", "==", todayStr));
                 const attSnap = await getDocs(attQ);
                 const existingAtt = {};
@@ -318,6 +319,7 @@
                 const s = currentStudents[i];
                 const status = attState[s.id] || 'PRESENT';
                 
+                // Fallback avatar if photoUrl is missing or fails
                 const avatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fullName)}&background=3498db&size=512&color=fff&font-size=0.35`;
 
                 progress.innerText = `Displaying ${i + 1} of ${currentStudents.length}`;
@@ -325,7 +327,7 @@
                     <div class="carousel-card">
                         <div class="carousel-left">
                             <img src="${s.photoUrl || avatarFallback}" 
-                                 onerror="this.src='${avatarFallback}'; this.onerror=null;" 
+                                 onerror="console.log('Img fail for: ${s.fullName}'); this.src='${avatarFallback}'; this.onerror=null;" 
                                  alt="${s.fullName}">
                         </div>
                         <div class="carousel-right">
@@ -343,6 +345,7 @@
                     if(st) st.classList.add('stamp-animate');
                 }, 300);
 
+                // Wait 4 seconds per student
                 await new Promise(r => setTimeout(r, 4000));
             }
             overlay.style.display = 'none';
