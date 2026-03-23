@@ -29,6 +29,8 @@
         th { background: #f8f9fa; font-size: 0.75rem; color: #7f8c8d; text-transform: uppercase; }
         
         .btn-submit { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
+        .btn-submit:disabled { background: #bdc3c7; cursor: not-allowed; }
+        
         input[type="checkbox"] { transform: scale(1.5); cursor: pointer; }
 
         /* FULL SCREEN CAROUSEL (Matching Reference) */
@@ -140,6 +142,9 @@
         <div id="content">
             <!-- Today Section -->
             <div id="todaySection">
+                <div id="statusAlert" style="margin-bottom:15px; display:none; padding:10px; background:#e8f5e9; color:#2e7d32; border-radius:5px; font-weight:bold; border:1px solid #a5d6a7;">
+                    ✓ Today's attendance has already been submitted.
+                </div>
                 <div class="table-container">
                     <table>
                         <thead><tr><th>Student Name</th><th style="text-align:center;">Status</th></tr></thead>
@@ -238,11 +243,35 @@
             table.innerHTML = "";
             currentStudents = [];
             
+            // Check if attendance already exists for today
+            const attQ = query(collection(db, "attendance"), where("date", "==", todayStr));
+            const attSnap = await getDocs(attQ);
+            const existingAtt = {};
+            attSnap.forEach(d => existingAtt[d.data().studentId] = d.data().status);
+
+            const isAlreadySubmitted = Object.keys(existingAtt).length > 0;
+            if (isAlreadySubmitted) {
+                document.getElementById('submitBtn').disabled = true;
+                document.getElementById('submitBtn').innerText = "Attendance Submitted";
+                document.getElementById('statusAlert').style.display = "block";
+            }
+
             snap.forEach(sDoc => {
                 const s = sDoc.data();
                 const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                 currentStudents.push({ id: sDoc.id, fullName: name, ...s });
-                table.innerHTML += `<tr><td>${name}</td><td style="text-align:center;"><input type="checkbox" class="att" data-id="${sDoc.id}" checked></td></tr>`;
+                
+                // If submitted, use existing value, else default to checked
+                const isChecked = existingAtt[sDoc.id] ? existingAtt[sDoc.id] === "present" : true;
+                const disabledAttr = isAlreadySubmitted ? "disabled" : "";
+
+                table.innerHTML += `
+                    <tr>
+                        <td>${name}</td>
+                        <td style="text-align:center;">
+                            <input type="checkbox" class="att" data-id="${sDoc.id}" ${isChecked ? "checked" : ""} ${disabledAttr}>
+                        </td>
+                    </tr>`;
             });
         }
 
@@ -255,8 +284,11 @@
                     studentId: cb.dataset.id, date: todayStr, status: cb.checked ? "present" : "absent"
                 });
             }
-            btn.innerText = "Submit Attendance"; btn.disabled = false;
-            alert("Attendance Submitted!");
+            btn.innerText = "Attendance Submitted";
+            document.getElementById('statusAlert').style.display = "block";
+            // Disable all checkboxes after submit
+            document.querySelectorAll('.att').forEach(cb => cb.disabled = true);
+            alert("Attendance Submitted Successfully!");
         };
 
         // CAROUSEL LOGIC
