@@ -128,23 +128,27 @@
 /* Notes */
 .pin-note {
     position: absolute;
-    padding: 15px 20px;
+    width: 140px;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
     font-weight: bold;
-    border-radius: 8px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    transform: rotate(-2deg);
     color: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-/* GREEN NOTE */
-.pin-note.green {
-    background: #27ae60;
+/* IMAGE */
+.pin-note img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 8px;
 }
 
-/* RED NOTE */
-.pin-note.red {
-    background: #e74c3c;
-}
+/* COLORS */
+.pin-note.green { background: #27ae60; }
+.pin-note.red { background: #e74c3c; }
 
 /* Close Button */
 .pin-close {
@@ -461,6 +465,61 @@ document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass 
                 btn.disabled = false;
             }
         };
+
+       async function loadPinBoardStudents() {
+    const board = document.getElementById('pinBoard');
+    board.innerHTML = "";
+
+    const selDate = document.getElementById('historyDate').value || todayStr;
+
+    // Fetch students
+    const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+    const sSnap = await getDocs(qStudents);
+
+    // Fetch attendance
+    const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
+    const aSnap = await getDocs(qAtt);
+
+    const attMap = {};
+    aSnap.forEach(d => {
+        attMap[d.data().studentId] = d.data().status;
+    });
+
+    let index = 0;
+
+    sSnap.forEach(docSnap => {
+        const s = docSnap.data();
+        const id = docSnap.id;
+
+        const name = `${s.firstName} ${s.lastName}`;
+        const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
+
+        const isPresent = attMap[id] === "present";
+
+        const note = document.createElement("div");
+        note.className = "pin-note " + (isPresent ? "green" : "red");
+
+        // RANDOM POSITION (grid style)
+        const row = Math.floor(index / 5);
+        const col = index % 5;
+
+        note.style.top = (150 + row * 160) + "px";
+        note.style.left = (100 + col * 160) + "px";
+
+        note.innerHTML = `
+            <img src="${photo}">
+            <div>${name}</div>
+            <div style="font-size:12px; margin-top:5px;">
+    ${isPresent ? "Present ✅" : "Absent ❌"}
+</div>
+        `;
+
+        board.appendChild(note);
+        index++;
+    });
+}
+        
+        
 const today = new Date();
 
 const formattedDate = today.toLocaleDateString('en-GB', {
@@ -472,8 +531,9 @@ const formattedDate = today.toLocaleDateString('en-GB', {
 document.getElementById('pinDate').innerText = "Today: " + formattedDate;
         
         // OPEN PIN BOARD
-document.getElementById('nav-pin').onclick = () => {
+document.getElementById('nav-pin').onclick = async () => {
     document.getElementById('pinBoardOverlay').style.display = 'block';
+    await loadPinBoardStudents(); // 🔥 LOAD DATA
 };
 
 // CLOSE PIN BOARD
