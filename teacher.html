@@ -1096,41 +1096,82 @@ setTimeout(() => {
             document.getElementById('pinBoardOverlay').style.display = 'none';
         };
 
-        async function loadPinBoardStudents() {
-            const board = document.getElementById('pinBoard');
-            board.innerHTML = "";
-            const selDate = document.getElementById('historyDate').value || todayStr;
+       async function loadPinBoardStudents() {
+    const board = document.getElementById('pinBoard');
+    board.innerHTML = "";
+    const selDate = document.getElementById('historyDate').value || todayStr;
 
-            try {
-                const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const sSnap = await getDocs(qStudents);
+    try {
+        const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
+        const sSnap = await getDocs(qStudents);
 
-                const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
-                const aSnap = await getDocs(qAtt);
-                const attMap = {};
-                aSnap.forEach(doc => { attMap[doc.data().studentId] = doc.data().status; });
+        const qAtt = query(collection(db, "attendance"), where("date", "==", selDate));
+        const aSnap = await getDocs(qAtt);
 
-                sSnap.forEach(docSnap => {
-                    const s = docSnap.data();
-                    const name = `${s.firstName} ${s.lastName}`;
-                    const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
-                    const isPresent = attMap[docSnap.id] === "present";
+        const attMap = {};
+        aSnap.forEach(doc => {
+            attMap[doc.data().studentId] = doc.data().status;
+        });
 
-                    const note = document.createElement("div");
-                    note.className = "pin-note " + (isPresent ? "green" : "red");
-                    const rotate = (Math.random() * 6 - 3);
-                    note.style.transform = `rotate(${rotate}deg)`;
+        // ✅ STEP 1: Convert to array
+        const students = [];
+        sSnap.forEach(docSnap => {
+            students.push({ id: docSnap.id, ...docSnap.data() });
+        });
 
-                    note.innerHTML = `
-                        <img src="${photo}">
-                        <div>${name}</div>
-                        <div style="font-size:12px; margin-top:5px;">${isPresent ? "Present ✅" : "Absent ❌"}</div>`;
-                    board.appendChild(note);
-                });
-            } catch (err) {
-                board.innerHTML = "<p style='color:white'>Error loading data</p>";
+        // ✅ STEP 2: Separate
+        const present = [];
+        const absent = [];
+
+        students.forEach(s => {
+            if (attMap[s.id] === "present") {
+                present.push(s);
+            } else {
+                absent.push(s);
+            }
+        });
+
+        // ✅ STEP 3: Shuffle
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
         }
+
+        shuffle(present);
+        shuffle(absent);
+
+        // ✅ STEP 4: Combine (present first)
+        const finalList = [...present, ...absent];
+
+        // ✅ STEP 5: NEW LOOP (replaces old one)
+        finalList.forEach(s => {
+            const name = `${s.firstName} ${s.lastName}`;
+            const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
+            const isPresent = attMap[s.id] === "present";
+
+            const note = document.createElement("div");
+            note.className = "pin-note " + (isPresent ? "green" : "red");
+
+            const rotate = (Math.random() * 6 - 3);
+            note.style.transform = `rotate(${rotate}deg)`;
+
+            note.innerHTML = `
+                <img src="${photo}">
+                <div>${name}</div>
+                <div style="font-size:12px; margin-top:5px;">
+                    ${isPresent ? "Present ✅" : "Absent ❌"}
+                </div>`;
+
+            board.appendChild(note);
+        });
+
+    } catch (err) {
+        console.error(err);
+        board.innerHTML = "<p style='color:white'>Error loading data</p>";
+    }
+}
     </script>
 </body>
 
