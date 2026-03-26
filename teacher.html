@@ -1320,7 +1320,53 @@ document.getElementById('nav-download').onclick = async () => {
         overlay.style.display = 'none';
     });
 };
-        
+  document.getElementById('nav-download').onclick = async () => {
+
+    const { jsPDF } = window.jspdf;
+
+    const overlay = document.getElementById('pinBoardOverlay');
+    const element = document.getElementById('pinCapture');
+
+    // Show board
+    overlay.style.display = 'block';
+
+    // Load data
+    await loadPinBoardStudents();
+
+    // Wait for animations
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Convert to canvas
+    const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true
+    });
+
+    const imgData = canvas.toDataURL("image/png");
+
+    // A4 size (portrait)
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pageWidth = 210;   // A4 width (mm)
+    const pageHeight = 297;  // A4 height (mm)
+
+    // Calculate image size to fit A4
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let y = 0;
+
+    // If content smaller → center vertically
+    if (imgHeight < pageHeight) {
+        y = (pageHeight - imgHeight) / 2;
+    }
+
+    pdf.addImage(imgData, "PNG", 0, y, imgWidth, imgHeight);
+
+    pdf.save(`BKids_${globalTeacherClass}_${new Date().toISOString().split('T')[0]}.pdf`);
+
+    overlay.style.display = 'none';
+};      
     </script>
 </body>
 
