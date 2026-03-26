@@ -217,69 +217,6 @@ img {
 #overlay.show {
   display: block;
 }     
-
-.filters {
-    display: flex;
-    gap: 10px;
-    margin: 15px 0;
-    flex-wrap: wrap;
-}
-
-.filters input,
-.filters select {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-.summary {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.summary .box {
-    flex: 1;
-    min-width: 120px;
-    padding: 15px;
-    border-radius: 10px;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-}
-
-.present-box {
-    background: var(--success);
-}
-
-.absent-box {
-    background: var(--danger);
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-th {
-    background: var(--primary);
-    color: white;
-    padding: 12px;
-}
-
-td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-}
-
-tr:hover {
-    background: #f9f9f9;
-}
     </style>
   </head>
   <body>
@@ -452,26 +389,9 @@ tr:hover {
         </div>
         <!-- ATTENDANCE -->
         <div id="attendanceSection" style="display:none;">
-<div class="card">
-    <h2>Attendance Dashboard</h2>
-
-    <!-- Filters -->
-    <div class="filters">
-        <input type="month" id="monthPicker">
-
-<select id="classFilter">
-    <option value="">All Classes</option>
-</select>
-
-      
-    </div>
-
-    <!-- Summary -->
-    <div id="attendanceSummary" class="summary"></div>
-
-    <!-- Table -->
-    <div id="monthlyAttendance"></div>
-</div>
+          <div class="card">
+            <h3>Attendance Ready</h3>
+          </div>
         </div>
         <!-- INQUIRIES -->
         <div id="inquirySection" style="display:none;">
@@ -564,12 +484,8 @@ Object.keys(tabs).forEach(id => {
         if (id === 'inquiryTab') loadInquiries();
         if (id === 'classesTab') loadClasses();
         if (id === 'studentListTab') {
-          
     loadStudents();
     loadFilterClasses(); // 👈 ADD THIS
-}
-      if (id === 'attendanceTab') {
-    loadMonthlyAttendance();
 }
     };
 });
@@ -1086,118 +1002,12 @@ document.getElementById('searchInput').oninput = renderStudents;
 document.getElementById('filterClass').onchange = renderStudents;
 document.getElementById('sortOption').onchange = renderStudents;
 
-window.showAttendance = function(type) {
-    document.getElementById('dailyAttendance').style.display =
-        type === 'daily' ? 'block' : 'none';
-
-    document.getElementById('monthlyAttendance').style.display =
-        type === 'monthly' ? 'block' : 'none';
-};
-
-
-
-
-
-      
-async function loadMonthlyAttendance() {
-    const selectedMonth = document.getElementById("monthPicker").value;
-    const selectedClass = document.getElementById("classFilter").value;
-
-    if (!selectedMonth) return;
-
-    const q = await getDocs(collection(db, "attendance"));
-
-    let stats = {};
-    let totalPresent = 0;
-    let totalAbsent = 0;
-
-    q.forEach(doc => {
-        const d = doc.data();
-        if (!d.date) return;
-
-        const recordDate = d.date?.toDate ? d.date.toDate() : new Date(d.date);
-        const recordMonth = recordDate.toISOString().slice(0, 7);
-
-        if (recordMonth !== selectedMonth) return;
-        if (selectedClass && d.class !== selectedClass) return;
-
-        if (!stats[d.name]) {
-            stats[d.name] = { present: 0, absent: 0 };
-        }
-
-        if (d.status === "present") {
-            stats[d.name].present++;
-            totalPresent++;
-        } else {
-            stats[d.name].absent++;
-            totalAbsent++;
-        }
-    });
-
-    // Summary UI
-    document.getElementById("attendanceSummary").innerHTML = `
-        <div class="box present-box">✅ ${totalPresent} Present</div>
-        <div class="box absent-box">❌ ${totalAbsent} Absent</div>
-    `;
-
-    // Table
-    let html = `
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Present</th>
-                <th>Absent</th>
-                <th>Attendance %</th>
-            </tr>
-    `;
-
-    for (let name in stats) {
-        const p = stats[name].present;
-        const a = stats[name].absent;
-        const total = p + a;
-        const percent = total ? ((p / total) * 100).toFixed(1) : 0;
-
-        html += `
-            <tr>
-                <td>${name}</td>
-                <td style="color:green;">${p}</td>
-                <td style="color:red;">${a}</td>
-                <td>${percent}%</td>
-            </tr>
-        `;
-    }
-
-    html += "</table>";
-
-    document.getElementById("monthlyAttendance").innerHTML = html;
-}
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const month = document.getElementById("monthPicker");
-    const cls = document.getElementById("classFilter");
-
-    // Set current month
-    month.value = new Date().toISOString().slice(0, 7);
-
-    // Auto reload on change
-    month.addEventListener("change", loadMonthlyAttendance);
-    cls.addEventListener("change", loadMonthlyAttendance);
-
-    // Initial load
-    loadMonthlyAttendance();
-});
-
       
       // Initial Loads
       loadStudents();   
       loadUsers();     // Added this to ensure data is fetched in the background
       loadInquiries(); // Added this for consistency;   
       populateClassDropdowns();
-
-
-
       
     </script>
   </body>
