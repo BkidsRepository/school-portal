@@ -390,7 +390,17 @@ img {
         <!-- ATTENDANCE -->
         <div id="attendanceSection" style="display:none;">
           <div class="card">
-            <h3>Attendance Ready</h3>
+            
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+    <button onclick="showAttendance('daily')" id="dailyTab">Daily</button>
+    <button onclick="showAttendance('monthly')" id="monthlyTab">Monthly</button>
+</div>
+
+<div id="dailyAttendance"></div>
+<div id="monthlyAttendance" style="display:none;"></div>
+
+
+            
           </div>
         </div>
         <!-- INQUIRIES -->
@@ -1002,12 +1012,86 @@ document.getElementById('searchInput').oninput = renderStudents;
 document.getElementById('filterClass').onchange = renderStudents;
 document.getElementById('sortOption').onchange = renderStudents;
 
+function showAttendance(type) {
+    document.getElementById('dailyAttendance').style.display = type === 'daily' ? 'block' : 'none';
+    document.getElementById('monthlyAttendance').style.display = type === 'monthly' ? 'block' : 'none';
+}
+
+async function loadDailyAttendance() {
+    const today = new Date().toISOString().split('T')[0];
+
+    const q = await getDocs(collection(db, "attendance"));
+    let html = "<div class='card'><h3>Today's Attendance</h3>";
+
+    q.forEach(doc => {
+        const data = doc.data();
+        if (data.date === today) {
+            html += `
+                <p>
+                    ${data.name} - 
+                    <span style="color:${data.status === 'present' ? 'green' : 'red'}">
+                        ${data.status}
+                    </span>
+                </p>
+            `;
+        }
+    });
+
+    html += "</div>";
+    document.getElementById('dailyAttendance').innerHTML = html;
+}
+
+async function loadMonthlyAttendance() {
+    const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+    const q = await getDocs(collection(db, "attendance"));
+
+    let stats = {};
+
+    q.forEach(doc => {
+        const d = doc.data();
+
+        if (d.date.startsWith(month)) {
+            if (!stats[d.name]) {
+                stats[d.name] = { present: 0, absent: 0 };
+            }
+
+            if (d.status === "present") stats[d.name].present++;
+            else stats[d.name].absent++;
+        }
+    });
+
+    let html = "<div class='card'><h3>Monthly Attendance</h3>";
+
+    for (let name in stats) {
+        html += `
+            <p>
+                ${name} → 
+                ✅ ${stats[name].present} | 
+                ❌ ${stats[name].absent}
+            </p>
+        `;
+    }
+
+    html += "</div>";
+    document.getElementById('monthlyAttendance').innerHTML = html;
+}
+
+
+
+
+
       
       // Initial Loads
       loadStudents();   
       loadUsers();     // Added this to ensure data is fetched in the background
       loadInquiries(); // Added this for consistency;   
       populateClassDropdowns();
+
+      loadDailyAttendance();
+loadMonthlyAttendance();
+
+
       
     </script>
   </body>
