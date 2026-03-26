@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>School ERP Admin</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
 :root {
     --primary: #2c3e50;
@@ -281,29 +280,6 @@ td {
 tr:hover {
     background: #f9f9f9;
 }
-
-      .modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-    background: white;
-    margin: 5% auto;
-    padding: 20px;
-    width: 90%;
-    max-width: 500px;
-    border-radius: 10px;
-}
-
-.close {
-    float: right;
-    cursor: pointer;
-    font-size: 20px;
-}
     </style>
   </head>
   <body>
@@ -476,26 +452,27 @@ tr:hover {
         </div>
         <!-- ATTENDANCE -->
         <div id="attendanceSection" style="display:none;">
-    <div class="card">
-        <h3>📊 Attendance Dashboard</h3>
+<div class="card">
+    <h2>Attendance Dashboard</h2>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <input type="month" id="monthPicker">
-            <select id="classFilter">
-                <option value="">All Classes</option>
-            </select>
-        </div>
+    <!-- Filters -->
+    <div class="filters">
+        <input type="month" id="monthPicker">
 
-        <!-- Summary -->
-        <div id="attendanceSummary" style="margin:15px 0; display:flex; gap:10px;"></div>
+<select id="classFilter">
+    <option value="">All Classes</option>
+</select>
 
-        <!-- Chart -->
-        <canvas id="attendanceChart" height="100"></canvas>
-
-        <!-- Table -->
-        <div id="monthlyAttendance"></div>
+      
     </div>
+
+    <!-- Summary -->
+    <div id="attendanceSummary" class="summary"></div>
+
+    <!-- Table -->
+    <div id="monthlyAttendance"></div>
 </div>
+        </div>
         <!-- INQUIRIES -->
         <div id="inquirySection" style="display:none;">
           <div class="card">
@@ -537,7 +514,6 @@ tr:hover {
       projectId:"bkids-56a2a"
       };
       let allStudents = [];
-      let chart;
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
@@ -592,13 +568,7 @@ Object.keys(tabs).forEach(id => {
     loadStudents();
     loadFilterClasses(); // 👈 ADD THIS
 }
-let attendanceInit = false;
-
-if (id === 'attendanceTab') {
-    if (!attendanceInit) {
-        loadAttendanceClasses();
-        attendanceInit = true;
-    }
+      if (id === 'attendanceTab') {
     loadMonthlyAttendance();
 }
     };
@@ -714,7 +684,7 @@ overlay.onclick = () => {
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
 };      
-   
+      
           
       // LOAD STUDENTS TABLE
 async function loadStudents() {
@@ -1130,24 +1100,25 @@ window.showAttendance = function(type) {
 
       
 async function loadMonthlyAttendance() {
-    const month = document.getElementById("monthPicker").value;
+    const selectedMonth = document.getElementById("monthPicker").value;
     const selectedClass = document.getElementById("classFilter").value;
 
-    if (!month) return;
+    if (!selectedMonth) return;
 
-    const snap = await getDocs(collection(db, "attendance"));
+    const q = await getDocs(collection(db, "attendance"));
 
     let stats = {};
     let totalPresent = 0;
     let totalAbsent = 0;
 
-    snap.forEach(doc => {
+    q.forEach(doc => {
         const d = doc.data();
+        if (!d.date) return;
 
-        const date = d.date?.toDate ? d.date.toDate() : new Date(d.date);
-        const m = date.toISOString().slice(0, 7);
+        const recordDate = d.date?.toDate ? d.date.toDate() : new Date(d.date);
+        const recordMonth = recordDate.toISOString().slice(0, 7);
 
-        if (m !== month) return;
+        if (recordMonth !== selectedMonth) return;
         if (selectedClass && d.class !== selectedClass) return;
 
         if (!stats[d.name]) {
@@ -1163,116 +1134,45 @@ async function loadMonthlyAttendance() {
         }
     });
 
-    // Summary
+    // Summary UI
     document.getElementById("attendanceSummary").innerHTML = `
-        <div style="background:green;color:white;padding:10px;border-radius:6px;">Present: ${totalPresent}</div>
-        <div style="background:red;color:white;padding:10px;border-radius:6px;">Absent: ${totalAbsent}</div>
+        <div class="box present-box">✅ ${totalPresent} Present</div>
+        <div class="box absent-box">❌ ${totalAbsent} Absent</div>
     `;
 
     // Table
-    let html = `<table>
-        <tr>
-            <th>Name</th>
-            <th>Present</th>
-            <th>Absent</th>
-            <th>%</th>
-        </tr>`;
+    let html = `
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Attendance %</th>
+            </tr>
+    `;
 
     for (let name in stats) {
         const p = stats[name].present;
         const a = stats[name].absent;
-        const percent = ((p / (p + a)) * 100).toFixed(1);
+        const total = p + a;
+        const percent = total ? ((p / total) * 100).toFixed(1) : 0;
 
         html += `
-        <tr onclick="openStudent('${name}')" style="cursor:pointer;">
-            <td style="color:blue;">${name}</td>
-            <td>${p}</td>
-            <td>${a}</td>
-            <td>${percent}%</td>
-        </tr>`;
+            <tr>
+                <td>${name}</td>
+                <td style="color:green;">${p}</td>
+                <td style="color:red;">${a}</td>
+                <td>${percent}%</td>
+            </tr>
+        `;
     }
 
     html += "</table>";
+
     document.getElementById("monthlyAttendance").innerHTML = html;
-
-    // Chart
-    const ctx = document.getElementById("attendanceChart");
-
-    if (chart) chart.destroy();
-
-    chart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: Object.keys(stats),
-            datasets: [
-                {
-                    label: 'Present',
-                    data: Object.values(stats).map(s => s.present)
-                },
-                {
-                    label: 'Absent',
-                    data: Object.values(stats).map(s => s.absent)
-                }
-            ]
-        }
-    });
-}
-
-window.openStudent = async function(name) {
-    document.getElementById("studentModal").style.display = "block";
-    document.getElementById("studentName").innerText = name;
-
-    const snap = await getDocs(collection(db, "attendance"));
-
-    let history = [];
-
-    snap.forEach(doc => {
-        const d = doc.data();
-        if (d.name === name) {
-            const date = d.date?.toDate ? d.date.toDate() : new Date(d.date);
-            history.push({
-                date: date.toLocaleDateString(),
-                status: d.status
-            });
-        }
-    });
-
-    history.sort((a,b)=> new Date(b.date)-new Date(a.date));
-
-    let html = "<ul>";
-    history.forEach(h => {
-        html += `<li>${h.date} - ${h.status}</li>`;
-    });
-    html += "</ul>";
-
-    document.getElementById("studentDetails").innerHTML = html;
-}
-
-window.closeModal = function() {
-    document.getElementById("studentModal").style.display = "none";
-}
-
-async function loadAttendanceClasses() {
-    const select = document.getElementById("classFilter");
-    if (!select) return;
-
-    select.innerHTML = '<option value="">All Classes</option>';
-
-    const snap = await getDocs(collection(db, "classes"));
-
-    snap.forEach(doc => {
-        const c = doc.data();
-        const opt = document.createElement("option");
-        opt.value = c.name;
-        opt.textContent = c.name;
-        select.appendChild(opt);
-    });
 }
 
 
-
-
-      
 
 document.addEventListener("DOMContentLoaded", () => {
     const month = document.getElementById("monthPicker");
@@ -1289,45 +1189,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadMonthlyAttendance();
 });
 
-
-
-
       
-async function openStudent(name) {
-    document.getElementById("studentModal").style.display = "block";
-    document.getElementById("studentName").innerText = name;
-
-    const q = await getDocs(collection(db, "attendance"));
-
-    let history = [];
-
-    q.forEach(doc => {
-        const d = doc.data();
-        if (d.name === name) {
-            const date = d.date?.toDate ? d.date.toDate() : new Date(d.date);
-            history.push({
-                date: date.toLocaleDateString(),
-                status: d.status
-            });
-        }
-    });
-
-    history.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    let html = "<ul>";
-
-    history.forEach(h => {
-        html += `<li>${h.date} - ${h.status}</li>`;
-    });
-
-    html += "</ul>";
-
-    document.getElementById("studentDetails").innerHTML = html;
-}
-
-function closeModal() {
-    document.getElementById("studentModal").style.display = "none";
-}      
       // Initial Loads
       loadStudents();   
       loadUsers();     // Added this to ensure data is fetched in the background
@@ -1338,13 +1200,5 @@ function closeModal() {
 
       
     </script>
-
-    <div id="studentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
-    <div style="background:white; margin:5% auto; padding:20px; width:90%; max-width:500px; border-radius:10px;">
-        <span onclick="closeModal()" style="float:right; cursor:pointer;">✖</span>
-        <h3 id="studentName"></h3>
-        <div id="studentDetails"></div>
-    </div>
-</div>
   </body>
 </html>
