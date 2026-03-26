@@ -593,7 +593,10 @@
   }
 }
 
-        
+#nav-play,
+#nav-pin {
+    display: none;
+}        
         
     </style>
 </head>
@@ -748,7 +751,7 @@ window.showSection = (section) => {
                     if (userDoc.exists()) {
                         globalTeacherClass = userDoc.data().assignedClass;
                         document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass || "All Classes");
-
+                        await checkAttendanceForDate(todayStr);
                         // Pre-load student list
                         const q = query(collection(db, "students"), where("class", "==", globalTeacherClass));
                         const snap = await getDocs(q);
@@ -813,7 +816,7 @@ document.getElementById('uploadBtn').onclick = async () => {
         document.getElementById('historyDate').addEventListener('change', async (e) => {
             const selectedDate = e.target.value;
             if (!selectedDate) return;
-
+            await checkAttendanceForDate(selectedDate); // 👈 ADD THIS
             const table = document.getElementById('pastStuTable');
             table.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
 
@@ -862,8 +865,10 @@ document.getElementById('uploadBtn').onclick = async () => {
                     await setDoc(doc(db, "attendance", `${cb.dataset.id}_${selDate}`), {
                         studentId: cb.dataset.id,
                         date: selDate,
+                         class: globalTeacherClass,
                         status: cb.checked ? "present" : "absent"
                     });
+                    await checkAttendanceForDate(selDate);
                 }
                 alert("Attendance saved successfully!");
             } catch (err) {
@@ -907,6 +912,28 @@ function formatDate(dateStr) {
 }
         
         
+async function checkAttendanceForDate(date) {
+    if (!globalTeacherClass) return;
+
+    const q = query(
+        collection(db, "attendance"),
+        where("date", "==", date),
+        where("class", "==", globalTeacherClass)
+    );
+
+    const snap = await getDocs(q);
+
+    const playBtn = document.getElementById("nav-play");
+    const pinBtn = document.getElementById("nav-pin");
+
+    if (!snap.empty) {
+        playBtn.style.display = "block";
+        pinBtn.style.display = "block";
+    } else {
+        playBtn.style.display = "none";
+        pinBtn.style.display = "none";
+    }
+}
         
         async function startCarousel() {
             if (currentStudents.length === 0) return alert("Student list not loaded.");
