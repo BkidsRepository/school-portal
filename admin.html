@@ -217,6 +217,69 @@ img {
 #overlay.show {
   display: block;
 }     
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.summary {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.summary .box {
+    flex: 1;
+    min-width: 120px;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.present-box {
+    background: var(--success);
+}
+
+.absent-box {
+    background: var(--danger);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th {
+    background: var(--primary);
+    color: white;
+    padding: 12px;
+}
+
+td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+tr:hover {
+    background: #f9f9f9;
+}
     </style>
   </head>
   <body>
@@ -389,35 +452,26 @@ img {
         </div>
         <!-- ATTENDANCE -->
         <div id="attendanceSection" style="display:none;">
-          <div class="card">
-            
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-    <button onclick="showAttendance('daily')" id="dailyTab">Daily</button>
-    <button onclick="showAttendance('monthly')" id="monthlyTab">Monthly</button>
-</div>
+<div class="card">
+    <h2>📊 Attendance Dashboard</h2>
 
-<div id="dailyAttendance"></div>
-<h3>Monthly Attendance</h3>
-
-    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+    <!-- Filters -->
+    <div class="filters">
         <input type="month" id="monthPicker">
-        
+
         <select id="classFilter">
             <option value="">All Classes</option>
             <option>Jr KG</option>
             <option>Sr KG</option>
         </select>
-
-        <button onclick="loadMonthlyAttendance()">Load</button>
     </div>
 
-    <div id="attendanceSummary" style="display:flex; gap:15px; margin-bottom:15px;"></div>
+    <!-- Summary -->
+    <div id="attendanceSummary" class="summary"></div>
 
+    <!-- Table -->
     <div id="monthlyAttendance"></div>
-
-
-            
-          </div>
+</div>
         </div>
         <!-- INQUIRIES -->
         <div id="inquirySection" style="display:none;">
@@ -1076,14 +1130,11 @@ async function loadDailyAttendance() {
 
 
       
-window.loadMonthlyAttendance = async function () {
+async function loadMonthlyAttendance() {
     const selectedMonth = document.getElementById("monthPicker").value;
     const selectedClass = document.getElementById("classFilter").value;
 
-    if (!selectedMonth) {
-        alert("Select a month first");
-        return;
-    }
+    if (!selectedMonth) return;
 
     const q = await getDocs(collection(db, "attendance"));
 
@@ -1093,14 +1144,12 @@ window.loadMonthlyAttendance = async function () {
 
     q.forEach(doc => {
         const d = doc.data();
-
         if (!d.date) return;
 
         const recordDate = d.date?.toDate ? d.date.toDate() : new Date(d.date);
         const recordMonth = recordDate.toISOString().slice(0, 7);
 
         if (recordMonth !== selectedMonth) return;
-
         if (selectedClass && d.class !== selectedClass) return;
 
         if (!stats[d.name]) {
@@ -1116,20 +1165,20 @@ window.loadMonthlyAttendance = async function () {
         }
     });
 
-    // 🔥 Summary cards
+    // Summary UI
     document.getElementById("attendanceSummary").innerHTML = `
-        <div class="card">✅ Present: ${totalPresent}</div>
-        <div class="card">❌ Absent: ${totalAbsent}</div>
+        <div class="box present-box">✅ ${totalPresent} Present</div>
+        <div class="box absent-box">❌ ${totalAbsent} Absent</div>
     `;
 
-    // 🔥 Table
+    // Table
     let html = `
-        <table style="width:100%; border-collapse:collapse;">
+        <table>
             <tr>
                 <th>Name</th>
                 <th>Present</th>
                 <th>Absent</th>
-                <th>%</th>
+                <th>Attendance %</th>
             </tr>
     `;
 
@@ -1152,15 +1201,23 @@ window.loadMonthlyAttendance = async function () {
     html += "</table>";
 
     document.getElementById("monthlyAttendance").innerHTML = html;
-};
+}
 
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    const monthInput = document.getElementById("monthPicker");
-    if (monthInput) {
-        monthInput.value = new Date().toISOString().slice(0, 7);
-    }
+    const month = document.getElementById("monthPicker");
+    const cls = document.getElementById("classFilter");
+
+    // Set current month
+    month.value = new Date().toISOString().slice(0, 7);
+
+    // Auto reload on change
+    month.addEventListener("change", loadMonthlyAttendance);
+    cls.addEventListener("change", loadMonthlyAttendance);
+
+    // Initial load
+    loadMonthlyAttendance();
 });
 
       
