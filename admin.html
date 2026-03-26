@@ -639,16 +639,26 @@ function renderStudents() {
         filtered = filtered.filter(s => s.class === selectedClass);
     }
 
-    // 🔄 SORT
 // 🔄 SORT
-if (sortOption === "nameAsc") {
-    filtered.sort((a, b) => a.firstName.localeCompare(b.firstName));
 
-} else if (sortOption === "rollAsc") {
+// ✅ AUTO sort by Roll No when class is selected
+if (selectedClass) {
     filtered.sort((a, b) => (parseInt(a.rollNo) || 0) - (parseInt(b.rollNo) || 0));
+} 
+else {
+    // Manual sorting when no class filter
+    if (sortOption === "nameAsc") {
+        filtered.sort((a, b) => a.firstName.localeCompare(b.firstName));
 
-} else if (sortOption === "rollDesc") {
-    filtered.sort((a, b) => (parseInt(b.rollNo) || 0) - (parseInt(a.rollNo) || 0));
+    } else if (sortOption === "nameDesc") {
+        filtered.sort((a, b) => b.firstName.localeCompare(a.firstName));
+
+    } else if (sortOption === "rollAsc") {
+        filtered.sort((a, b) => (parseInt(a.rollNo) || 0) - (parseInt(b.rollNo) || 0));
+
+    } else if (sortOption === "rollDesc") {
+        filtered.sort((a, b) => (parseInt(b.rollNo) || 0) - (parseInt(a.rollNo) || 0));
+    }
 }
 
     // 🧾 RENDER
