@@ -750,6 +750,18 @@ window.showSection = (section) => {
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists()) {
                         globalTeacherClass = userDoc.data().assignedClass;
+
+                        const todayStr = new Date().toISOString().split("T")[0];
+
+const dateInput = document.getElementById('historyDate');
+if (dateInput) {
+    dateInput.value = todayStr;
+
+    // trigger your existing logic (load attendance + show buttons)
+    dateInput.dispatchEvent(new Event('change'));
+}
+
+                        
                         document.getElementById('pinClass').innerText = "Class: " + (globalTeacherClass || "All Classes");
                         await checkAttendanceForDate(todayStr);
                         // Pre-load student list
