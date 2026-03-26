@@ -397,7 +397,23 @@ img {
 </div>
 
 <div id="dailyAttendance"></div>
-<div id="monthlyAttendance" style="display:none;"></div>
+<h3>Monthly Attendance</h3>
+
+    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+        <input type="month" id="monthPicker">
+        
+        <select id="classFilter">
+            <option value="">All Classes</option>
+            <option>Jr KG</option>
+            <option>Sr KG</option>
+        </select>
+
+        <button onclick="loadMonthlyAttendance()">Load</button>
+    </div>
+
+    <div id="attendanceSummary" style="display:flex; gap:15px; margin-bottom:15px;"></div>
+
+    <div id="monthlyAttendance"></div>
 
 
             
@@ -1055,46 +1071,97 @@ async function loadDailyAttendance() {
     document.getElementById('dailyAttendance').innerHTML = html;
 }
 
-async function loadMonthlyAttendance() {
-    const month = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+
+
+
+      
+window.loadMonthlyAttendance = async function () {
+    const selectedMonth = document.getElementById("monthPicker").value;
+    const selectedClass = document.getElementById("classFilter").value;
+
+    if (!selectedMonth) {
+        alert("Select a month first");
+        return;
+    }
 
     const q = await getDocs(collection(db, "attendance"));
 
     let stats = {};
+    let totalPresent = 0;
+    let totalAbsent = 0;
 
     q.forEach(doc => {
         const d = doc.data();
-        const recordDate = d.date?.toDate ? d.date.toDate() : new Date(d.date);
-const recordMonth = recordDate.toISOString().slice(0, 7);
-if (recordMonth === month) {
-            if (!stats[d.name]) {
-                stats[d.name] = { present: 0, absent: 0 };
-            }
 
-            if (d.status === "present") stats[d.name].present++;
-            else stats[d.name].absent++;
+        if (!d.date) return;
+
+        const recordDate = d.date?.toDate ? d.date.toDate() : new Date(d.date);
+        const recordMonth = recordDate.toISOString().slice(0, 7);
+
+        if (recordMonth !== selectedMonth) return;
+
+        if (selectedClass && d.class !== selectedClass) return;
+
+        if (!stats[d.name]) {
+            stats[d.name] = { present: 0, absent: 0 };
+        }
+
+        if (d.status === "present") {
+            stats[d.name].present++;
+            totalPresent++;
+        } else {
+            stats[d.name].absent++;
+            totalAbsent++;
         }
     });
 
-    let html = "<div class='card'><h3>Monthly Attendance</h3>";
+    // 🔥 Summary cards
+    document.getElementById("attendanceSummary").innerHTML = `
+        <div class="card">✅ Present: ${totalPresent}</div>
+        <div class="card">❌ Absent: ${totalAbsent}</div>
+    `;
+
+    // 🔥 Table
+    let html = `
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <th>Name</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>%</th>
+            </tr>
+    `;
 
     for (let name in stats) {
+        const p = stats[name].present;
+        const a = stats[name].absent;
+        const total = p + a;
+        const percent = total ? ((p / total) * 100).toFixed(1) : 0;
+
         html += `
-            <p>
-                ${name} → 
-                ✅ ${stats[name].present} | 
-                ❌ ${stats[name].absent}
-            </p>
+            <tr>
+                <td>${name}</td>
+                <td style="color:green;">${p}</td>
+                <td style="color:red;">${a}</td>
+                <td>${percent}%</td>
+            </tr>
         `;
     }
 
-    html += "</div>";
-    document.getElementById('monthlyAttendance').innerHTML = html;
-}
+    html += "</table>";
+
+    document.getElementById("monthlyAttendance").innerHTML = html;
+};
 
 
 
-
+document.addEventListener("DOMContentLoaded", () => {
+    const monthInput = document.getElementById("monthPicker");
+    if (monthInput) {
+        monthInput.value = new Date().toISOString().slice(0, 7);
+    }
+});
 
       
       // Initial Loads
