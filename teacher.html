@@ -740,7 +740,17 @@ document.getElementById('uploadBtn').onclick = async () => {
             document.getElementById('carouselOverlay').style.display = 'none';
             window.isCarouselRunning = false;
         };
+function formatDate(dateStr) {
+    if (!dateStr) return '---';
 
+    const date = new Date(dateStr);
+
+    return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+    });
+}
         async function startCarousel() {
             if (currentStudents.length === 0) return alert("Student list not loaded.");
 
@@ -777,7 +787,7 @@ document.getElementById('uploadBtn').onclick = async () => {
                                 <h1>${s.fullName}</h1>
                                 <p>Class : <span>${s.class}</span></p>
                                 <p>Roll No. <span>${s.rollNo || '---'}</span></p>
-                                <p>DOB : <span>${s.dob || '---'}</span></p>
+                                <p>DOB : <span>${formatDate(s.dob)}</span></p>
                                 <div class="carousel-stamp stamp-${status.toLowerCase()}" id="activeStamp">${status}</div>
                             </div>
                         </div>`;
