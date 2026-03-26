@@ -1309,7 +1309,19 @@ document.getElementById('uploadBtn').onclick = async () => {
 }
 
 
+document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById('menuBtn');
 
+    if (
+        window.innerWidth <= 768 &&
+        sidebar.classList.contains('open') &&
+        !sidebar.contains(e.target) &&
+        !menuBtn.contains(e.target)
+    ) {
+        sidebar.classList.remove('open');
+    }
+});
         
     </script>
 
