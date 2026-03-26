@@ -284,8 +284,10 @@ img {
     <!-- Sort -->
     <select id="sortOption">
         <option value="">Sort By</option>
+          <option value="rollAsc">Roll No (1 to Last)</option>      
         <option value="nameAsc">Name (A → Z)</option>
         <option value="nameDesc">Name (Z → A)</option>
+
     </select>
 
 </div>
@@ -638,11 +640,16 @@ function renderStudents() {
     }
 
     // 🔄 SORT
-    if (sortOption === "nameAsc") {
-        filtered.sort((a, b) => a.firstName.localeCompare(b.firstName));
-    } else if (sortOption === "nameDesc") {
-        filtered.sort((a, b) => b.firstName.localeCompare(a.firstName));
-    }
+// 🔄 SORT
+if (sortOption === "nameAsc") {
+    filtered.sort((a, b) => a.firstName.localeCompare(b.firstName));
+
+} else if (sortOption === "rollAsc") {
+    filtered.sort((a, b) => (parseInt(a.rollNo) || 0) - (parseInt(b.rollNo) || 0));
+
+} else if (sortOption === "rollDesc") {
+    filtered.sort((a, b) => (parseInt(b.rollNo) || 0) - (parseInt(a.rollNo) || 0));
+}
 
     // 🧾 RENDER
     filtered.forEach(s => {
