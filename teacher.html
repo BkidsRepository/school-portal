@@ -621,6 +621,7 @@
     animation: pinBounce 0.3s ease;
 }        
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -634,6 +635,7 @@
             <li class="nav-item" id="nav-upload">Upload Student Photo</li>
             <li class="nav-item nav-carousel" id="nav-play">Play Today's Carousel</li>
             <li class="nav-item" id="nav-pin">Pin Board</li>
+            <li class="nav-item" id="nav-download">Download Pin Board</li>
         </ul>
     </nav>
 
@@ -1257,7 +1259,7 @@ document.getElementById('uploadBtn').onclick = async () => {
             note.style.setProperty('--rot', `${rotate}deg`);
 
             note.innerHTML = `
-                <img src="${photo}">
+                <img src="${photo}" crossorigin="anonymous">
                 <div>${name}</div>
                 <div style="font-size:12px; margin-top:5px;">
                     ${isPresent ? "Present ✅" : "Absent ❌"}
@@ -1280,6 +1282,37 @@ document.getElementById('uploadBtn').onclick = async () => {
         board.innerHTML = "<p style='color:white'>Error loading data</p>";
     }
 }
+
+document.getElementById('nav-download').onclick = async () => {
+
+    const overlay = document.getElementById('pinBoardOverlay');
+    const board = document.querySelector('.pin-board');
+
+    // Show pinboard temporarily if hidden
+    overlay.style.display = 'block';
+
+    // Load latest data
+    await loadPinBoardStudents();
+
+    // Wait for animations to complete
+    await new Promise(r => setTimeout(r, 1500));
+
+    // Capture
+    html2canvas(board, {
+        scale: 2, // high quality
+        useCORS: true
+    }).then(canvas => {
+
+        const link = document.createElement('a');
+        link.download = `PinBoard_${new Date().toISOString().split('T')[0]}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        // Hide again (optional)
+        overlay.style.display = 'none';
+    });
+};
+        
     </script>
 </body>
 
