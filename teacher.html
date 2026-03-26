@@ -831,43 +831,84 @@ document.getElementById('uploadBtn').onclick = async () => {
             const selectedDate = e.target.value;
             if (!selectedDate) return;
             await checkAttendanceForDate(selectedDate); // 👈 ADD THIS
-            const table = document.getElementById('pastStuTable');
-            table.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
 
-            try {
-                const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
-                const qAtt = query(collection(db, "attendance"), where("date", "==", selectedDate));
-                const [sSnap, aSnap] = await Promise.all([getDocs(qStudents), getDocs(qAtt)]);
+            
+const table = document.getElementById('pastStuTable');
+table.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
 
-                const map = {};
-                aSnap.forEach(d => map[d.data().studentId] = d.data().status);
+try {
+    const selectedDate = document.getElementById('historyDate').value;
 
-                table.innerHTML = "";
-                const students = [];
-sSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
+    if (!selectedDate) throw new Error("No date selected");
+    if (!globalTeacherClass) throw new Error("Class not set");
 
-students.sort((a, b) => Number(a.rollNo || 0) - Number(b.rollNo || 0));
-                students.forEach(sDoc => {
-                    
-                    const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                    const roll = s.rollNo || '-';
-                    const isPresent = map[sDoc.id] === "present";
-                    const hasRecord = map[sDoc.id] !== undefined;
-                    const checkVal = hasRecord ? isPresent : true;
+    const sSnap = await getDocs(
+        query(collection(db, "students"), where("class", "==", globalTeacherClass))
+    );
 
-                    table.innerHTML += `
-                        <tr>
-                            <td>${roll}</td>
-                            <td>${name}</td>
-                            <td style="text-align:center;">
-                                <input type="checkbox" class="past-att" data-id="${sDoc.id}" ${checkVal ? "checked" : ""}>
-                            </td>
-                        </tr>`;
-                });
-                document.getElementById('updatePastBtn').style.display = "block";
-            } catch (err) {
-                table.innerHTML = "<tr><td colspan='3'>Error loading data.</td></tr>";
-            }
+    const aSnap = await getDocs(
+        query(collection(db, "attendance"), where("date", "==", selectedDate))
+    );
+
+    // Attendance map
+    const map = {};
+    aSnap.forEach(doc => {
+        const d = doc.data();
+        map[d.studentId] = d.status;
+    });
+
+    // Students array
+    const students = [];
+    sSnap.forEach(doc => {
+        const data = doc.data();
+        students.push({
+            id: doc.id,
+            firstName: data.firstName || "",
+            fatherName: data.fatherName || "",
+            lastName: data.lastName || "",
+            rollNo: data.rollNo || 0
+        });
+    });
+
+    // Sort by roll no
+    students.sort((a, b) => Number(a.rollNo) - Number(b.rollNo));
+
+    table.innerHTML = "";
+
+    if (students.length === 0) {
+        table.innerHTML = "<tr><td colspan='3'>No students found</td></tr>";
+        return;
+    }
+
+    students.forEach(s => {
+        const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+        const roll = s.rollNo || '-';
+
+        const isPresent = map[s.id] === "present";
+        const hasRecord = map[s.id] !== undefined;
+        const checkVal = hasRecord ? isPresent : true;
+
+        table.innerHTML += `
+        <tr>
+            <td>${roll}</td>
+            <td>${name}</td>
+            <td style="text-align:center;">
+                <input type="checkbox" class="past-att" data-id="${s.id}" ${checkVal ? "checked" : ""}>
+            </td>
+        </tr>`;
+    });
+
+} catch (err) {
+    console.error("ATTENDANCE ERROR:", err);
+    table.innerHTML = `
+        <tr>
+            <td colspan='3' style="color:red;">
+                Error loading data.<br>
+                ${err.message}
+            </td>
+        </tr>`;
+}
+            
         });
 
         // Save Attendance Logic
