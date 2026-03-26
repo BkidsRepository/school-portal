@@ -1168,7 +1168,7 @@ setTimeout(() => {
         const finalList = [...present, ...absent];
 
         // ✅ STEP 5: NEW LOOP (replaces old one)
-        finalList.forEach(s => {
+        finalList.forEach((s, index) => {
             const name = `${s.firstName} ${s.lastName}`;
             const photo = s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`;
             const isPresent = attMap[s.id] === "present";
