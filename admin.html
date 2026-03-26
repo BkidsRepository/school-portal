@@ -1050,8 +1050,9 @@ async function loadMonthlyAttendance() {
 
     q.forEach(doc => {
         const d = doc.data();
-
-        if (d.date.startsWith(month)) {
+        const recordDate = d.date?.toDate ? d.date.toDate() : new Date(d.date);
+const recordMonth = recordDate.toISOString().slice(0, 7);
+if (recordMonth === month) {
             if (!stats[d.name]) {
                 stats[d.name] = { present: 0, absent: 0 };
             }
