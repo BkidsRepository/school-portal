@@ -1293,26 +1293,20 @@ document.getElementById('uploadBtn').onclick = async () => {
 
 
 
+
 document.getElementById('nav-download').onclick = async () => {
 
-document.addEventListener("DOMContentLoaded", () => {
+    const jsPDFClass = window.jspdf?.jsPDF;
 
-    document.getElementById('nav-download').onclick = async () => {
+    if (!jsPDFClass) {
+        alert("jsPDF not loaded");
+        return;
+    }
 
-const jsPDFClass = window.jspdf?.jsPDF;
-
-if (!jsPDFClass) {
-    alert("jsPDF not loaded");
-    return;
-}
-
-const pdf = new jsPDFClass("l", "mm", "a4");
-
-        // your existing PDF code here...
-
-    };
-
-});
+    if (typeof html2canvas === "undefined") {
+        alert("html2canvas not loaded");
+        return;
+    }
 
     const overlay = document.getElementById('pinBoardOverlay');
     overlay.style.display = 'block';
@@ -1320,20 +1314,17 @@ const pdf = new jsPDFClass("l", "mm", "a4");
     await loadPinBoardStudents();
     await new Promise(r => setTimeout(r, 1000));
 
-    const pdf = new jsPDF("l", "mm", "a4");
+    const pdf = new jsPDFClass("l", "mm", "a4");
 
     const pageWidth = 297;
     const pageHeight = 210;
 
     const margin = 10;
-
     const contentWidth = pageWidth - (margin * 2);
     const contentHeight = pageHeight - (margin * 2);
 
-    // 👇 Get all cards
     const cards = Array.from(document.querySelectorAll('.pin-note'));
 
-    // 👇 Create temp container for rendering pages
     const temp = document.createElement('div');
     temp.style.position = 'fixed';
     temp.style.left = '-9999px';
@@ -1347,15 +1338,13 @@ const pdf = new jsPDFClass("l", "mm", "a4");
     for (let card of cards) {
 
         const clone = card.cloneNode(true);
-        clone.style.transform = "none"; // remove rotation for clean PDF
+        clone.style.transform = "none";
 
         temp.appendChild(clone);
 
-        // measure height
         const h = clone.offsetHeight + 10;
 
-        // if exceeds page → new page
-        if (currentHeight + h > contentHeight * 3.78) { 
+        if (currentHeight + h > contentHeight * 3.78) {
             await addPageToPDF(pageDiv);
             pdf.addPage();
 
@@ -1370,7 +1359,6 @@ const pdf = new jsPDFClass("l", "mm", "a4");
         currentHeight += h;
     }
 
-    // last page
     await addPageToPDF(pageDiv);
 
     pdf.save(`BKids_${globalTeacherClass}_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -1378,8 +1366,7 @@ const pdf = new jsPDFClass("l", "mm", "a4");
     temp.remove();
     overlay.style.display = 'none';
 
-
-    // -------- helper functions --------
+    // -------- helpers --------
 
     function createPage() {
         const div = document.createElement('div');
@@ -1389,6 +1376,16 @@ const pdf = new jsPDFClass("l", "mm", "a4");
         div.style.padding = '10px';
         div.style.background = '#c8a165';
         div.style.width = '100%';
+
+        // ✅ HEADER ON EVERY PAGE
+        div.innerHTML = `
+            <div style="width:100%; text-align:center; margin-bottom:10px;">
+                <h2 style="margin:0;">B Kids</h2>
+                <p style="margin:0;">Class: ${globalTeacherClass}</p>
+                <p style="margin:0;">${new Date().toLocaleDateString()}</p>
+            </div>
+        `;
+
         return div;
     }
 
@@ -1414,9 +1411,6 @@ const pdf = new jsPDFClass("l", "mm", "a4");
         );
     }
 };
-
-
-
 
         
     </script>
