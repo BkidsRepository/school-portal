@@ -636,7 +636,9 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>Roll No</th>
                                 <th>Student Name</th>
+                                
                                 <th style="text-align:center;">Status</th>
                             </tr>
                         </thead>
@@ -782,11 +784,11 @@ if (dateInput) {
     dob: s.dob || "",
     photo: s.photo || ""
 };
-                            currentStudents.sort((a, b) => {
+                 
+                            currentStudents.push(studentData);
+           currentStudents.sort((a, b) => {
     return Number(a.rollNo || 0) - Number(b.rollNo || 0);
 });
-                            currentStudents.push(studentData);
-
                             const opt = document.createElement("option");
                             opt.value = sDoc.id;
                             opt.textContent = name;
@@ -841,15 +843,21 @@ document.getElementById('uploadBtn').onclick = async () => {
                 aSnap.forEach(d => map[d.data().studentId] = d.data().status);
 
                 table.innerHTML = "";
-                sSnap.forEach(sDoc => {
+                const students = [];
+sSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
+
+students.sort((a, b) => Number(a.rollNo || 0) - Number(b.rollNo || 0));
+                students.forEach(sDoc => {
                     const s = sDoc.data();
                     const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
+                    const roll = s.rollNo || '-';
                     const isPresent = map[sDoc.id] === "present";
                     const hasRecord = map[sDoc.id] !== undefined;
                     const checkVal = hasRecord ? isPresent : true;
 
                     table.innerHTML += `
                         <tr>
+                            <td>${roll}</td>
                             <td>${name}</td>
                             <td style="text-align:center;">
                                 <input type="checkbox" class="past-att" data-id="${sDoc.id}" ${checkVal ? "checked" : ""}>
