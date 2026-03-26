@@ -619,7 +619,13 @@
 
 .pin-note.bounce {
     animation: pinBounce 0.3s ease;
-}        
+}     
+        #pinCapture {
+    display: inline-block;
+    padding: 40px;
+         background: #c8a165;
+    border-radius: 20px;       
+}
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
@@ -719,12 +725,14 @@
     <div id="pinBoardOverlay">
         <div class="pin-close" id="closePin">&times;</div>
         <div class="pin-board">
+            <div id="pinCapture">
             <div class="pin-header">
                 <h1>B Kids</h1>
                 <h2 id="pinClass"></h2>
                 <p id="pinDate"></p>
             </div>
             <div id="pinBoard"></div>
+            </div>
         </div>
     </div>
 
@@ -1286,7 +1294,7 @@ document.getElementById('uploadBtn').onclick = async () => {
 document.getElementById('nav-download').onclick = async () => {
 
     const overlay = document.getElementById('pinBoardOverlay');
-    const board = document.querySelector('.pin-board');
+    const board = document.getElementById('pinCapture');
 
     // Show pinboard temporarily if hidden
     overlay.style.display = 'block';
