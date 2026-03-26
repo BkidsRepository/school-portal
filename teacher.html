@@ -525,6 +525,53 @@
 .shake {
     animation: screenShake 0.35s ease;
 }
+
+
+.ink-splatter {
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 200px;
+    height: 200px;
+
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+    pointer-events: none;
+}
+
+/* Different colors */
+.splatter-present {
+    background-image: url('https://i.imgur.com/7yUvePI.png'); /* green ink */
+}
+
+.splatter-absent {
+    background-image: url('https://i.imgur.com/4NZ6uLY.png'); /* red ink */
+}
+
+
+@keyframes inkSplash {
+    0% {
+        transform: scale(0.3) rotate(-20deg);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.2) rotate(10deg);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 0.6;
+    }
+}
+
+
+        
         
     </style>
 </head>
@@ -861,6 +908,7 @@ function formatDate(dateStr) {
     <div>Roll No.</div><div>${s.rollNo || '---'}</div>
     <div>DOB</div><div class="dob">${formatDate(s.dob)}</div>
 </div>
+                                <div class="ink-splatter" id="inkSplatter"></div>
                                 <div class="carousel-stamp stamp-${status.toLowerCase()}" id="activeStamp">${status}</div>
                             </div>
                         </div>`;
@@ -870,19 +918,29 @@ function formatDate(dateStr) {
 
 setTimeout(() => {
     const st = document.getElementById('activeStamp');
+    const splash = document.getElementById('inkSplatter');
     const sound = document.getElementById('stampSound');
     const screen = document.getElementById('carouselOverlay');
 
-    if (st) {
+    if (st && splash) {
+        // 🎨 set correct color
+        splash.className = "ink-splatter " +
+            (st.innerText === "PRESENT" ? "splatter-present" : "splatter-absent");
+
+        // 🎨 animate splatter
+        splash.style.animation = "inkSplash 0.6s ease-out forwards";
+
+        // 💥 stamp animation
         st.style.animation = "stampHit 0.6s ease-out forwards";
 
         // 🔊 sound
         if (sound) {
             sound.currentTime = 0;
+            sound.volume = 0.4;
             sound.play().catch(() => {});
         }
 
-        // 💥 screen shake
+        // 📳 shake
         if (screen) {
             screen.classList.add('shake');
             setTimeout(() => screen.classList.remove('shake'), 400);
