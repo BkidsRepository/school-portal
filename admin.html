@@ -494,8 +494,13 @@ Object.keys(tabs).forEach(id => {
         if (id === 'inquiryTab') loadInquiries();
         if (id === 'classesTab') loadClasses();
         if (id === 'studentListTab') {
+          
     loadStudents();
     loadFilterClasses(); // 👈 ADD THIS
+}
+      if (id === 'attendanceTab') {
+    loadDailyAttendance();
+    loadMonthlyAttendance();
 }
     };
 });
@@ -1012,10 +1017,13 @@ document.getElementById('searchInput').oninput = renderStudents;
 document.getElementById('filterClass').onchange = renderStudents;
 document.getElementById('sortOption').onchange = renderStudents;
 
-function showAttendance(type) {
-    document.getElementById('dailyAttendance').style.display = type === 'daily' ? 'block' : 'none';
-    document.getElementById('monthlyAttendance').style.display = type === 'monthly' ? 'block' : 'none';
-}
+window.showAttendance = function(type) {
+    document.getElementById('dailyAttendance').style.display =
+        type === 'daily' ? 'block' : 'none';
+
+    document.getElementById('monthlyAttendance').style.display =
+        type === 'monthly' ? 'block' : 'none';
+};
 
 async function loadDailyAttendance() {
     const today = new Date().toISOString().split('T')[0];
@@ -1025,7 +1033,13 @@ async function loadDailyAttendance() {
 
     q.forEach(doc => {
         const data = doc.data();
-        if (data.date === today) {
+
+        if (!data.date) return;
+
+        const recordDate = data.date?.toDate ? data.date.toDate() : new Date(data.date);
+        const recordDay = recordDate.toISOString().split('T')[0];
+
+        if (recordDay === today) {
             html += `
                 <p>
                     ${data.name} - 
@@ -1089,8 +1103,6 @@ if (recordMonth === month) {
       loadInquiries(); // Added this for consistency;   
       populateClassDropdowns();
 
-      loadDailyAttendance();
-loadMonthlyAttendance();
 
 
       
