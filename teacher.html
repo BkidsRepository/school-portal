@@ -513,7 +513,18 @@
     white-space: nowrap;
 }
 
+@keyframes screenShake {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 4px); }
+    40% { transform: translate(6px, -4px); }
+    60% { transform: translate(-4px, 2px); }
+    80% { transform: translate(4px, -2px); }
+    100% { transform: translate(0, 0); }
+}
 
+.shake {
+    animation: screenShake 0.35s ease;
+}
         
     </style>
 </head>
@@ -860,14 +871,21 @@ function formatDate(dateStr) {
 setTimeout(() => {
     const st = document.getElementById('activeStamp');
     const sound = document.getElementById('stampSound');
+    const screen = document.getElementById('carouselOverlay');
 
     if (st) {
         st.style.animation = "stampHit 0.6s ease-out forwards";
 
-        // 🔊 Play sound
+        // 🔊 sound
         if (sound) {
-            sound.currentTime = 0; // rewind for repeat use
-            sound.play().catch(() => {}); // avoid autoplay errors
+            sound.currentTime = 0;
+            sound.play().catch(() => {});
+        }
+
+        // 💥 screen shake
+        if (screen) {
+            screen.classList.add('shake');
+            setTimeout(() => screen.classList.remove('shake'), 400);
         }
     }
 }, 300);
