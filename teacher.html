@@ -640,7 +640,6 @@
             <li class="nav-item" id="nav-upload">Upload Student Photo</li>
             <li class="nav-item nav-carousel" id="nav-play">Play Today's Carousel</li>
             <li class="nav-item" id="nav-pin">Pin Board</li>
-            <li class="nav-item" id="nav-download">Download Pin Board</li>
         </ul>
     </nav>
 
@@ -734,8 +733,6 @@
             </div>
         </div>
     </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
@@ -1292,125 +1289,6 @@ document.getElementById('uploadBtn').onclick = async () => {
 }
 
 
-
-
-document.getElementById('nav-download').onclick = async () => {
-
-    const jsPDFClass = window.jspdf?.jsPDF;
-
-    if (!jsPDFClass) {
-        alert("jsPDF not loaded");
-        return;
-    }
-
-    if (typeof html2canvas === "undefined") {
-        alert("html2canvas not loaded");
-        return;
-    }
-
-    const overlay = document.getElementById('pinBoardOverlay');
-    overlay.style.display = 'block';
-
-    await loadPinBoardStudents();
-    await new Promise(r => setTimeout(r, 1000));
-
-    const pdf = new jsPDFClass("l", "mm", "a4");
-
-    const pageWidth = 297;
-    const pageHeight = 210;
-
-    const margin = 10;
-    const contentWidth = pageWidth - (margin * 2);
-    const contentHeight = pageHeight - (margin * 2);
-
-    const cards = Array.from(document.querySelectorAll('.pin-note'));
-
-    const temp = document.createElement('div');
-    temp.style.position = 'fixed';
-    temp.style.left = '-9999px';
-    temp.style.top = '0';
-    temp.style.width = contentWidth + 'mm';
-    document.body.appendChild(temp);
-
-    let pageDiv = createPage();
-    let currentHeight = 0;
-
-    for (let card of cards) {
-
-        const clone = card.cloneNode(true);
-        clone.style.transform = "none";
-
-        temp.appendChild(clone);
-
-        const h = clone.offsetHeight + 10;
-
-        if (currentHeight + h > contentHeight * 3.78) {
-            await addPageToPDF(pageDiv);
-            pdf.addPage();
-
-            temp.innerHTML = "";
-            pageDiv = createPage();
-            currentHeight = 0;
-
-            temp.appendChild(clone);
-        }
-
-        pageDiv.appendChild(clone);
-        currentHeight += h;
-    }
-
-    await addPageToPDF(pageDiv);
-
-    pdf.save(`BKids_${globalTeacherClass}_${new Date().toISOString().split('T')[0]}.pdf`);
-
-    temp.remove();
-    overlay.style.display = 'none';
-
-    // -------- helpers --------
-
-    function createPage() {
-        const div = document.createElement('div');
-        div.style.display = 'flex';
-        div.style.flexWrap = 'wrap';
-        div.style.gap = '10px';
-        div.style.padding = '10px';
-        div.style.background = '#c8a165';
-        div.style.width = '100%';
-
-        // ✅ HEADER ON EVERY PAGE
-        div.innerHTML = `
-            <div style="width:100%; text-align:center; margin-bottom:10px;">
-                <h2 style="margin:0;">B Kids</h2>
-                <p style="margin:0;">Class: ${globalTeacherClass}</p>
-                <p style="margin:0;">${new Date().toLocaleDateString()}</p>
-            </div>
-        `;
-
-        return div;
-    }
-
-    async function addPageToPDF(pageDiv) {
-
-        temp.innerHTML = "";
-        temp.appendChild(pageDiv);
-
-        const canvas = await html2canvas(temp, {
-            scale: 2,
-            useCORS: true
-        });
-
-        const imgData = canvas.toDataURL("image/png");
-
-        pdf.addImage(
-            imgData,
-            "PNG",
-            margin,
-            margin,
-            contentWidth,
-            (canvas.height * contentWidth) / canvas.width
-        );
-    }
-};
 
         
     </script>
