@@ -245,14 +245,16 @@ img {
 <div id="addStudentSection" style="display:none;">
   <div class="card">
     <h3>Add Student</h3>
+    <select id="stuClass">
+      <option value="">Select Class</option>
+    </select>    
     <input id="fName" placeholder="First Name">
     <input id="fatherName" placeholder="Father Name">
     <input id="lName" placeholder="Last Name">
     <input id="momName" placeholder="Mother Name">
+<input id="rollNo" placeholder="Roll Number">
+<input type="date" id="dob">
 
-    <select id="stuClass">
-      <option value="">Select Class</option>
-    </select>
 
     <label>Photo</label>
     <input type="file" id="photoFile" accept="image/*">
@@ -293,9 +295,10 @@ img {
       <table width="100%">
         <thead>
           <tr>
+            <th>Class</th>
+            <th>Roll No</th>
             <th>Photo</th>
             <th>Name</th>
-            <th>Class</th>
             <th>Mother</th>
             <th>Action</th>
           </tr>
@@ -398,14 +401,16 @@ img {
     <div id="editModal">
       <div class="modal">
         <h3>Edit Student</h3>
+        <select id="eClass">
+          <option value="">Select Class</option>
+        </select>        
         <input type="hidden" id="editId">
         <input id="efName" placeholder="First Name">
         <input id="efatherName" placeholder="Father Name">
         <input id="elName" placeholder="Last Name">
         <input id="emomName" placeholder="Mother Name">
-        <select id="eClass">
-          <option value="">Select Class</option>
-        </select>
+<input id="erollNo" placeholder="Roll Number">
+<input type="date" id="edob">
         <label>Photo</label>
         <input type="file" id="editPhotoFile" accept="image/*">
         <img id="editPreview" style="display:none;width:60px;height:60px;border-radius:50%;margin-top:10px;">
@@ -529,6 +534,10 @@ saveBtn.onclick = async () => {
             lastName: document.getElementById('lName').value,
             motherName: document.getElementById('momName').value,
             class: document.getElementById('stuClass').value,
+
+    rollNo: document.getElementById('rollNo').value,
+    dob: document.getElementById('dob').value,
+          
             photo: photo
         });
         
@@ -539,6 +548,8 @@ saveBtn.onclick = async () => {
         document.getElementById('momName').value = "";
         photoFile.value = ""; 
         document.getElementById('preview').style.display = 'none';
+          rollNo: document.getElementById('rollNo').value,
+    dob: document.getElementById('dob').value,
         
         alert("Student added successfully!");
         loadStudents();
@@ -554,7 +565,9 @@ updateBtn.onclick = async () => {
         fatherName: document.getElementById('efatherName').value,
         lastName: document.getElementById('elName').value,
         motherName: document.getElementById('emomName').value,
-        class: document.getElementById('eClass').value
+        class: document.getElementById('eClass').value,
+          rollNo: document.getElementById('erollNo').value,
+    dob: document.getElementById('edob').value
     };
 
     // FIX: Pass editPhotoFile.files instead of the FileList collection
@@ -638,9 +651,10 @@ function renderStudents() {
 
         body.innerHTML += `
         <tr>
+            <td>${s.class}</td>
+            <td>${s.rollNo || '-'}</td>
             <td>${img}</td>
             <td>${s.firstName} ${s.fatherName || ''} ${s.lastName}</td>
-            <td>${s.class}</td>
             <td>${s.motherName}</td>
             <td>
                 <button onclick="edit('${s.id}')">Edit</button>
@@ -703,6 +717,8 @@ function renderStudents() {
                   document.getElementById('elName').value = s.lastName;
                   document.getElementById('emomName').value = s.motherName;
                   document.getElementById('eClass').value = s.class;
+                document.getElementById('erollNo').value = s.rollNo || "";
+document.getElementById('edob').value = s.dob || "";
                   if(s.photo) { editPreview.src = s.photo; editPreview.style.display = 'block'; }
               }
           });
