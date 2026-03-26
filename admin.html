@@ -547,9 +547,10 @@ saveBtn.onclick = async () => {
         document.getElementById('lName').value = "";
         document.getElementById('momName').value = "";
         photoFile.value = ""; 
-        document.getElementById('preview').style.display = 'none';
-          rollNo: document.getElementById('rollNo').value,
-    dob: document.getElementById('dob').value,
+document.getElementById('preview').style.display = 'none';
+
+document.getElementById('rollNo').value = "";
+document.getElementById('dob').value = "";
         
         alert("Student added successfully!");
         loadStudents();
