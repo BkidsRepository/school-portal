@@ -649,7 +649,7 @@
                         </tbody>
                     </table>
                 </div>
-                <button class="btn-submit" id="updatePastBtn" style="display:none;">Save Attendance</button>
+                <button class="btn-submit" id="updatePastBtn" style="display:block;">Save Attendance</button>
             </div>
 
             <div id="uploadSection" style="display:none;">
@@ -932,6 +932,7 @@ try {
                     await checkAttendanceForDate(selDate);
                 }
                 alert("Attendance saved successfully!");
+                
             } catch (err) {
                 alert("Update failed: " + err.message);
             } finally {
