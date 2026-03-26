@@ -268,6 +268,30 @@ img {
   <div class="card">
     <h3>Students List</h3>
 
+
+<div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+    
+    <!-- Search -->
+    <input type="text" id="searchInput" placeholder="Search student..." style="padding:8px;">
+
+    <!-- Filter by Class -->
+    <select id="filterClass">
+        <option value="">All Classes</option>
+        <option value="Nursery">Nursery</option>
+        <option value="Junior KG">Junior KG</option>
+        <option value="Senior KG">Senior KG</option>
+    </select>
+
+    <!-- Sort -->
+    <select id="sortOption">
+        <option value="">Sort By</option>
+        <option value="nameAsc">Name (A → Z)</option>
+        <option value="nameDesc">Name (Z → A)</option>
+    </select>
+
+</div>
+
+    
     <div class="table-container">
       <table width="100%">
         <thead>
@@ -402,7 +426,7 @@ img {
       authDomain:"bkids-56a2a.firebaseapp.com",
       projectId:"bkids-56a2a"
       };
-      
+      let allStudents = [];
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
@@ -562,23 +586,72 @@ overlay.onclick = () => {
       // LOAD STUDENTS TABLE
 async function loadStudents() {
     const snap = await getDocs(collection(db, "students"));
+    
+    allStudents = []; // store all data
+
+    snap.forEach(d => {
+        allStudents.push({
+            id: d.id,
+            ...d.data()
+        });
+    });
+
+    renderStudents(); // 👈 call new function
+}
+
+function renderStudents() {
     const body = document.getElementById('stuBody');
     body.innerHTML = "";
-    snap.forEach(d => {
-        const s = d.data();
-        const img = s.photo ? `<img src="${s.photo}" class="avatar">` : `<div class="avatar"></div>`;
-        body.innerHTML += `<tr>
+
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const selectedClass = document.getElementById('filterClass').value;
+    const sortOption = document.getElementById('sortOption').value;
+
+    let filtered = [...allStudents];
+
+    // 🔍 SEARCH
+    if (search) {
+        filtered = filtered.filter(s =>
+            `${s.firstName} ${s.fatherName || ''} ${s.lastName}`
+                .toLowerCase()
+                .includes(search)
+        );
+    }
+
+    // 🎯 FILTER
+    if (selectedClass) {
+        filtered = filtered.filter(s => s.class === selectedClass);
+    }
+
+    // 🔄 SORT
+    if (sortOption === "nameAsc") {
+        filtered.sort((a, b) => a.firstName.localeCompare(b.firstName));
+    } else if (sortOption === "nameDesc") {
+        filtered.sort((a, b) => b.firstName.localeCompare(a.firstName));
+    }
+
+    // 🧾 RENDER
+    filtered.forEach(s => {
+        const img = s.photo
+            ? `<img src="${s.photo}" class="avatar">`
+            : `<div class="avatar"></div>`;
+
+        body.innerHTML += `
+        <tr>
             <td>${img}</td>
-            <td>${s.firstName} ${s.fatherName || ''} ${s.lastName}</td> 
+            <td>${s.firstName} ${s.fatherName || ''} ${s.lastName}</td>
             <td>${s.class}</td>
             <td>${s.motherName}</td>
             <td>
-                <button onclick="edit('${d.id}')">Edit</button>
-                <button onclick="del('${d.id}')">Delete</button>
+                <button onclick="edit('${s.id}')">Edit</button>
+                <button onclick="del('${s.id}')">Delete</button>
             </td>
         </tr>`;
     });
 }
+
+
+      
       
       
       // Function to populate all class dropdowns in the app
@@ -862,7 +935,12 @@ overlay.onclick = () => {
       
       // Ensure it loads when tab is clicked
       document.getElementById("classesTab").addEventListener('click', loadClasses);
-          
+
+document.getElementById('searchInput').oninput = renderStudents;
+document.getElementById('filterClass').onchange = renderStudents;
+document.getElementById('sortOption').onchange = renderStudents;
+
+      
       // Initial Loads
       loadStudents();   
       loadUsers();     // Added this to ensure data is fetched in the background
