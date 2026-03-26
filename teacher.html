@@ -1291,36 +1291,9 @@ document.getElementById('uploadBtn').onclick = async () => {
     }
 }
 
+
+
 document.getElementById('nav-download').onclick = async () => {
-
-    const overlay = document.getElementById('pinBoardOverlay');
-    const board = document.getElementById('pinCapture');
-
-    // Show pinboard temporarily if hidden
-    overlay.style.display = 'block';
-
-    // Load latest data
-    await loadPinBoardStudents();
-
-    // Wait for animations to complete
-    await new Promise(r => setTimeout(r, 1500));
-
-    // Capture
-    html2canvas(board, {
-        scale: 2, // high quality
-        useCORS: true
-    }).then(canvas => {
-
-        const link = document.createElement('a');
-        link.download = `PinBoard_${new Date().toISOString().split('T')[0]}.png`;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-
-        // Hide again (optional)
-        overlay.style.display = 'none';
-    });
-};
-  document.getElementById('nav-download').onclick = async () => {
 
     const { jsPDF } = window.jspdf;
 
@@ -1330,13 +1303,13 @@ document.getElementById('nav-download').onclick = async () => {
     // Show board
     overlay.style.display = 'block';
 
-    // Load data
+    // Load students
     await loadPinBoardStudents();
 
-    // Wait for animations
+    // Wait for animation
     await new Promise(r => setTimeout(r, 1500));
 
-    // Convert to canvas
+    // Convert to canvas (HIGH QUALITY)
     const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true
@@ -1344,29 +1317,57 @@ document.getElementById('nav-download').onclick = async () => {
 
     const imgData = canvas.toDataURL("image/png");
 
-    // A4 size (portrait)
-    const pdf = new jsPDF("p", "mm", "a4");
+    // 📄 LANDSCAPE A4
+    const pdf = new jsPDF("l", "mm", "a4");
 
-    const pageWidth = 210;   // A4 width (mm)
-    const pageHeight = 297;  // A4 height (mm)
+    const pageWidth = 297;   // landscape width
+    const pageHeight = 210;  // landscape height
 
-    // Calculate image size to fit A4
+    // Scale image to fit width
     const imgWidth = pageWidth;
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    let y = 0;
+    let position = 0;
 
-    // If content smaller → center vertically
-    if (imgHeight < pageHeight) {
-        y = (pageHeight - imgHeight) / 2;
+    // 🧠 MULTI PAGE LOGIC
+    if (imgHeight <= pageHeight) {
+        // Single page (center vertically)
+        const y = (pageHeight - imgHeight) / 2;
+        pdf.addImage(imgData, "PNG", 0, y, imgWidth, imgHeight);
+    } else {
+        // Multi-page split
+        let remainingHeight = imgHeight;
+
+        while (remainingHeight > 0) {
+
+            pdf.addImage(
+                imgData,
+                "PNG",
+                0,
+                position,
+                imgWidth,
+                imgHeight
+            );
+
+            remainingHeight -= pageHeight;
+            position -= pageHeight;
+
+            if (remainingHeight > 0) {
+                pdf.addPage();
+            }
+        }
     }
 
-    pdf.addImage(imgData, "PNG", 0, y, imgWidth, imgHeight);
-
+    // Save
     pdf.save(`BKids_${globalTeacherClass}_${new Date().toISOString().split('T')[0]}.pdf`);
 
     overlay.style.display = 'none';
-};      
+};
+
+
+
+
+        
     </script>
 </body>
 
