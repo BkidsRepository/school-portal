@@ -568,7 +568,13 @@ Object.keys(tabs).forEach(id => {
     loadStudents();
     loadFilterClasses(); // 👈 ADD THIS
 }
-      if (id === 'attendanceTab') {
+let attendanceInit = false;
+
+if (id === 'attendanceTab') {
+    if (!attendanceInit) {
+        loadAttendanceClasses();
+        attendanceInit = true;
+    }
     loadMonthlyAttendance();
 }
     };
@@ -684,7 +690,29 @@ overlay.onclick = () => {
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
 };      
-      
+async function loadAttendanceClasses() {
+    const select = document.getElementById("classFilter");
+    if (!select) return;
+
+    select.innerHTML = '<option value="">All Classes</option>';
+
+    try {
+        const snap = await getDocs(collection(db, "classes"));
+
+        snap.forEach(doc => {
+            const c = doc.data();
+
+            const option = document.createElement("option");
+            option.value = c.name; // must match student.class
+            option.textContent = `${c.name} ${c.section ? '(' + c.section + ')' : ''}`;
+
+            select.appendChild(option);
+        });
+
+    } catch (err) {
+        console.error("Error loading attendance classes:", err);
+    }
+}      
           
       // LOAD STUDENTS TABLE
 async function loadStudents() {
