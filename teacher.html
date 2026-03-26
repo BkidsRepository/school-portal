@@ -581,7 +581,9 @@
         <div id="carouselContent"></div>
         <div id="carouselProgress"></div>
     </div>
-
+<audio id="stampSound" preload="auto">
+    <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+</audio>
     <div id="pinBoardOverlay">
         <div class="pin-close" id="closePin">&times;</div>
         <div class="pin-board">
@@ -853,12 +855,24 @@ function formatDate(dateStr) {
                         </div>`;
                 }, 50);
 
-                setTimeout(() => {
+
+
+setTimeout(() => {
     const st = document.getElementById('activeStamp');
+    const sound = document.getElementById('stampSound');
+
     if (st) {
         st.style.animation = "stampHit 0.6s ease-out forwards";
+
+        // 🔊 Play sound
+        if (sound) {
+            sound.currentTime = 0; // rewind for repeat use
+            sound.play().catch(() => {}); // avoid autoplay errors
+        }
     }
 }, 300);
+
+                
 
                 await new Promise(r => setTimeout(r, 4000));
             }
