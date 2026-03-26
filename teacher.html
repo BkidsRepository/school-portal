@@ -1298,70 +1298,104 @@ document.getElementById('nav-download').onclick = async () => {
     const { jsPDF } = window.jspdf;
 
     const overlay = document.getElementById('pinBoardOverlay');
-    const element = document.getElementById('pinCapture');
-
-    // Show board
     overlay.style.display = 'block';
 
-    // Load students
     await loadPinBoardStudents();
+    await new Promise(r => setTimeout(r, 1000));
 
-    // Wait for animation
-    await new Promise(r => setTimeout(r, 1500));
-
-    // Convert to canvas (HIGH QUALITY)
-    const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true
-    });
-
-    const imgData = canvas.toDataURL("image/png");
-
-    // 📄 LANDSCAPE A4
     const pdf = new jsPDF("l", "mm", "a4");
 
-    const pageWidth = 297;   // landscape width
-    const pageHeight = 210;  // landscape height
+    const pageWidth = 297;
+    const pageHeight = 210;
 
-    // Scale image to fit width
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const margin = 10;
 
-    let position = 0;
+    const contentWidth = pageWidth - (margin * 2);
+    const contentHeight = pageHeight - (margin * 2);
 
-    // 🧠 MULTI PAGE LOGIC
-    if (imgHeight <= pageHeight) {
-        // Single page (center vertically)
-        const y = (pageHeight - imgHeight) / 2;
-        pdf.addImage(imgData, "PNG", 0, y, imgWidth, imgHeight);
-    } else {
-        // Multi-page split
-        let remainingHeight = imgHeight;
+    // 👇 Get all cards
+    const cards = Array.from(document.querySelectorAll('.pin-note'));
 
-        while (remainingHeight > 0) {
+    // 👇 Create temp container for rendering pages
+    const temp = document.createElement('div');
+    temp.style.position = 'fixed';
+    temp.style.left = '-9999px';
+    temp.style.top = '0';
+    temp.style.width = contentWidth + 'mm';
+    document.body.appendChild(temp);
 
-            pdf.addImage(
-                imgData,
-                "PNG",
-                0,
-                position,
-                imgWidth,
-                imgHeight
-            );
+    let pageDiv = createPage();
+    let currentHeight = 0;
 
-            remainingHeight -= pageHeight;
-            position -= pageHeight;
+    for (let card of cards) {
 
-            if (remainingHeight > 0) {
-                pdf.addPage();
-            }
+        const clone = card.cloneNode(true);
+        clone.style.transform = "none"; // remove rotation for clean PDF
+
+        temp.appendChild(clone);
+
+        // measure height
+        const h = clone.offsetHeight + 10;
+
+        // if exceeds page → new page
+        if (currentHeight + h > contentHeight * 3.78) { 
+            await addPageToPDF(pageDiv);
+            pdf.addPage();
+
+            temp.innerHTML = "";
+            pageDiv = createPage();
+            currentHeight = 0;
+
+            temp.appendChild(clone);
         }
+
+        pageDiv.appendChild(clone);
+        currentHeight += h;
     }
 
-    // Save
+    // last page
+    await addPageToPDF(pageDiv);
+
     pdf.save(`BKids_${globalTeacherClass}_${new Date().toISOString().split('T')[0]}.pdf`);
 
+    temp.remove();
     overlay.style.display = 'none';
+
+
+    // -------- helper functions --------
+
+    function createPage() {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.flexWrap = 'wrap';
+        div.style.gap = '10px';
+        div.style.padding = '10px';
+        div.style.background = '#c8a165';
+        div.style.width = '100%';
+        return div;
+    }
+
+    async function addPageToPDF(pageDiv) {
+
+        temp.innerHTML = "";
+        temp.appendChild(pageDiv);
+
+        const canvas = await html2canvas(temp, {
+            scale: 2,
+            useCORS: true
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+
+        pdf.addImage(
+            imgData,
+            "PNG",
+            margin,
+            margin,
+            contentWidth,
+            (canvas.height * contentWidth) / canvas.width
+        );
+    }
 };
 
 
