@@ -569,7 +569,6 @@ Object.keys(tabs).forEach(id => {
     loadFilterClasses(); // 👈 ADD THIS
 }
       if (id === 'attendanceTab') {
-    loadDailyAttendance();
     loadMonthlyAttendance();
 }
     };
@@ -1094,36 +1093,6 @@ window.showAttendance = function(type) {
     document.getElementById('monthlyAttendance').style.display =
         type === 'monthly' ? 'block' : 'none';
 };
-
-async function loadDailyAttendance() {
-    const today = new Date().toISOString().split('T')[0];
-
-    const q = await getDocs(collection(db, "attendance"));
-    let html = "<div class='card'><h3>Today's Attendance</h3>";
-
-    q.forEach(doc => {
-        const data = doc.data();
-
-        if (!data.date) return;
-
-        const recordDate = data.date?.toDate ? data.date.toDate() : new Date(data.date);
-        const recordDay = recordDate.toISOString().split('T')[0];
-
-        if (recordDay === today) {
-            html += `
-                <p>
-                    ${data.name} - 
-                    <span style="color:${data.status === 'present' ? 'green' : 'red'}">
-                        ${data.status}
-                    </span>
-                </p>
-            `;
-        }
-    });
-
-    html += "</div>";
-    document.getElementById('dailyAttendance').innerHTML = html;
-}
 
 
 
