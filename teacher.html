@@ -619,7 +619,17 @@ window.showSection = (section) => {
                         snap.forEach(sDoc => {
                             const s = sDoc.data();
                             const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
-                            const studentData = { id: sDoc.id, fullName: name, ...s };
+                            const studentData = {
+    id: sDoc.id,
+    fullName: name,
+    class: s.class || "",
+    rollNo: s.rollNo || "",
+    dob: s.dob || "",
+    photo: s.photo || ""
+};
+                            currentStudents.sort((a, b) => {
+    return Number(a.rollNo || 0) - Number(b.rollNo || 0);
+});
                             currentStudents.push(studentData);
 
                             const opt = document.createElement("option");
