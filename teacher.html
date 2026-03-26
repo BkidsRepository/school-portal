@@ -457,6 +457,28 @@
             border-radius: 50%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
         }
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    row-gap: 15px;
+    column-gap: 20px;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.info-grid div {
+    color: black;
+}
+
+.info-grid div:nth-child(odd) {
+    opacity: 0.7;
+}
+
+.dob {
+    white-space: nowrap;
+}
+        
     </style>
 </head>
 
@@ -785,9 +807,11 @@ function formatDate(dateStr) {
                             </div>
                             <div class="carousel-right">
                                 <h1>${s.fullName}</h1>
-                                <p>Class : <span>${s.class}</span></p>
-                                <p>Roll No. <span>${s.rollNo || '---'}</span></p>
-                                <p>DOB : <span style="white-space: nowrap;">${formatDate(s.dob)}</span></p>
+                                <div class="info-grid">
+    <div>Class</div><div>${s.class}</div>
+    <div>Roll No.</div><div>${s.rollNo || '---'}</div>
+    <div>DOB</div><div class="dob">${formatDate(s.dob)}</div>
+</div>
                                 <div class="carousel-stamp stamp-${status.toLowerCase()}" id="activeStamp">${status}</div>
                             </div>
                         </div>`;
