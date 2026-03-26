@@ -528,48 +528,70 @@
 
 
 .ink-splatter {
-    position: absolute;
-    bottom: -60px;
-    right: -60px;
-    width: 200px;
-    height: 200px;
+  position: absolute;
+  bottom: 40px;
+  right: 60px;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.3);
+}
 
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+/* create blobs */
+.ink-splatter::before,
+.ink-splatter::after {
+  content: "";
+  position: absolute;
+  background: #e74c3c;
+  border-radius: 50%;
+}
 
+/* main splash */
+.ink-splatter::before {
+  width: 80px;
+  height: 80px;
+  top: 20px;
+  left: 20px;
+  box-shadow:
+    -40px -10px 0 10px #e74c3c,
+    50px 20px 0 15px #e74c3c,
+    -20px 60px 0 12px #e74c3c,
+    60px -30px 0 8px #e74c3c;
+}
+
+/* tiny droplets */
+.ink-splatter::after {
+  width: 10px;
+  height: 10px;
+  top: 0;
+  left: 0;
+  box-shadow:
+    100px 10px 0 #e74c3c,
+    80px 60px 0 #e74c3c,
+    20px 90px 0 #e74c3c,
+    110px 80px 0 #e74c3c;
+}
+
+/* animation */
+.ink-splatter.show {
+  animation: splat 0.4s ease-out forwards;
+}
+
+@keyframes splat {
+  0% {
     opacity: 0;
-    transform: scale(0.5) rotate(0deg);
-    pointer-events: none;
+    transform: scale(0.2) rotate(-20deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.2) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
-
-/* Different colors */
-.splatter-present {
-    background-image: url('https://i.imgur.com/7yUvePI.png'); /* green ink */
-}
-
-.splatter-absent {
-    background-image: url('https://i.imgur.com/4NZ6uLY.png'); /* red ink */
-}
-
-
-@keyframes inkSplash {
-    0% {
-        transform: scale(0.3) rotate(-20deg);
-        opacity: 0;
-    }
-
-    50% {
-        transform: scale(1.2) rotate(10deg);
-        opacity: 0.8;
-    }
-
-    100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 0.6;
-    }
-}
-
 
         
         
@@ -869,6 +891,23 @@ function formatDate(dateStr) {
         year: 'numeric'
     });
 }
+
+
+        function triggerStampEffect() {
+  const stamp = document.getElementById("stamp");
+  const splatter = document.getElementById("inkSplatter");
+
+  // Stamp animation
+  stamp.classList.add("stamp-hit");
+
+  // Ink splatter trigger
+  setTimeout(() => {
+    splatter.classList.add("show");
+  }, 150); // slight delay for realism
+}
+        
+        
+        
         async function startCarousel() {
             if (currentStudents.length === 0) return alert("Student list not loaded.");
 
