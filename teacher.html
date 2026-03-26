@@ -832,7 +832,7 @@ document.getElementById('uploadBtn').onclick = async () => {
             if (!selectedDate) return;
             await checkAttendanceForDate(selectedDate); // 👈 ADD THIS
             const table = document.getElementById('pastStuTable');
-            table.innerHTML = "<tr><td colspan='2'>Loading...</td></tr>";
+            table.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
 
             try {
                 const qStudents = query(collection(db, "students"), where("class", "==", globalTeacherClass));
@@ -848,7 +848,7 @@ sSnap.forEach(doc => students.push({ id: doc.id, ...doc.data() }));
 
 students.sort((a, b) => Number(a.rollNo || 0) - Number(b.rollNo || 0));
                 students.forEach(sDoc => {
-                    const s = sDoc.data();
+                    
                     const name = `${s.firstName} ${s.fatherName ? s.fatherName + ' ' : ''}${s.lastName}`;
                     const roll = s.rollNo || '-';
                     const isPresent = map[sDoc.id] === "present";
@@ -866,7 +866,7 @@ students.sort((a, b) => Number(a.rollNo || 0) - Number(b.rollNo || 0));
                 });
                 document.getElementById('updatePastBtn').style.display = "block";
             } catch (err) {
-                table.innerHTML = "<tr><td colspan='2'>Error loading data.</td></tr>";
+                table.innerHTML = "<tr><td colspan='3'>Error loading data.</td></tr>";
             }
         });
 
