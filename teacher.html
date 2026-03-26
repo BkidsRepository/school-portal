@@ -627,8 +627,6 @@
     border-radius: 20px;       
 }
     </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 </head>
 
 <body>
@@ -1296,12 +1294,22 @@ document.getElementById('uploadBtn').onclick = async () => {
 
 document.getElementById('nav-download').onclick = async () => {
 
-    const jsPDF = window.jspdf?.jsPDF;
+document.addEventListener("DOMContentLoaded", () => {
 
-if (!jsPDF) {
-    alert("jsPDF failed to load. Check internet/CDN.");
-    return;
-}
+    document.getElementById('nav-download').onclick = async () => {
+
+        const jsPDF = window.jspdf?.jsPDF;
+
+        if (!jsPDF) {
+            alert("jsPDF not loaded properly");
+            return;
+        }
+
+        // your existing PDF code here...
+
+    };
+
+});
 
     const overlay = document.getElementById('pinBoardOverlay');
     overlay.style.display = 'block';
@@ -1409,6 +1417,12 @@ if (!jsPDF) {
 
         
     </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    
 </body>
 
 </html>
